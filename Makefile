@@ -16,7 +16,7 @@ clean:
 
 
 html/index.html: lartc.db
-	db2html  -V %use-id-as-filename% -o html lartc.db
+	db2html -o html lartc.db
 
 html.tar.gz: html/index.html
 	tar czf html.tar.gz html/

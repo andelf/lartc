@@ -4084,7 +4084,18 @@ However, for lots of applications, link loadbalancing is a great idea.
 </Para>
 
 </Sect1>
-
+<Sect1 id="lartc.loadshare.other">
+  <Title>Other possibilities</Title>
+<para>
+William Stearns has used an advanced tunneling setup to achieve good use of
+multiple, unrelated, internet connections together. It can be found on
+<ULink
+URL="http://www.stearns.org/tunnel/">his tunneling page</ULink>.
+</para>
+<para>
+The HOWTO may feature more about this in the future.
+</para>
+</Sect1>
 </chapter>
 
 <chapter id="lartc.netfilter">
@@ -8974,6 +8985,13 @@ Konrads Smelkov &lt;konrads@interbaltika.com&gt;
 </ListItem>
 <ListItem>
 
+<Para>
+<author><firstname>William</firstname><surname>Stearns</surname></author>
+<address><email>wstearns@pobox.com</email></address>
+</Para>
+</ListItem>
+
+<ListItem>
 <Para>
 Andreas Steinmetz &lt;ast&percnt;domdv.de&gt;
 </Para>

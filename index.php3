@@ -76,6 +76,10 @@ This site attempts to document how to configure and use these features.
 <a name="news"></a>
 <h2>News</H2>
 <table border=1>
+<tr><td valign=top>2002-06-29</td><td><a
+href=http://linuxsymposium.org/2002>Ottawa Linux Symposium 2002</a>
+presentation <a href=http://ds9a.nl/ols-presentation>Linux Traffic Control
+for the User and Developer</a> online!</td>
 <tr><td valign=top>2002-05-15</td><td>Finally replaced the malfunctioning
 server. Thanks to <a href=http://www.puddingonline.com/~dave>Dave
 Aaldering</a> of <a href=http://www.hubris.nl>Hubris</a> we quickly found a
