@@ -14,12 +14,13 @@ traffic control with the
 .BR tc (8)
 command.
 
-SFQ does not shape traffic but only reorders packets, based on 'flows'. The goal
-is to ensure fairness so that each flow is able to send data in turn, thus preventing
+SFQ does not shape traffic but only schedules the transmission of packets, based on 'flows'. 
+The goal is to ensure fairness so that each flow is able to send data in turn, thus preventing
 any single flow from drowning out the rest.
 
 This may in fact have some effect in mitigating a Denial of Service attempt.
 
+SFQ is work-conserving and therefore always delivers a packet if it has one available.
 .SH ALGORITHM
 On enqueueing, each packet is assigned to a hash bucket, based on
 .TP
@@ -65,7 +66,8 @@ To attach to device ppp0:
 .P
 # tc qdisc add dev ppp0 root sfq perturb 10
 .P
-Please note that SFQ, like all non-shaping SFQs, is only useful if it owns the queue.
+Please note that SFQ, like all non-shaping (work-conserving) qdiscs, is only useful 
+if it owns the queue.
 This is the case when the link speed equals the actually available bandwidth. This holds 
 for regular phone modems, ISDN connections and direct non-switched ethernet links. 
 .P
@@ -74,7 +76,7 @@ for when connected to a switch  and trying to send data to a congested segment a
 connected to the switch.
 .P
 In this case, the effective queue does not reside within Linux and is therefore not 
-available for reordering. 
+available for scheduling.
 .P
 Embed SFQ in a classful qdisc to make sure it owns the queue.
 

@@ -26,7 +26,9 @@ traffic control with the
 .BR tc (8)
 command.
 
-TBF is a pure shaper and never reorders traffic. On all platforms except for Alpha,
+TBF is a pure shaper and never schedules traffic. It is non-work-conserving and may throttle
+itself, although packets are available, to ensure that the configured rate is not exceeded. 
+On all platforms except for Alpha,
 it is able to shape up to 1mbit/s of normal traffic with ideal minimal burstiness, 
 sending out  data exactly at the configured rates. 
 
@@ -49,7 +51,7 @@ On creation, the TBF is stocked with tokens which correspond to the amount of tr
 in one go. Tokens arrive at a steady rate, until the bucket is full.
 
 If no tokens are available, packets are queued, up to a configured limit. The TBF now 
-calculates the token deficit, and throttles until the first packet in the queue can get sent.
+calculates the token deficit, and throttles until the first packet in the queue can be sent.
 
 If it is not acceptable to burst out packets at maximum speed, a peakrate can be configured 
 to limit the speed at which the bucket empties. This peakrate is implemented as a second TBF

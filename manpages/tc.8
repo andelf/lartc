@@ -53,17 +53,23 @@ of the following:
 SHAPING
 When traffic is shaped, its rate of transmission is under control. Shaping may 
 be more than lowering the available bandwidth - it is also used to smooth out 
-bursts in traffic for better network behaviour.
+bursts in traffic for better network behaviour. Shaping occurs on egress.
 
 .TP 
-REORDERING
-By changing the relative positions of packets it is possible to improve interactivity
+SCHEDULING
+By scheduling the transmission of packets it is possible to improve interactivity
 for traffic that needs it while still guaranteeing bandwidth to bulk transfers. Reordering
-is also called prioritizing.
+is also called prioritizing, and happens only on egress.
 
 .TP
-DROP
-Traffic exceeding a set bandwidth may also be dropped forthwith.
+POLICING
+Where shaping deals with transmission of traffic, policing pertains to traffic
+arriving. Policing thus occurs on ingress.
+
+.TP
+DROPPING
+Traffic exceeding a set bandwidth may also be dropped forthwith, both on 
+ingress and on egress.
 
 .P
 Processing of traffic is controlled by three kinds of objects: qdiscs, 
@@ -84,8 +90,8 @@ First In, First Out queue. It does however store traffic when the network interf
 can't handle it momentarily.
 
 .SH CLASSES
-Some qdiscs can contain further qdiscs - traffic may then be enqueued in any
-of the inner qdiscs, which are called
+Some qdiscs can contain classes, which contain further qdiscs - traffic may 
+then be enqueued in any of the inner qdiscs, which are within the
 .B classes.
 When the kernel tries to dequeue a packet from such a 
 .B classful qdisc
@@ -97,8 +103,11 @@ before others.
 A
 .B filter
 is used by a classful qdisc to determine in which class a packet will
-be enqueued. Whenever traffic arrives in a classful queueing discipline,
-it calls all filters attached to it to determine where to send it.
+be enqueued. Whenever traffic arrives at a class with subclasses, it needs
+to be classified. Various methods may be employed to do so, one of these
+are the filters. All filters attached to the class are called, until one of 
+them returns with a verdict. If no verdict was made, other criteria may be 
+available. This differs per qdisc.
 
 It is important to notice that filters reside 
 .B within
@@ -113,7 +122,8 @@ packets or in bytes.
 .TP
 pfifo_fast
 Standard qdisc for 'Advanced Router' enabled kernels. Consists of a three-band
-queue which honors Type of Service flags by default.
+queue which honors Type of Service flags, as well as the priority that may be 
+assigned to a packet.
 .TP
 red
 Random Early Detection simulates physical congestion by randomly dropping
@@ -126,7 +136,7 @@ gets to send a packet in turn.
 .TP
 tbf
 The Token Bucket Filter is suited for slowing traffic down to a precisely
-configured level. Scales well to large bandwidths. 
+configured rate. Scales well to large bandwidths. 
 .SH CONFIGURING CLASSLESS QDISCS
 In the absence of classful qdiscs, classless qdiscs can only be attached at 
 the root of a device. Full syntax:
@@ -169,28 +179,28 @@ of traffic, where lower classes are only able to send if higher ones have
 no packets available. To facilitate configuration, Type Of Service bits are 
 honored by default.
 .SH THEORY OF OPERATION
-Classful qdiscs form a tree, where each class has a single parent. 
-A parent may have multiple children. Some qdiscs allow for runtime addition
+Classes form a tree, where each class has a single parent. 
+A class may have multiple children. Some qdiscs allow for runtime addition
 of classes (CBQ, HTB) while others (PRIO) are created with a static number of 
 children.
 
-Qdiscs which allow dynamic classes can have zero or more subclasses to 
-which traffic may be enqueued. 
+Qdiscs which allow dynamic addition of classes can have zero or more 
+subclasses to which traffic may be enqueued. 
 
 Furthermore, each class contains a
 .B leaf qdisc
 which by default has 
-.B pfifo_fast 
+.B pfifo 
 behaviour though another qdisc can be attached in place. This qdisc may again 
 contain classes, but each class can have only one leaf qdisc. 
 
 When a packet enters a classful qdisc it can be 
 .B classified
-to one of the children. Three criteria are available, although not all qdiscs 
-may use all three:
+to one of the classes within. Three criteria are available, although not all 
+qdiscs will use all three:
 .TP 
 tc filters
-If tc filters are attached to a classful qdisc, they are consulted first 
+If tc filters are attached to a class, they are consulted first 
 for relevant instructions. Filters can match on all fields of a packet header, 
 as well as on the firewall mark applied by ipchains or iptables. See 
 .BR tc-filters (8).
@@ -198,9 +208,9 @@ as well as on the firewall mark applied by ipchains or iptables. See
 Type of Service
 Some qdiscs have built in rules for classifying packets based on the TOS field.
 .TP
-skb->prio
-Userspace programs can encode a class-id in the 'skb->prio' field using 
-IOCTL commands. 
+skb->priority
+Userspace programs can encode a class-id in the 'skb->priority' field using 
+the SO_PRIORITY option.
 .P
 Each node within the tree can have its own filters but higher level filters
 may also point directly to lower classes.
