@@ -86,7 +86,7 @@ send the authors some samples for 'review purposes' :-)
 As the title implies, this is the 'Advanced' HOWTO. While by no means rocket
 science, some prior knowledge is assumed. 
 
-Here are some other references which might help learn you more:
+Here are some other references which might help teach you more:
 <descrip>
 <tag><url
 url="http://netfilter.samba.org/unreliable-guides/networking-concepts-HOWTO/index.html"
@@ -94,7 +94,7 @@ name="Rusty Russell's networking-concepts-HOWTO"></tag>
 Very nice introduction, explaining what a network is, and how it is
 connected to other networks
 <tag>Linux Networking-HOWTO (Previously the Net-3 HOWTO)</tag>
-Great stuff, although very verbose. It learns you a lot of stuff that's
+Great stuff, although very verbose. It teaches you a lot of stuff that's
 already configured if you are able to connect to the Internet. 
 Should be located in <file>/usr/doc/HOWTO/NET3-4-HOWTO.txt</file> but can be also be found 
 <url url="http://www.linuxports.com/howto/networking"
@@ -740,7 +740,7 @@ This is another application of the tunneling capabilities of Linux. It is
 popular among the IPv6 early adopters, or pioneers if you like.
 The 'hands-on' example described below is certainly not the only way
 to do IPv6 tunneling. However, it is the method that is often used to tunnel
-between Linux and a Cisco IPv6 capable router and experience learned that
+between Linux and a Cisco IPv6 capable router and experience tells us that
 this is just the thing many people are after. Ten to one this applies to
 you too ;-)
 
@@ -992,9 +992,18 @@ Linux even goes far beyond what Frame and ATM provide.
 Just to prevent confusion, tc uses the following rules for bandwith
 specification:
 <verb> 
-mb = 1024 kb = 1024 * 1024 b =>  byte/s
-mbit = 1024 kbit = 1024 * 1024 bit => bit/s.
+mbps = 1024 kbps = 1024 * 1024 bps => byte/s
+mbit = 1024 kbit => kilo bit/s.
+mb = 1024 kb = 1024 * 1024 b => byte
+mbit = 1024 kbit => kilo bit.
 </verb>
+Internally, the number is stored in bps and b.
+
+But when tc prints the rate, it uses following :
+<verb>
+1Mbit = 1024 Kbit = 1024 * 1024 bps => bit/s
+</verb>
+
 <sect1>Queues and Queueing Disciplines explained
 <p>
 With queueing we determine the way in which data is <em>sent</em>. It is
@@ -1025,7 +1034,7 @@ If you have a 100Mbit NIC and you have a router that has a 256kbit link,
 you have to make sure you are not sending more data than your router can
 handle.  Othewise, it will be the router who is controlling the link and
 shaping the available bandwith. We need to 'own the queue' so to speak, and
-be the slowest link in the chain. Luckily this is easily possoble.
+be the slowest link in the chain. Luckily this is easily possible.
 
 <sect1>Simple, classless Queueing Disciplines
 <p>
@@ -1335,12 +1344,12 @@ MTU!
 </descrip>
 <sect3>Sample configuration
 <p>
-If you have a device which has identical link speed as actual available
+If you have a device which has identical link speed and actual available
 rate, like a phone modem, this configuration will help promote fairness:
 <verb>
 # tc qdisc add dev ppp0 root sfq perturb 10
 # tc -s -d qdisc ls
-qdisc sfq 800c: dev eth0 quantum 1514b limit 128p flows 128/1024 perturb 10sec 
+qdisc sfq 800c: dev ppp0 quantum 1514b limit 128p flows 128/1024 perturb 10sec 
  Sent 4812 bytes 62 pkts (dropped 0, overlimits 0) 
 </verb>
 
@@ -1370,14 +1379,21 @@ If you have a big backbone and know what you are doing, consider Random
 Early Drop (see Advanced chapter).
 <item>
 To 'shape' incoming traffic which you are not forwarding, use the Ingress
-Policer. Incoming shaping is called 'policing', by the way, not 'shaping'. 
+Policer. Incoming shaping is called 'policing', by the way, not 'shaping'.  
 <item>
 If you *are* forwarding it, use a TBF on the interface you are forwarding
-the data to.
+the data to. Unless you want to shape traffic that may go out over several
+interfaces, in which case the only common factor is the incoming interface.
+In that case use the Ingress Policer.
 <item>
 If you don't want to shape, but only want to see if your interface is so
 loaded that it has to queue, use the pfifo queue (not pfifo_fast). It lacks
 internal bands but does account the size of its backlog.
+<item>
+Finally - you can also do 'social shaping'. You may not always be able to
+use technology to achieve what you want. Users experience technical
+constraints as hostile. A kind word may also help with getting your
+bandwidth to be divided right!
 </itemize>
 <sect1>Terminology 
 <p>
@@ -1501,8 +1517,9 @@ queueing with classes solely with CBQ, but this is not the case.
 
 CBQ is merely the oldest kid on the block - and also the most complex one.
 It may not always do what you want.  This may come as something of a shock
-to many who fell for the 'sendmail effect', which learns us that any complex
-technology which doesn't come with documentation must be the best available.
+to many who fell for the 'sendmail effect', which teaches us that any
+complex technology which doesn't come with documentation must be the best
+available.
 
 More about CBQ and its alternatives shortly.
 <sect2>Flow within classful qdiscs &amp; classes
@@ -1736,7 +1753,7 @@ layer for more data. Combined, this can be used to approximate how full or
 empty the link is.
 
 This is rather circumspect and doesn't always arrive at proper results. For
-example, what is the actual link speed of an interface that is not really
+example, what if the actual link speed of an interface that is not really
 able to transmit the full 100mbit/s of data, perhaps because of a badly
 implemented driver? A PCMCIA network card will also never achieve 100mbit/s
 because of the way the bus is designed - again, how do we calculate the idle
@@ -1787,7 +1804,7 @@ The physical bandwidth of your device, needed for idle time
 calculations.
 <tag>cell</tag>
 The time a packet takes to be transmitted over a device may grow in steps,
-based on the packet size. An 800 and a 806 size packet may take just as long
+based on the packet size. An 800 and an 806 size packet may take just as long
 to send, for example - this sets the granularity. Most often set to '8'.
 Must be an integral power of two.
 <tag>maxburst</tag>
@@ -2926,6 +2943,10 @@ Advanced HOWTO for the fun of it!
 The interesting bits are in /proc/sys/net, take a look there. Not everything
 will be documented here initially, but we're working on it.
 
+In the meantime you may want to have a look at the Linux-Kernel sources;
+read the file <file>Documentation/filesystems/proc.txt</file>. Most of the
+features are explained there.
+
 (FIXME)
 
 <sect1>Reverse Path Filtering
@@ -3146,7 +3167,8 @@ Minimal RFC value is 3, it is default, which corresponds
 to ~3sec-8min depending on RTO.
 <tag>/proc/sys/net/ipv4/tcp_retries2</tag>
 How may times to retry before killing alive TCP connection.
-RFC1122 says that the limit should be longer than 100 sec.
+<url url="http://www.ietf.org/rfc/rfc1122.txt" name="RFC 1122">
+says that the limit should be longer than 100 sec.
 It is too small number. Default value 15 corresponds to ~13-30min
 depending on RTO.
 <tag>/proc/sys/net/ipv4/tcp_rfc1337</tag>
@@ -3179,7 +3201,6 @@ generation. The timestamp will let it recognise this 'ancient packet'.
 <tag>/proc/sys/net/ipv4/tcp_tw_recycle</tag>
 Enable fast recycling TIME-WAIT sockets. Default value is 1.
 It should not be changed without advice/request of technical experts.
-
 <tag>/proc/sys/net/ipv4/tcp_window_scaling</tag>
 TCP/IP normally allows windows up to 65535 bytes big. For really fast
 networks, this may not be enough. The window scaling options allows for
@@ -3201,9 +3222,14 @@ Not used very much anymore. You used to be able to give a packet a list of
 IP addresses it should visit on its way. Linux can be made to honor this IP
 option.
 <tag>/proc/sys/net/ipv4/conf/DEV/bootp_relay</tag>
-FIXME: fill this in
+Accept packets  with source address 0.b.c.d with destinations not to this host
+as local ones. It is supposed that a BOOTP relay daemon will catch and forward
+such packets.
+<p>
+The default  is  0,  since this feature is not implemented yet (kernel version
+2.2.12).
 <tag>/proc/sys/net/ipv4/conf/DEV/forwarding</tag>
-FIXME:
+Enable or disable IP forwarding on this interface.
 <tag>/proc/sys/net/ipv4/conf/DEV/log_martians</tag>
 See the section on reverse path filters.
 <tag>/proc/sys/net/ipv4/conf/DEV/mc_forwarding</tag>
@@ -3216,11 +3242,13 @@ enabling this!
 <tag>/proc/sys/net/ipv4/conf/DEV/rp_filter</tag>
 See the section on reverse path filters.
 <tag>/proc/sys/net/ipv4/conf/DEV/secure_redirects</tag>
-FIXME: fill this in
+Accept ICMP  redirect  messages  only  for gateways, listed in default gateway
+list. Enabled by default.
 <tag>/proc/sys/net/ipv4/conf/DEV/send_redirects</tag>
 If we send the above mentioned redirects.
 <tag>/proc/sys/net/ipv4/conf/DEV/shared_media</tag>
-FIXME: fill this in
+If it  is  not  set  the kernel does not assume that different subnets on this
+device can communicate directly. Default setting is 'yes'.
 <tag>/proc/sys/net/ipv4/conf/DEV/tag</tag>
 FIXME: fill this in
 
@@ -3232,29 +3260,44 @@ Dev can either stand for a real interface, or for 'all' or 'default'.
 Default also changes settings for interfaces yet to be created.
 <descrip>
 <tag>/proc/sys/net/ipv4/neigh/DEV/anycast_delay</tag>
-FIXME: fill this in
+Maximum for  random  delay  of  answers  to  neighbor solicitation messages in
+jiffies (1/100  sec). Not yet implemented (Linux does not have anycast support
+yet).
 <tag>/proc/sys/net/ipv4/neigh/DEV/app_solicit</tag>
-FIXME: fill this in
+Determines the  number of requests to send to the user level ARP daemon. Use 0
+to turn off.
 <tag>/proc/sys/net/ipv4/neigh/DEV/base_reachable_time</tag>
-FIXME: fill this in
+A base  value  used for computing the random reachable time value as specified
+in RFC2461.
 <tag>/proc/sys/net/ipv4/neigh/DEV/delay_first_probe_time</tag>
-FIXME: fill this in
+Delay for  the  first  time  probe  if  the  neighbor  is  reachable.  (see
+gc_stale_time)
 <tag>/proc/sys/net/ipv4/neigh/DEV/gc_stale_time</tag>
-FIXME: fill this in
+Determines how  often  to  check  for stale ARP entries. After an ARP entry is
+stale it  will  be resolved again (which is useful when an IP address migrates
+to another  machine).  When  ucast_solicit is greater than 0 it first tries to
+send an  ARP  packet  directly  to  the  known  host  When  that  fails  and
+mcast_solicit is greater than 0, an ARP request is broadcasted.
 <tag>/proc/sys/net/ipv4/neigh/DEV/locktime</tag>
-FIXME: fill this in
+An ARP/neighbor  entry  is only replaced with a new one if the old is at least
+locktime old. This prevents ARP cache thrashing.
 <tag>/proc/sys/net/ipv4/neigh/DEV/mcast_solicit</tag>
-FIXME: fill this in
+Maximum number of retries for multicast solicitation.
 <tag>/proc/sys/net/ipv4/neigh/DEV/proxy_delay</tag>
-FIXME: fill this in
+Maximum time  (real  time is random [0..proxytime]) before answering to an ARP
+request for  which  we have an proxy ARP entry. In some cases, this is used to
+prevent network flooding.
 <tag>/proc/sys/net/ipv4/neigh/DEV/proxy_qlen</tag>
-FIXME: fill this in
+Maximum queue length of the delayed proxy arp timer. (see proxy_delay).
 <tag>/proc/sys/net/ipv4/neigh/DEV/retrans_time</tag>
-FIXME: fill this in
+The time,  expressed  in  jiffies  (1/100 sec), between retransmitted Neighbor
+Solicitation messages.  Used  for  address  resolution  and  to determine if a
+neighbor is unreachable.
 <tag>/proc/sys/net/ipv4/neigh/DEV/ucast_solicit</tag>
-FIXME: fill this in
+Maximum number of retries for unicast solicitation.
 <tag>/proc/sys/net/ipv4/neigh/DEV/unres_qlen</tag>
-FIXME: fill this in
+Maximum queue  length  for a pending arp request - the number of packets which
+are accepted from other layers while the ARP address is still resolved.
 
 </descrip>
 
@@ -3262,39 +3305,50 @@ FIXME: fill this in
 <p>
 <descrip>
 <tag>/proc/sys/net/ipv4/route/error_burst</tag>
-FIXME: fill this in
+These parameters  are used to limit the warning messages written to the kernel
+log from  the  routing  code.  The  higher the error_cost factor is, the fewer
+messages will  be written. Error_burst controls when messages will be dropped.
+The default settings limit warning messages to one every five seconds.
 <tag>/proc/sys/net/ipv4/route/error_cost</tag>
-FIXME: fill this in
+These parameters  are used to limit the warning messages written to the kernel
+log from  the  routing  code.  The  higher the error_cost factor is, the fewer
+messages will  be written. Error_burst controls when messages will be dropped.
+The default settings limit warning messages to one every five seconds.
 <tag>/proc/sys/net/ipv4/route/flush</tag>
-FIXME: fill this in
+Writing to this file results in a flush of the routing cache.
 <tag>/proc/sys/net/ipv4/route/gc_elasticity</tag>
-FIXME: fill this in
+Values to  control  the  frequency  and  behavior  of  the  garbage collection
+algorithm for the routing cache.
 <tag>/proc/sys/net/ipv4/route/gc_interval</tag>
-FIXME: fill this in
+See /proc/sys/net/ipv4/route/gc_elasticity.
 <tag>/proc/sys/net/ipv4/route/gc_min_interval</tag>
-FIXME: fill this in
+See /proc/sys/net/ipv4/route/gc_elasticity.
 <tag>/proc/sys/net/ipv4/route/gc_thresh</tag>
-FIXME: fill this in
+See /proc/sys/net/ipv4/route/gc_elasticity.
 <tag>/proc/sys/net/ipv4/route/gc_timeout</tag>
-FIXME: fill this in
+See /proc/sys/net/ipv4/route/gc_elasticity.
 <tag>/proc/sys/net/ipv4/route/max_delay</tag>
-FIXME: fill this in
+Delays for flushing the routing cache.
 <tag>/proc/sys/net/ipv4/route/max_size</tag>
-FIXME: fill this in
+Maximum size  of  the routing cache. Old entries will be purged once the cache
+reached has this size.
 <tag>/proc/sys/net/ipv4/route/min_adv_mss</tag>
 FIXME: fill this in
 <tag>/proc/sys/net/ipv4/route/min_delay</tag>
-FIXME: fill this in
+Delays for flushing the routing cache.
 <tag>/proc/sys/net/ipv4/route/min_pmtu</tag>
 FIXME: fill this in
 <tag>/proc/sys/net/ipv4/route/mtu_expires</tag>
 FIXME: fill this in
 <tag>/proc/sys/net/ipv4/route/redirect_load</tag>
-FIXME: fill this in
+Factors which  determine  if  more ICPM redirects should be sent to a specific
+host. No  redirects  will be sent once the load limit or the maximum number of
+redirects has been reached.
 <tag>/proc/sys/net/ipv4/route/redirect_number</tag>
-FIXME: fill this in
+See /proc/sys/net/ipv4/route/redirect_load.
 <tag>/proc/sys/net/ipv4/route/redirect_silence</tag>
-FIXME: fill this in
+Timeout for redirects. After this period redirects will be sent again, even if
+this has been stopped, because the load or number limit has been reached.
 </descrip>
 
 
@@ -4391,7 +4445,7 @@ remote host. It is then displayed, which leads to a packet coming back, which
 must then traverse the downstream queue, located at your ISP, before it
 appears on your screen.
 
-This HOWTO learns you how to mangle and process the queue in many ways, but
+This HOWTO teaches you how to mangle and process the queue in many ways, but
 sadly, not all queues are accessible to us. The queue over at the ISP is
 completely off-limits, whereas the upstream queue probably lives inside your
 cable modem or DSL device. You may or may not be able to configure it. Most
@@ -4469,7 +4523,7 @@ with 'tc class add .. classid 1:20'. If you lowered your MTU, also lower the
 allot &amp; avpkt numbers!
 
 <verb>
-#!/bin/sh 
+#!/bin/bash 
 
 # The Ultimate Setup For Your Internet Connection At Home
 # 
@@ -4478,53 +4532,54 @@ allot &amp; avpkt numbers!
 # and uplink speed. In kilobits
 DOWNLINK=800
 UPLINK=220
+DEV=ppp0
 
 # clean existing down- and uplink qdiscs, hide errors
-tc qdisc del dev ppp0 root    2> /dev/null > /dev/null
-tc qdisc del dev ppp0 ingress 2> /dev/null > /dev/null
+tc qdisc del dev $DEV root    2> /dev/null > /dev/null
+tc qdisc del dev $DEV ingress 2> /dev/null > /dev/null
 
 ###### uplink
 
 # install root CBQ
 
-tc qdisc add dev ppp0 root handle 1: cbq avpkt 1000 bandwidth 10mbit 
+tc qdisc add dev $DEV root handle 1: cbq avpkt 1000 bandwidth 10mbit 
 
 # shape everything at $UPLINK speed - this prevents huge queues in your
 # DSL modem which destroy latency:
 # main class
 
-tc class add dev ppp0 parent 1: classid 1:1 cbq rate ${UPLINK}kbit \
+tc class add dev $DEV parent 1: classid 1:1 cbq rate ${UPLINK}kbit \
 allot 1500 prio 5 bounded isolated 
 
 # high prio class 1:10:
 
-tc class add dev ppp0 parent 1:1 classid 1:10 cbq rate ${UPLINK}kbit \
+tc class add dev $DEV parent 1:1 classid 1:10 cbq rate ${UPLINK}kbit \
    allot 1600 prio 1 avpkt 1000
 
 # bulk and default class 1:20 - gets slightly less traffic, 
 #  and a lower priority:
 
-tc class add dev ppp0 parent 1:1 classid 1:20 cbq rate $[9*$UPLINK/10]kbit \
+tc class add dev $DEV parent 1:1 classid 1:20 cbq rate $[9*$UPLINK/10]kbit \
    allot 1600 prio 2 avpkt 1000
 
 # both get Stochastic Fairness:
-tc qdisc add dev ppp0 parent 1:10 handle 10: sfq perturb 10
-tc qdisc add dev ppp0 parent 1:20 handle 20: sfq perturb 10
+tc qdisc add dev $DEV parent 1:10 handle 10: sfq perturb 10
+tc qdisc add dev $DEV parent 1:20 handle 20: sfq perturb 10
 
 # start filters
 # TOS Minimum Delay (ssh, NOT scp) in 1:10:
-tc filter add dev ppp0 parent 1:0 protocol ip prio 10 u32 \
+tc filter add dev $DEV parent 1:0 protocol ip prio 10 u32 \
       match ip tos 0x10 0xff  flowid 1:10
 
 # ICMP (ip protocol 1) in the interactive class 1:10 so we 
 # can do measurements & impress our friends:
-tc filter add dev ppp0 parent 1:0 protocol ip prio 11 u32 \
+tc filter add dev $DEV parent 1:0 protocol ip prio 11 u32 \
 	match ip protocol 1 0xff flowid 1:10
 
 # To speed up downloads while an upload is going on, put ACK packets in
 # the interactive class:
 
-tc filter add dev ppp0 parent 1: protocol ip prio 12 u32 \
+tc filter add dev $DEV parent 1: protocol ip prio 12 u32 \
    match ip protocol 6 0xff \
    match u8 0x05 0x0f at 0 \
    match u16 0x0000 0xffc0 at 2 \
@@ -4533,7 +4588,7 @@ tc filter add dev ppp0 parent 1: protocol ip prio 12 u32 \
 
 # rest is 'non-interactive' ie 'bulk' and ends up in 1:20
 
-tc filter add dev ppp0 parent 1: protocol ip prio 13 u32 \
+tc filter add dev $DEV parent 1: protocol ip prio 13 u32 \
    match ip dst 0.0.0.0/0 flowid 1:20
 
 ########## downlink #############
@@ -4543,12 +4598,12 @@ tc filter add dev ppp0 parent 1: protocol ip prio 13 u32 \
 #
 # attach ingress policer:
 
-tc qdisc add dev ppp0 handle ffff: ingress
+tc qdisc add dev $DEV handle ffff: ingress
 
 # filter *everything* to it (0.0.0.0/0), drop everything that's
 # coming in too fast:
 
-tc filter add dev ppp0 parent ffff: protocol ip prio 50 u32 match ip src \
+tc filter add dev $DEV parent ffff: protocol ip prio 50 u32 match ip src \
    0.0.0.0/0 police rate ${DOWNLINK}kbit burst 10k drop flowid :1
 </verb>
 If you want this script to be run by ppp on connect, copy it to
@@ -4560,7 +4615,7 @@ If the last two lines give an error, update your tc tool to a newer version!
 The following script achieves all goals using the wonderful HTB queue, see
 the relevant chapter. Well worth patching your kernel for! 
 <verb>
-#!/bin/sh
+#!/bin/bash
 
 # The Ultimate Setup For Your Internet Connection At Home
 # 
@@ -5031,8 +5086,11 @@ helping.
 <item>Jacek Glinkowski &lt;jglinkow%hns.com&gt;
 <item>Andrea Glorioso &lt;sama%perchetopi.org&gt;
 <item>Nadeem Hasan &lt;nhasan@usa.net&gt;
+<item>Erik Hensema &lt;erik%hensema.xs4all.nl&gt;
 <item>Vik Heyndrickx &lt;vik.heyndrickx@edchq.com&gt;
+<item>Spauldo Da Hippie &lt;spauldo%usa.net&gt;
 <item>Koos van den Hout &lt;koos@kzdoos.xs4all.nl&gt;
+<item>Alexander W. Janssen &lt;yalla%ynfonatic.de&gt;
 <item>Gareth John &lt;gdjohn%zepler.org&gt;
 <item>Martin Josefsson &lt;gandalf%wlug.westbo.se&gt;
 <item>Andi Kleen &lt;ak%suse.de&gt;
@@ -5048,6 +5106,7 @@ helping.
 <item>Andrew Morton &lt;akpm@zip.com.au&gt;
 <item>Wim van der Most 
 <item>Stephan Mueller &lt;smueller@chronox.de&gt;
+<item>Togan Muftuoglu &lt;toganm%yahoo.com&gt;
 <item>Patrick Nagelschmidt &lt;dto%gmx.net&gt;
 <item>Ram Narula &lt;ram@princess1.net&gt;
 <item>Jorge Novo &lt;jnovo@educanet.net&gt;

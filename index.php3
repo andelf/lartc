@@ -1,5 +1,7 @@
 <html>
-<head><title>Linux Advanced Routing &amp; Traffic Control HOWTO</title></head>
+<head><title>Linux Advanced Routing &amp; Traffic Control HOWTO</title>
+<LINK REL="SHORTCUT ICON" HREF="/lartc/tux16-16.ico">
+</head>
 <body bgcolor=#ffffff>
 <table width=100%><tr><td width=80%>
 <H1>Linux Advanced Routing &amp; Traffic Control</H1>
@@ -59,6 +61,11 @@ This site attempts to document how to configure and use these features.
 <a name="news"></a>
 <h2>News</H2>
 <table border=1>
+<tr><td valign=top>2002-01-04</td><td>We now have a favicon! Stolen from <a
+href=http://www.kernel.org>www.kernel.org</a>. In other news, I've been
+painting the <a href=http://ds9a.nl>house</a> and I'm busy at <a
+href=http://www.powerdns.com>work</a> so it has been a bit quiet. But I'm
+still there, don't worry.</td>
 <tr><td valign=top>2001-12-10</td><td>Added <a
 href=http://ds9a.nl/lartc/HOWTO//cvs/2.4routing/output/2.4routing-15.html#ss15.8>The Wonder
 Shaper</a>, which allows you to retain very low latency while doing very
@@ -183,14 +190,7 @@ HTML</A>, <a href="HOWTO//cvs/2.4routing/2.4routing.tar.gz">HTML tarfile</A>
 Like the Linux kernel, we have a jobs list. If you have any expertise
 in any of these areas, please pitch in.
 <ul>
-<li>Write terminology chapter based on
-<a
-href=http://www.ietf.org/internet-drafts/draft-ietf-diffserv-model-06.txt>
-IETF draft</a>
-<li>Modify HOWTO to use this wording (mostly)
-<li>Asciify Jamals <a
-href=http://www.davin.ottawa.on.ca/ols/img9.htm>diagram</a>
-
+<li>remove incorrect or dead content
 <li>There are a *lot* of FIXME notices, so this means YOU!</li>
 <li>IPsec</li>
 <li>Multipath routing
