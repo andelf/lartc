@@ -9,47 +9,55 @@
     <authorgroup>
       <author>
 	<FirstName>Bert</FirstName><Surname>Hubert</Surname>
-        <affiliation>
+	<affiliation>
 	  <orgname>Netherlabs BV</orgname>
-          <address><email>bert.hubert@netherlabs.nl</email></address>
-        </affiliation>
-        </author>
- 
-     <collab>
-       <collabname>Gregory Maxwell</collabname>
+	  <address><email>bert.hubert@netherlabs.nl</email></address>
+	</affiliation>
+      </author>
+      
+      <collab>
+	<collabname>Gregory Maxwell (Section Author)</collabname>
         <affiliation>
-          <address><email>greg@linuxpower.cx</email></address>
+          <address><email>remco%virtu.nl</email></address>
         </affiliation>
-     </collab>
-  
-     <collab>
-       <collabname>Remco van Mook</collabname>
+      </collab>
+
+      
+      <collab>
+	<collabname>Remco van Mook (Section Author)</collabname>
         <affiliation>
           <address><email>remco@virtu.nl</email></address>
-        </affiliation>
+	</affiliation>
      </collab>
   
      <collab>
-       <collabname>Martijn van Oosterhout</collabname>
+       <collabname>Martijn van Oosterhout (Section Author)</collabname>
         <affiliation>
           <address><email>kleptog@cupid.suninternet.com</email></address>
         </affiliation>
      </collab>
   
      <collab>
-       <collabname>Paul B Schroeder</collabname>
+       <collabname>Paul B Schroeder (Section Author)</collabname>
         <affiliation>
           <address><email>paulsch@us.ibm.com</email></address>
         </affiliation>
      </collab>
   
      <collab>
-       <collabname>Jasper Spaans</collabname>
+       <collabname>Jasper Spaans (Section Author)</collabname>
         <affiliation>
           <address><email>jasper@spaans.ds9a.nl</email></address>
         </affiliation>
      </collab>
-      </authorgroup>
+     <collab>
+       <collabname>Pedro Larroy (Section Author)</collabname>
+        <affiliation>
+          <address><email>piotr%omega.resa.ed</email></address>
+        </affiliation>
+     </collab>
+
+  </authorgroup>
   
    <revhistory>
      <revision>
@@ -8705,7 +8713,7 @@ If the last two lines give an error, update your tc tool to a newer version!
         
 	<sect1 id="lartc.cookbook.fullnat.intro"><title>Example of a full nat solution with QoS</title>
 		<para>
-			I'm Pedro Larroy <address><email>piotr@omega.resa.es</email></address> Here I'm describing a common set up where we have lots of users in a private network connected to the Internet trough a Linux router with a public ip address that is doing network address translation (NAT). I use this QoS setup to give access to the Internet to 198 users in a university dorm, in which I live and I'm netadmin of. The users here do heavy use of peer to peer programs, so proper traffic control is a must. I hope this serves as a practical example for all interested lartc readers.
+			I'm Pedro Larroy <address><email>piotr@omega.resa.es</email></address>. Here I'm describing a common set up where we have lots of users in a private network connected to the Internet trough a Linux router with a public ip address that is doing network address translation (NAT). I use this QoS setup to give access to the Internet to 198 users in a university dorm, in which I live and I'm netadmin of. The users here do heavy use of peer to peer programs, so proper traffic control is a must. I hope this serves as a practical example for all interested lartc readers.
 		</para>
 
 		<para>
