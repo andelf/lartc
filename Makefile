@@ -30,9 +30,8 @@ html.tar.gz: html/index.html
 %.dvi: %.db
 	docbook2dvi $<
 
-lartc.html:
+lartc.html: lartc.db
 	docbook2html lartc.db --nochunks | tail +4 > $@
 
 publish:
-	rsync --copy-links --delete -avrze ssh ./html lartc.txt lartc.pdf html/index.html html.tar.gz lartc.dvi lartc.pdf.gz lartc.ps lartc.ps lartc.ps.gz lartc.html \
-	ds9a.nl:./lartc/
+	rsync --copy-links --delete -avrze ssh ./html lartc.txt lartc.pdf html.tar.gz lartc.dvi lartc.pdf.gz lartc.ps lartc.ps lartc.ps.gz lartc.html ds9a.nl:./lartc/

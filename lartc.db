@@ -56,12 +56,14 @@
       </author>
     </authorgroup>
 
-<PubDate>v1.0.0 $Date$</PubDate>
-
 <Abstract>
 
 <Para>
-A very hands-on approach to iproute2, traffic shaping and a bit of netfilter
+A very hands-on approach to iproute2, traffic shaping and a bit of
+netfilter.
+</para>
+<para>
+ Verison v1.0.0 $Date$
 </Para>
 
 </Abstract>
@@ -8885,6 +8887,9 @@ Jorge Novo &lt;jnovo@educanet.net&gt;
 Patrik &lt;ph@kurd.nu&gt;
 </Para>
 </ListItem>
+
+<listitem><para>P?l Osgy?ny &lt;oplab%westel900.net&gt;</para></listitem>
+
 <ListItem>
 
 <Para>
