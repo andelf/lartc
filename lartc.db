@@ -1043,8 +1043,7 @@ ip route add 127.0.0.0/8 dev lo   table T2
 	</para>
 	<para>
 	  Furthermore, if you really want to do this, you probably also want to look
-	  at Julian Anastasov's patches at <ulink
-	    url="http://www.linuxvirtualserver.org/~julian/#routes">http://www.linuxvirtualserver.org/~julian/#routes
+	  at Julian Anastasov's patches at <ulink url="http://www.ssi.bg/~ja/#routes">http://www.ssi.bg/~ja/#routes 
 	    </ulink>, Julian's route patch page. They will make things nicer to work with.
 	</para>
       </sect2>
@@ -1650,8 +1649,8 @@ url="http://www.edlug.ed.ac.uk/archive/Sep2002/msg00244.html">many</ulink> parti
 url="http://lists.freeswan.org/pipermail/design/2002-November/003901.html">have voiced
 worries</ulink> about the quality of the code. To setup FreeS/WAN, a lot of
 <ulink
-url="http://www.freeswan.ca/code/old/freeswan-Snapshot/doc/index.html">documentation</ulink>
-is available.
+url="http://www.freeswan.ca/docs/freeswan-1.99/doc/index.html">documentation</ulink>
+is <ulink url="http://www.freeswan.org/doc.html">available</ulink>.
     </para>
     <para>
       As of Linux 2.5.47, there is a native IPSEC implementation in the kernel. It was written by Alexey Kuznetsov and
@@ -1668,17 +1667,9 @@ is available.
 	<para>
       <note>
 	<para>
-	  I've collected patches released by Alexey or Dave Miller <ulink
-url="http://ds9a.nl/ipsec">here</ulink>. Apply all of them to 2.5.48 before
-reporting problems! (as yet, there are none for 2.5.49). Crude userspace utilities are <ulink
-url="ftp://ftp.inr.ac.ru/ip-routing/iputils-ss021109-try.tar.bz2">
-	    here</ulink> (<ulink url="http://ds9a.nl/ipsec/setkey.tar.gz">pre-compiled
-binary &amp; manpage</ulink>). Compiling these userspace utilities requires editing the Makefiles in there to point them at your
-	  2.5.x kernel. This situation is expected to improve rapidly however.
-	</para>
-	<para>
-	  Better tools appear to be available <ulink url="http://sourceforge.net/projects/ipsec-tools">here</ulink>, they
-	  are actively being maintained.
+	  Userspace tools appear are available <ulink
+	  url="http://sourceforge.net/projects/ipsec-tools">here</ulink>,
+	  they are actively being maintained.
 	</para>
 	<para>
 	When compiling your kernel, be sure to turn on 'PF_KEY', 'AH', 'ESP' and
@@ -2114,6 +2105,7 @@ As are the Security Policies we configured ourselves:
 	spid=3609 seq=4 pid=17134
 	refcnt=3
 </screen>
+</para>
 	<sect3><title>Problems and known defects</title>
 	<para>
 		If this does not work, check that all configuration files
@@ -2122,6 +2114,7 @@ foreground, use '-F'. To force it to read a certain configuration file,
 instead of at the compiled location, use '-f'. For staggering amounts of
 detail, add a 'log debug;' statement to racoon.conf.
 	</para>
+	</sect3>
 	</sect2>
 	<sect2 id="lartc.ipsec.x509"><title>Automatic keying using X.509 certificates</title>
 	<para>
@@ -2289,6 +2282,7 @@ remote.
 	Verify that a Security Policy is in place (execute the 'spdadd' lines in
 <xref linkend="lartc.ipsec.automatic.keying.example">). Then launch racoon and everything should
 work.
+</para>
 	</sect3>
 	<sect3><title>How to setup tunnels securely</title>
 	<para>
@@ -3496,7 +3490,7 @@ Recapping, a typical hierarchy might look like this:
 <Screen>
                      1:   root qdisc
                       |
-                     1:1    chils class
+                     1:1    child class
                    /  |  \
                   /   |   \
                  /    |    \
@@ -3781,8 +3775,8 @@ works.
 <Para>
 Besides being classful, CBQ is also a shaper and it is in that aspect that
 it really doesn't work very well. It should work like this. If you try to
-shape a 10mbit/s connection to 1mbit/s, the link should be idle 90&percnt; of the
-time. If it isn't, we need to throttle so that it IS idle 90&percnt; of the time.
+shape a 10mbit/s connection to 1mbit/s, the link should be idle 90% of the
+time. If it isn't, we need to throttle so that it IS idle 90% of the time.
 </Para>
 
 <Para>
@@ -4212,7 +4206,7 @@ socket options set by applications.
 </Para>
 
 <Para>
-The packets' priority bits are or-ed with the defmap field to see if a match
+The packets' priority bits are and-ed with the defmap field to see if a match
 exists. In other words, this is a short-hand way of creating a very fast
 filter, which only matches certain priorities. A defmap of ff (hex) will
 match everything, a map of 0 nothing. A sample configuration may help make
@@ -5872,7 +5866,7 @@ where each chain contains 1 filter!
  
 The kernel has lots of parameters which
 can be tuned for different circumstances. While, as usual, the default
-parameters serve 99&percnt; of installations very well, we don't call this the
+parameters serve 99% of installations very well, we don't call this the
 Advanced HOWTO for the fun of it!
 </Para>
 
@@ -7366,7 +7360,7 @@ Cookbook.
 
 <Para>
 This section is meant as an introduction to backbone routing, which often
-involves &lt;100 megabit bandwidths, which requires a different approach than
+involves &gt;100 megabit bandwidths, which requires a different approach than
 your ADSL modem at home.
 </Para>
 
@@ -7764,7 +7758,7 @@ snapshot length!
 </Para>
 
 <Para>
-If measurement is impractical, you might want to choose 5&percnt; of your available
+If measurement is impractical, you might want to choose 5% of your available
 bandwidth. Let's set up our class:
 
 <Screen>
@@ -9023,6 +9017,7 @@ If the last two lines give an error, update your tc tool to a newer version!
 			</Screen>
 		</para>
 
+	</sect2>
 	<sect2>
 	<Title>Making all of the above start at boot</Title>
 		<para>
@@ -9030,6 +9025,7 @@ If the last two lines give an error, update your tc tool to a newer version!
 			
 		</para>
 	
+	</sect2>
 	</sect1>
 
 </chapter>
@@ -9084,6 +9080,7 @@ whatever. In Linux 2.5.45 and higher, this is fixed.
 <para>
 You may also see 'ebtables' mentioned which is yet another project - it
 allows you to do wild things as MACNAT and 'brouting'. It is truly scary.
+</para>
 </Sect1>
 
 <Sect1 id="lartc.bridging.shaping">
@@ -9991,13 +9988,13 @@ helping.
   <ListItem>
    <Para>
    <author><firstname>Ard</firstname><surname>van Breemen</surname></author>
-   <address><email>ard&percnt;kwaak.net</email></address>
+   <address><email>ard%kwaak.net</email></address>
   </Para>
   </ListItem>
   <ListItem>
    <Para>
    <author><firstname>Ron</firstname><surname>Brinker</surname></author>
-   <address><email>service&percnt;emcis.com</email></address>
+   <address><email>service%emcis.com</email></address>
    </Para>
   </ListItem>
   <ListItem>
@@ -10027,20 +10024,20 @@ helping.
   <ListItem>
    <Para>
    <author><firstname>Don</firstname><surname>Cohen</surname></author>
-   <address><email>don-lartc&percnt;isis.cs3-inc.com</email></address>
+   <address><email>don-lartc%isis.cs3-inc.com</email></address>
    </Para>
   </ListItem>
   <ListItem>
    <Para>
    <author><firstname>Jonathan</firstname><surname>Corbet</surname></author>
-   <address><email>lwn&percnt;lwn.net</email></address>
+   <address><email>lwn%lwn.net</email></address>
    </Para>
   </ListItem>
   <ListItem>
    <Para>
    <author><firstname>Gerry</firstname><surname>Creager</surname>
      <othername>N5JXS</othername></author>
-   <address><email>gerry&percnt;cs.tamu.edu</email></address>
+   <address><email>gerry%cs.tamu.edu</email></address>
    </Para>
   </ListItem>
   <ListItem>
@@ -10079,6 +10076,14 @@ helping.
   </Para>
   </ListItem>
 
+  <ListItem>
+   <Para>
+   <author><firstname>David</firstname><surname>Fries</surname>
+     </author>
+   <address><email>dfries%mail.win.org</email></address>
+  </Para>
+  </ListItem>
+
 
   <ListItem>
    <Para>
@@ -10090,13 +10095,20 @@ helping.
   <ListItem>
    <Para>
    <author><firstname>Jacek</firstname><surname>Glinkowski</surname></author>
-   <address><email>jglinkow&percnt;hns.com</email></address>
+   <address><email>jglinkow%hns.com</email></address>
   </Para>
   </ListItem>
   <ListItem>
    <Para>
    <author><firstname>Andrea</firstname><surname>Glorioso</surname></author>
-   <address><email>sama&percnt;perchetopi.org</email></address>
+   <address><email>sama%perchetopi.org</email></address>
+  </Para>
+  </ListItem>
+
+  <ListItem>
+   <Para>
+   <author><firstname>Sandy</firstname><surname>Harris</surname></author>
+   <address><email>sandy%storm.ca</email></address>
   </Para>
   </ListItem>
   <ListItem>
@@ -10108,7 +10120,7 @@ helping.
   <ListItem>
    <Para>
    <author><firstname>Erik</firstname><surname>Hensema</surname></author>
-   <address><email>erik&percnt;hensema.xs4all.nl</email></address>
+   <address><email>erik%hensema.xs4all.nl</email></address>
    </Para>
   </ListItem>
   <ListItem>
@@ -10120,7 +10132,7 @@ helping.
   <ListItem>
    <Para>
    <author><firstname>Spauldo</firstname><surname>Da Hippie</surname></author>
-   <address><email>spauldo&percnt;usa.net</email></address>
+   <address><email>spauldo%usa.net</email></address>
    </Para>
   </ListItem>
   <ListItem>
@@ -10132,19 +10144,19 @@ helping.
   <ListItem>
 
 <Para>
-Stefan Huelbrock &lt;shuelbrock&percnt;datasystems.de&gt;
+Stefan Huelbrock &lt;shuelbrock%datasystems.de&gt;
 </Para>
 </ListItem>
 <ListItem>
 
 <Para>
-Alexander W. Janssen &lt;yalla&percnt;ynfonatic.de&gt;
+Alexander W. Janssen &lt;yalla%ynfonatic.de&gt;
 </Para>
 </ListItem>
 <ListItem>
 
 <Para>
-Gareth John &lt;gdjohn&percnt;zepler.org&gt;
+Gareth John &lt;gdjohn%zepler.org&gt;
 </Para>
 </ListItem>
 
@@ -10159,25 +10171,25 @@ Gareth John &lt;gdjohn&percnt;zepler.org&gt;
 <ListItem>
 
 <Para>
-Martin Josefsson &lt;gandalf&percnt;wlug.westbo.se&gt;
+Martin Josefsson &lt;gandalf%wlug.westbo.se&gt;
 </Para>
 </ListItem>
 <ListItem>
 
 <Para>
-Andi Kleen &lt;ak&percnt;suse.de&gt;
+Andi Kleen &lt;ak%suse.de&gt;
 </Para>
 </ListItem>
 <ListItem>
 
 <Para>
-Andreas J. Koenig &lt;andreas.koenig&percnt;anima.de&gt;
+Andreas J. Koenig &lt;andreas.koenig%anima.de&gt;
 </Para>
 </ListItem>
 <ListItem>
 
 <Para>
-Pawel Krawczyk &lt;kravietz&percnt;alfa.ceti.pl&gt;
+Pawel Krawczyk &lt;kravietz%alfa.ceti.pl&gt;
 </Para>
 </ListItem>
 <ListItem>
@@ -10189,19 +10201,19 @@ Amit Kucheria &lt;amitk@ittc.ku.edu&gt;
 <ListItem>
 
 <Para>
-Edmund Lau &lt;edlau&percnt;ucf.ics.uci.edu&gt;
+Edmund Lau &lt;edlau%ucf.ics.uci.edu&gt;
 </Para>
 </ListItem>
 <ListItem>
 
 <Para>
-Philippe Latu &lt;philippe.latu&percnt;linux-france.org&gt;
+Philippe Latu &lt;philippe.latu%linux-france.org&gt;
 </Para>
 </ListItem>
 <ListItem>
 
 <Para>
-Arthur van Leeuwen &lt;arthurvl&percnt;sci.kun.nl&gt;
+Arthur van Leeuwen &lt;arthurvl%sci.kun.nl&gt;
 </Para>
 </ListItem>
   <ListItem>
@@ -10211,6 +10223,17 @@ Arthur van Leeuwen &lt;arthurvl&percnt;sci.kun.nl&gt;
    <address><email>jdomingo@24x7linux.com</email></address>
   </Para>
   </ListItem>
+
+
+  <ListItem>
+   <Para>
+   <author><firstname>Robert</firstname><surname>Lowe</surname>
+     </author>
+   <address><email>robert.h.lowe@lawrence.edu</email></address>
+  </Para>
+  </ListItem>
+
+
 <ListItem>
 
 <Para>
@@ -10245,7 +10268,7 @@ Patrick McHardy &lt;kaber@trash.net&gt;
 
 
 <Para>
-Andreas Mohr &lt;andi&percnt;lisas.de&gt;
+Andreas Mohr &lt;andi%lisas.de&gt;
 </Para>
 </ListItem>
 
@@ -10274,7 +10297,7 @@ Stephan Mueller &lt;smueller@chronox.de&gt;
 <ListItem>
 
 <Para>
-Togan Muftuoglu &lt;toganm&percnt;yahoo.com&gt;
+Togan Muftuoglu &lt;toganm%yahoo.com&gt;
 </Para>
 </ListItem>
 <ListItem>
@@ -10287,7 +10310,7 @@ Chris Murray &lt;cmurray@stargate.ca&gt;
 <ListItem>
 
 <Para>
-Patrick Nagelschmidt &lt;dto&percnt;gmx.net&gt;
+Patrick Nagelschmidt &lt;dto%gmx.net&gt;
 </Para>
 </ListItem>
 <ListItem>
@@ -10314,13 +10337,13 @@ Patrik &lt;ph@kurd.nu&gt;
 <ListItem>
 
 <Para>
-Lutz Pre&szlig;ler &lt;Lutz.Pressler&percnt;SerNet.DE&gt;
+Lutz Pre&szlig;ler &lt;Lutz.Pressler%SerNet.DE&gt;
 </Para>
 </ListItem>
 <ListItem>
 
 <Para>
-Jason Pyeron &lt;jason&percnt;pyeron.com&gt;
+Jason Pyeron &lt;jason%pyeron.com&gt;
 </Para>
 </ListItem>
 
@@ -10330,22 +10353,36 @@ Rod Roark &lt;rod%sunsetsystems.com&gt;
 </Para>
 </ListItem>
 
-
 <ListItem>
 <Para>
-Rusty Russell &lt;rusty&percnt;rustcorp.com.au&gt;
+Pavel Roskin &lt;proski@gnu.org&gt;
 </Para>
 </ListItem>
-<ListItem>
 
+
+<ListItem>
 <Para>
-Mihai RUSU &lt;dizzy&percnt;roedu.net&gt;
+Rusty Russell &lt;rusty%rustcorp.com.au&gt;
 </Para>
 </ListItem>
+
+<ListItem>
+<Para>
+Mihai RUSU &lt;dizzy%roedu.net&gt;
+</Para>
+</ListItem>
+
+<ListItem>
+<Para>
+Rob Pitman &lt;rob%pitman.co.za&gt;
+</Para>
+</ListItem>
+
+
 <ListItem>
 
 <Para>
-Jamal Hadi Salim &lt;hadi&percnt;cyberus.ca&gt;
+Jamal Hadi Salim &lt;hadi%cyberus.ca&gt;
 </Para>
 </ListItem>
 
@@ -10358,7 +10395,7 @@ Ren? Serral &lt;rserral%ac.upc.es&gt;
 
 <ListItem>
 <Para>
-David Sauer &lt;davids&percnt;penguin.cz&gt;
+David Sauer &lt;davids%penguin.cz&gt;
 </Para>
 </ListItem>
 <ListItem>
@@ -10370,13 +10407,13 @@ Sheharyar Suleman Shaikh &lt;sss23@drexel.edu&gt;
 <ListItem>
 
 <Para>
-Stewart Shields &lt;MourningBlade&percnt;bigfoot.com&gt;
+Stewart Shields &lt;MourningBlade%bigfoot.com&gt;
 </Para>
 </ListItem>
 <ListItem>
 
 <Para>
-Nick Silberstein &lt;nhsilber&percnt;yahoo.com&gt;
+Nick Silberstein &lt;nhsilber%yahoo.com&gt;
 </Para>
 </ListItem>
 <ListItem>
@@ -10395,11 +10432,17 @@ Konrads Smelkov &lt;konrads@interbaltika.com&gt;
 
 <ListItem>
 <Para>
-Andreas Steinmetz &lt;ast&percnt;domdv.de&gt;
+Andreas Steinmetz &lt;ast%domdv.de&gt;
 </Para>
 </ListItem>
-<ListItem>
 
+<ListItem>
+<Para>
+Matthew Strait &lt;straitm%mathcs.carleton.edu&gt;
+</Para>
+</ListItem>
+
+<ListItem>
 <Para>
 Jason Tackaberry &lt;tack@linux.com&gt;
 </Para>
@@ -10407,19 +10450,19 @@ Jason Tackaberry &lt;tack@linux.com&gt;
 <ListItem>
 
 <Para>
-Charles Tassell &lt;ctassell&percnt;isn.net&gt;
+Charles Tassell &lt;ctassell%isn.net&gt;
 </Para>
 </ListItem>
 <ListItem>
 
 <Para>
-Glen Turner &lt;glen.turner&percnt;aarnet.edu.au&gt;
+Glen Turner &lt;glen.turner%aarnet.edu.au&gt;
 </Para>
 </ListItem>
 
 <ListItem>
 <Para>
-Tea Sponsor: Eric Veldhuyzen &lt;eric&percnt;terra.nu&gt; 
+Tea Sponsor: Eric Veldhuyzen &lt;eric%terra.nu&gt; 
 </Para>
 </ListItem>
 
@@ -10463,7 +10506,7 @@ Song Wang &lt;wsong@ece.uci.edu&gt;
 
 	<ListItem>
 	<para>
-	Chapter 17,, section 1: Setting up OSPF with Zebra
+	Chapter 17, section 1: Setting up OSPF with Zebra
 	</para>
 	</ListItem>
    </ItemizedList>
