@@ -8166,6 +8166,13 @@ out unsollicited ARP messages so as to update remote arp caches.
 This is a very powerful technique that is also used by 'black hats' to
 subvert your routing!
 </para>
+<note>
+<para>
+On Linux 2.4, you may need to execute 
+'echo 1 &gt; /proc/sys/net/ipv4/ip_nonlocal_bind' before being able to send
+out unsollicited ARP messages!
+</para>
+</note>
 <Para>
 You may also discover that your network was misconfigured if you are/were of
 the habit of specifying routes without netmasks. To explain, some versions

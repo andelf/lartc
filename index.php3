@@ -25,7 +25,7 @@ Paul B Schroeder &lt;paulsch@us.ibm.com&gt; <br>
 href=http://mailman.ds9a.nl/pipermail/lartc/>archive</a>, the <strong>only</strong> place to send
 questions!</a>)<br>
 (<font color=#ff0000><a href=#mailinglist>subscribe</a> before posting!</font>)<br></small>
-#lartc on <a href=http://www.openprojects.net>irc.openprojects.net</a> (<a
+#lartc on <a href=http://www.oftc.net>irc.oftc.net</a> (<a
 href=dejairc.php>archives</a>)</td><td valign=bottom align=right>
 
 </td>
@@ -76,6 +76,11 @@ This site attempts to document how to configure and use these features.
 <a name="news"></a>
 <h2>News</H2>
 <table border=1>
+<tr><td valign=top>2002-07-07</td><td>Moved the IRC channel #lartc to
+irc.oftc.net - a very down to earth IRC network without operators begging
+for financial support. If you are new to IRC, give it a try. An excellent
+irc client is <a href=http://www.irssi.org>irssi</a>. IRC archives
+will be back soon!</td>
 <tr><td valign=top>2002-06-29</td><td><a
 href=http://linuxsymposium.org/2002>Ottawa Linux Symposium 2002</a>
 presentation <a href=http://ds9a.nl/ols-presentation>Linux Traffic Control
