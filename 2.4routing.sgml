@@ -3235,10 +3235,11 @@ See the section on reverse path filters.
 <tag>/proc/sys/net/ipv4/conf/DEV/mc_forwarding</tag>
 If we do multicast forwarding on this interface
 <tag>/proc/sys/net/ipv4/conf/DEV/proxy_arp</tag>
-If you set this to 1, all other interfaces will respond to arp queries
-destined for addresses on this interface. Can be very useful when building 'ip 
+If you set this to 1, this interface will respond to ARP requests for
+addresses the kernel has routes to. Can be very useful when building 'ip
 pseudo bridges'. Do take care that your netmasks are very correct before
-enabling this!
+enabling this! Also be aware that the rp_filter, mentioned elsewhere, also
+operates on ARP queries!
 <tag>/proc/sys/net/ipv4/conf/DEV/rp_filter</tag>
 See the section on reverse path filters.
 <tag>/proc/sys/net/ipv4/conf/DEV/secure_redirects</tag>
@@ -5077,6 +5078,8 @@ for a Netfilter type scoreboard, we do like to recognise the people who are
 helping.
 
 <itemize>
+<item>Juanjo Alins &lt;juanjo%mat.upc.es&gt;
+<item>Ard van Breemen &lt;ard%kwaak.net&gt;
 <item>Ron Brinker &lt;service%emcis.com&gt;
 <item>?ukasz Bromirski &lt;L.Bromirski@prosys.com.pl&gt;
 <item>Lennert Buytenhek &lt;buytenh@gnu.org&gt;
@@ -5096,6 +5099,7 @@ helping.
 <item>Vik Heyndrickx &lt;vik.heyndrickx@edchq.com&gt;
 <item>Spauldo Da Hippie &lt;spauldo%usa.net&gt;
 <item>Koos van den Hout &lt;koos@kzdoos.xs4all.nl&gt;
+<item>Stefan Huelbrock &lt;shuelbrock%datasystems.de&gt;
 <item>Alexander W. Janssen &lt;yalla%ynfonatic.de&gt;
 <item>Gareth John &lt;gdjohn%zepler.org&gt;
 <item>Martin Josefsson &lt;gandalf%wlug.westbo.se&gt;
@@ -5131,6 +5135,7 @@ helping.
 <item>Charles Tassell &lt;ctassell%isn.net&gt;
 <item>Glen Turner &lt;glen.turner%aarnet.edu.au&gt;
 <item>Song Wang &lt;wsong@ece.uci.edu&gt;
+
 </itemize>
 
 </article>

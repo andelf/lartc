@@ -99,11 +99,6 @@ href=http://www.kernel.org>www.kernel.org</a>. In other news, I've been
 painting the <a href=http://ds9a.nl>house</a> and I'm busy at <a
 href=http://www.powerdns.com>work</a> so it has been a bit quiet. But I'm
 still there, don't worry.</td>
-<tr><td valign=top>2002-01-04</td><td>We now have a favicon! Stolen from <a
-href=http://www.kernel.org>www.kernel.org</a>. In other news, I've been
-painting the <a href=http://ds9a.nl>house</a> and I'm busy at <a
-href=http://www.powerdns.com>work</a> so it has been a bit quiet. But I'm
-still there, don't worry.</td>
 <tr><td valign=top>2001-12-10</td><td>Added <a
 href=http://ds9a.nl/lartc/HOWTO//cvs/2.4routing/output/2.4routing-15.html#ss15.8>The Wonder
 Shaper</a>, which allows you to retain very low latency while doing very
