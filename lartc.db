@@ -3729,7 +3729,7 @@ You can concatenate matches, to match on traffic from 1.2.3.4 and from port
 
 </Sect2>
 
-<Sect2>
+<Sect2 id="lartc.filtering.simple">
 <Title>All the filtering commands you will normally need</Title>
 
 <Para>
@@ -7944,8 +7944,40 @@ If the last two lines give an error, update your tc tool to a newer version!
 
 </Sect2>
 
-</Sect1>
+    </Sect1>
+    <sect1><title>Rate limiting a single host or netmask</title>
+      <para>
+	Although this is described in stupendous details elsewhere and in our manpages, this question gets asked a lot and 
+	happily there is a simple answer that does not need full comprehension of traffic control.
+      </para>
+      <para>
+	This three line script does the trick:
+      </para>
+      <para>
+	<screen>
+	  tc qdisc add dev $DEV root handle 1: cbq avpkt 1000 bandwidth 10mbit 
 
+	  tc class add dev $DEV parent 1: classid 1:1 cbq rate 512kbit \
+	  allot 1500 prio 5 bounded isolated 
+
+	  tc filter add dev $DEV parent 1: protocol ip prio 16 u32 \
+	  match ip dst 195.96.96.97 flowid 1:1
+	</screen>
+      </para>
+      <para>
+	The first line installs a class based queue on your interface, and tells the kernel that for calculations,
+	it can be assumed to be a 10mbit interface. If you get this wrong, no real harm is done. But getting it right will 
+	make everything more precise.
+      </para>
+      <para>
+	The second line creates a 512kbit class with some reasonable defaults. For details, see the cbq manpages and
+	<xref linkend="lartc.qdisc">.
+      </para>
+      <para>
+	The last line tells which traffic should go to the shaped class. Traffic not matched by this rule is NOT shaped. To make more 
+	complicated matches (subnets, source ports, destination ports), see <xref linkend="lartc.filtering.simple">.
+      </para>
+    </sect1>
 </chapter>
 
 <chapter id="lartc.bridging">
