@@ -160,14 +160,14 @@ The loop consists of the following steps:
 .TP 
 (i)
 If the packet is generated locally and has a valid classid encoded within its
-.B skb-priority,
-chose it and terminate.
+.B skb->priority,
+choose it and terminate.
 
 .TP
 (ii)
 Consult the tc filters, if any, attached to this child. If these return
 a class which is not a leaf class, restart loop from the class returned.
-If it is a leaf, chose it and terminate.
+If it is a leaf, choose it and terminate.
 .TP
 (iii)
 If the tc filters did not return a class, but did return a classid, 
@@ -187,7 +187,8 @@ contain a class, consult the defmap of this class for the
 .B BEST_EFFORT
 class. If this is an upward reference, or no BEST_EFFORT class was defined,
 enter the fallback algorithm. If a valid class was found, and it is not a
-leaf node, restart the loop at this class. If it is a leaf, terminate. If
+leaf node, restart the loop at this class. If it is a leaf, choose it and 
+terminate. If
 neither the priority distilled from the classid, nor the BEST_EFFORT priority
 yielded a class, enter the fallback algorithm.
 .P
@@ -198,16 +199,16 @@ Consult the defmap of the class at which the jump to fallback occured. If
 the defmap contains a class for the 
 .B
 priority
-of the class (which is related to the TOS field), chose this class and 
+of the class (which is related to the TOS field), choose this class and 
 terminate. 
 .TP
 (ii)
 Consult the map for a class for the
 .B BEST_EFFORT
-priority. If found, chose it, and terminate.
+priority. If found, choose it, and terminate.
 .TP
 (iii)
-Chose the class at which breakout to the fallback algorithm occured. Terminate.
+Choose the class at which breakout to the fallback algorithm occured. Terminate.
 .P
 The packet is enqueued to the class which was chosen when either algorithm 
 terminated. It is therefore possible for a packet to be enqueued *not* at a
