@@ -1,6 +1,5 @@
 #!/bin/sh
-grep "^  o  " 2.4routing.txt  | grep " \<" | grep \>$ | sed "s/^  o  / /" | 
-	cut -f1 -d\< |
+	tail -1000 lartc.txt | grep "^     \*" | cut -f1 -d\< | cut -f2 -d\* |
 	tr \\n "," | 
 	sed "s/ , /, /g" |
 	sed "s/,$//" 

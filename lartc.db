@@ -7945,7 +7945,7 @@ If the last two lines give an error, update your tc tool to a newer version!
 </Sect2>
 
     </Sect1>
-    <sect1 id="lartc.single.host"><title>Rate limiting a single host or netmask</title>
+    <sect1 id="lartc.ratelimit.single"><title>Rate limiting a single host or netmask</title>
       <para>
 	Although this is described in stupendous details elsewhere and in our manpages, this question gets asked a lot and 
 	happily there is a simple answer that does not need full comprehension of traffic control.
@@ -9061,18 +9061,25 @@ Charles Tassell &lt;ctassell&percnt;isn.net&gt;
 Glen Turner &lt;glen.turner&percnt;aarnet.edu.au&gt;
 </Para>
 </ListItem>
-<ListItem>
 
+<ListItem>
 <Para>
 Tea Sponsor: Eric Veldhuyzen &lt;eric&percnt;terra.nu&gt; 
 </Para>
 </ListItem>
-<ListItem>
 
+<ListItem>
 <Para>
 Song Wang &lt;wsong@ece.uci.edu&gt;
 </Para>
 </ListItem>
+
+  <ListItem>
+   <Para>
+   <author><firstname>Lazar</firstname><surname>Yanackiev</surname></author>
+   <address><email>Lyanackiev%gmx.net</email></address>
+   </Para>
+  </ListItem>
 
 </ItemizedList>
 

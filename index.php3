@@ -55,7 +55,7 @@ href=http://mr0vka.eu.org/tlumaczenia/2.4routing.html>
 <td><a href="#mailinglist">Mailinglist</a> </td>
 <td><strong><a href="#download">Download</a></strong></td>
 <td><a href=manpages/>Manpages</a></td>
-<td><strong><a href=HOWTO//cvs/2.4routing/html/index.html><font color=#ff0000>Dive
+<td><strong><a href=howto><font color=#ff0000>Dive
 in!</font></a></strong>
 <td><a href="#jobs">Jobs</a> </td>
 <td><a href="#bazaar">Bazaar</a></td>
@@ -65,7 +65,7 @@ in!</font></a></strong>
 Massive thanks to:<br>
 <small>
 <?
-readfile("HOWTO/cvs/2.4routing/contriblist");
+readfile("/home/ahu/content/lartc/cvs/2.4routing/contriblist");
 ?>
 </small></center>
 <p>
@@ -96,7 +96,7 @@ new</a> <a href=http://outpost.ds9a.nl>one</a>. We are very confident that we wi
 <tr><td valign=top>2002-04-11</td><td>Thanks to <a
 href=http://www.student.kun.nl/a.vanleeuwen/index-en.html>Arthur van
 Leeuwen</a> we finally have <a
-href=http://lartc.org/HOWTO//cvs/2.4routing/html/x247.html>
+href=http://lartc.org/howto/lartc.rpdb.multiple-links.html>
 a good section on how to combine multiple
 internet links succesfully</a>. Today is also <font color=#ff0000>FLAG
 DAY!</font> I've shifted to DocBook and all 'deep links' are now dead. 
@@ -142,7 +142,7 @@ mail, you can indicate this on the Mailman mailinglist management page.
 <p>
 Current version is 1.0.0 Files were last updated at 
 <?
-	if(!($st=stat("HOWTO/cvs/2.4routing/lartc.db")))
+	if(!($st=stat("lartc.db")))
 		$st=stat("lartc.db");
 	print date("Y-m-d H:i",$st[9]);
 	print " CET ";
@@ -170,15 +170,15 @@ A Korean translation can be found on
 Polish translation is <a
 href=http://mr0vka.eu.org/tlumaczenia/2.4routing.html>here</a>.
 <ul>
-<li><a href="HOWTO/cvs/2.4routing/cvs.log">CVS Changelog</a>
-<li><a href="HOWTO/cvs/2.4routing/lartc.db">DocBook SGML</A>
-<li><a href="HOWTO//cvs/2.4routing/lartc.txt">ASCII</A>, .txt
-<li><a href="HOWTO//cvs/2.4routing/html/index.html">HTML</A>, <a
-href="HOWTO//cvs/2.4routing/lartc.html">One-big-page
+<li><a href="cvs.log">CVS Changelog</a>
+<li><a href="lartc.db">DocBook SGML</A>
+<li><a href="lartc.txt">ASCII</A>, .txt
+<li><a href="howto/">HTML</A>, <a
+href="lartc.html">One-big-page
 HTML</A>, <a href="html.tar.gz">HTML tarfile</A>
-<li><a href="HOWTO//cvs/2.4routing/lartc.ps">ps</A>, <a href="HOWTO//cvs/2.4routing/lartc.ps.gz">ps.gz</A>
-<li><a href="HOWTO//cvs/2.4routing/lartc.pdf">pdf</A>, <a
-href="HOWTO//cvs/2.4routing/lartc.pdf.gz">pdf.gz</A>
+<li><a href="lartc.ps">ps</A>, <a href="lartc.ps.gz">ps.gz</A>
+<li><a href="lartc.pdf">pdf</A>, <a
+href="lartc.pdf.gz">pdf.gz</A>
 </ul>
 <a name="jobs"></a>
 <H2>Jobs list</H2>
