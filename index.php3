@@ -25,6 +25,8 @@ href=http://mailman.ds9a.nl/pipermail/lartc/>archive</a>, the <strong>only</stro
 <a href="#news">News</a> </td>
 <td><a href="#mailinglist">Mailinglist</a> </td>
 <td><strong><a href="#download">Download</a></strong></td>
+<td><strong><a href=HOWTO//cvs/2.4routing/output/2.4routing.html><font color=#ff0000>Dive
+in!</font></a></strong>
 <td><a href="#jobs">Jobs</a> </td>
 <td><a href="#bazaar">Bazaar</a></td>
 <td><a href="#sponsor">Sponsor</a>
@@ -46,6 +48,15 @@ This site attempts to document how to configure and use these features.
 <a name="news"></a>
 <h2>News</H2>
 <table border=1>
+<tr><td valign=top>2001-12-06</td><td>Finished documenting policing filters,
+added short piece on Generic Random Early Detection queueing.
+
+This is a major release and as such some things are changing. We are no
+longer the '2.4 HOWTO', the canonical name now is 'Linux Advanced Routing
+&amp; Shaping HOWTO', the canonical URL is <a
+href=http://ds9a.nl/lartc>http://ds9a.nl/lartc</a>. Bumped the version
+number to 0.9.0. Now is the time to help us spot mistakes, I'm going to push
+the HOWTO to the LDP somewhere next week, I want it to be perfect then.
 <tr><td valign=top>2001-12-03</td><td>All other queueing disciplines are now
 documented as well. Furthermore, '<a
 href=http://ds9a.nl/lartc/HOWTO//cvs/2.4routing/output/2.4routing-12.html>hashed filtered

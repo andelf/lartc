@@ -7,7 +7,7 @@
 
 <!-- Title information -->
 
-<title>Linux 2.4 Advanced Routing HOWTO
+<title>Linux Advanced Routing &amp; Traffic Control HOWTO
 <author>Netherlabs BV (bert hubert &lt;bert.hubert@netherlabs.nl&gt;)&nl;
 Gregory Maxwell &lt;greg@linuxpower.cx&gt; &nl;
 Remco van Mook &lt;remco@virtu.nl&gt; &nl;
@@ -15,7 +15,7 @@ Martijn van Oosterhout &lt;kleptog@cupid.suninternet.com&gt; &nl;
 Paul B Schroeder  &lt;paulsch@us.ibm.com&gt; &nl;
 Jasper Spaans &lt;jasper@spaans.ds9a.nl&gt; &nl;
 howto@ds9a.nl
-<date>v0.3.0 $Date$
+<date>v0.9.0 $Date$
 <abstract>
 A very hands-on approach to iproute2, traffic shaping and a bit of netfilter
 </abstract>
@@ -161,7 +161,7 @@ are not very common.
 <sect1>Access, CVS &amp; submitting updates
 <p>
 The canonical location for the HOWTO is <url
-url="http://www.ds9a.nl/2.4Routing" name="here">.
+url="http://www.ds9a.nl/lartc" name="here">.
 
 We now have anonymous CVS access available to the world at large. This is
 good in a number of ways. You can easily upgrade to newer versions of this
@@ -2641,7 +2641,7 @@ If your filter decides that it is overlimit, it can take 'actions'.
 Currently, three actions are available:
 <descrip>
 <tag>continue</tag>
-Unknown
+Causes this filter not to match, but perhaps other filters will.
 <tag>drop</tag>
 This is a very fierce option which simply discards traffic exceeding a
 certain rate. It is often used in the ingress policer and has limited uses.
@@ -2755,7 +2755,8 @@ only interested in the last part. This we send to hash table 1:, which we
 created earlier.
 
 It is quite complicated, but it does work in practice and performance will
-be staggering.
+be staggering. Note that this example could be improved to the ideal case
+where each chain contains 1 filter!
 <sect>Kernel network parameters 
 <p> 
 The kernel has lots of parameters which
@@ -3479,7 +3480,7 @@ See the section on 'Protecting your host from SYN floods' for an example on
 how this works.
 
 
-<sect1>Random Early Drop (RED)
+<sect1>Random Early Detection (RED)
 <p>
 This section is meant as an introduction to backbone routing, which often
 involves &lt;100 megabit bandwidths, which requires a different approach than
@@ -3499,7 +3500,8 @@ connections to behave very bursty during congestion.
 
 These issues with tail-drop are becoming increasingly troublesome on the
 Internet because the use of network unfriendly applications is increasing.
-The Linux kernel offers us RED, short for Random Early Detect.
+The Linux kernel offers us RED, short for Random Early Detect, also called
+Random Early Drop, as that is how it works.
 
 RED isn't a cure-all for this, applications which inappropriately fail to 
 implement exponential backoff still get an unfair share of the bandwidth,
@@ -3545,6 +3547,18 @@ works okay on high speed Internet links with a 1500byte MTU.
 Read <url url="http://www.aciri.org/floyd/papers/red/red.html"
 name="the paper on RED queueing"> by Sally Floyd and Van Jacobson for technical
 information.
+<sect1>Generic Random Early Detection
+<p>
+Not a lot is known about GRED. It looks like GRED with several internal
+queues, whereby the internal queue is chosen based on the Diffserv tcindex
+field. According to a slide found <url
+url="http://www.davin.ottawa.on.ca/ols/img22.htm" name="here">, it contains
+the capabilities of Cisco's 'Distributed Weighted RED', as well as Dave
+Clark's RIO.
+
+Each virtual queue can have its own Drop Parameters specified.
+
+FIXME: get Jamal or Werner to tell us more
 
 <sect1>VC/ATM emulation
 <p>
@@ -3560,7 +3574,7 @@ name="ATM on Linux homepage">.
 This qdisc is not included in the standard kernels but can be downloaded from 
 <url url="http://wipl-wrr.dkik.dk/wrr/">. 
 Currently the qdisc is only tested with Linux 2.2 kernels but it will 
-probably work with 2.4 kernels too.
+probably work with 2.4/2.5 kernels too.
 
 The WRR qdisc distributes bandwidth between its classes using the weighted 
 round robin scheme. That is, like the CBQ qdisc it contains classes 
@@ -4214,7 +4228,7 @@ disappear or get changed from point A to point B. You should also wonder if
 an organization that 'does not want to change anything' is doing the right
 thing.
 
-The Linux 2.4 bridge is documented on
+The Linux 2.4/2.5 bridge is documented on
 
 <url url=" http://bridge.sourceforge.net/" name="this page">.
 
@@ -4294,7 +4308,7 @@ of typing, but also because it easily allows you to make mistakes which make
 your bridge respond to ARP queries for networks it does not know how to
 route.
 
-With Linux 2.4 (and possibly 2.2), this possibility has been withdrawn and
+With Linux 2.4/2.5 (and possibly 2.2), this possibility has been withdrawn and
 has been replaced by a flag in the /proc directory, called 'proxy_arp'. The
 procedure for building a pseudo-bridge is then:
 
@@ -4417,7 +4431,7 @@ does therefor not need to see your 5Gbit/s of content flowing to the world,
 and cannot be a bottleneck.
 
 The LVS is implemented as a kernel patch in Linux 2.0 and 2.2, but as a
-Netfilter module in 2.4, so it does not need kernel patches! Their 2.4
+Netfilter module in 2.4/2.5, so it does not need kernel patches! Their 2.4
 support is still in early development, so beat on it and give feedback or
 send patches.
 
@@ -4455,7 +4469,7 @@ session, like this:
 # limit.conn -s SERVERIP -p SERVERPORT -l LIMIT
 </verb></tscreen>
 
-It works on Linux 2.2 and 2.4.
+It works on Linux 2.2 and 2.4/2.5.
 
 The second script is more complicated, and can be used to make lots of
 different queues based on iptables rules, which are used to mark packets
@@ -4565,6 +4579,7 @@ helping.
 <item>Ron Brinker &lt;service%emcis.com&gt;
 <item>Lennert Buytenhek &lt;buytenh@gnu.org&gt;
 <item>Esteve Camps &lt;esteve@hades.udg.es&gt;
+<item>Stef Coene &lt;stef.coene@docum.org&gt;
 <item>Gerry Creager N5JXS &lt;gerry%cs.tamu.edu&gt;
 <item>Marco Davids &lt;marco@sara.nl&gt;
 <item>Jonathan Day &lt;jd9812@my-deja.com&gt;
@@ -4577,6 +4592,7 @@ helping.
 <item>Martin Josefsson &lt;gandalf%wlug.westbo.se&gt;
 <item>Pawel Krawczyk &lt;kravietz%alfa.ceti.pl&gt;
 <item>Philippe Latu &lt;philippe.latu%linux-france.org&gt;
+<item>Arthur van Leeuwen &lt;arthurvl%sci.kun.nl&gt;
 <item>Jason Lunz &lt;j@cc.gatech.edu&gt;
 <item>Stuart Lynne &lt;sl@fireplug.net&gt;
 <item>Alexey Mahotkin &lt;alexm@formulabez.ru&gt;
@@ -4587,7 +4603,7 @@ helping.
 <item>Jorge Novo &lt;jnovo@educanet.net&gt;
 <item>Patrik &lt;ph@kurd.nu&gt;
 <item>Jason Pyeron &lt;jason%pyeron.com&gt;
-<item>Rusty Russell (with apologies for always misspelling your name)
+<item>Rusty Russell &lt;rusty%rustcorp.com.au&gt;
 <item>Jamal Hadi Salim &lt;hadi%cyberus.ca&gt;
 <item>David Sauer &lt;davids%penguin.cz&gt;
 <item>Sheharyar Suleman Shaikh &lt;sss23@drexel.edu&gt;
