@@ -1614,21 +1614,239 @@ web interface. Search for "ipv6 tunnel broker" on your favourite search engine.
 
 </chapter>
 
-<chapter id="lartc.ipsec">
-<Title>IPsec: secure IP over the Internet</Title>
+  <chapter id="lartc.ipsec">
+    <Title>IPSEC: secure IP over the Internet</Title>
+    <Para>
+      There are two kinds of IPSEC available for Linux these days. For 2.2 and 2.4, there is FreeS/WAN. They
+      have <ULink URL="http://www.freeswan.org/">an official site</ulink> and <ulink url="http://www.freeswan.ca">
+	an unofficial one</ulink> that is actually maintained. FreeS/WAN has traditionally not been merged with
+      the mainline kernel for a number of reasons. Most often mentioned are 'political' issues with Americans
+      working on crypto tainting its exportability. Furthermore, it does not integrate too well with the Linux kernel,
+      leading it to be a bad candidate for actual merging. 
+    </para>
+    <para>
+      Additionally, many parties have voiced worries about the quality of the code.
+    </para>
+    <para>
+      As of Linux 2.5.47, there is a native IPSEC implementation in the kernel. It was written by Alexey Kuznetsov and
+      Dave Miller, inspired by the work of the USAGI IPv6 group. With its merge, James Morris' CrypoAPI also became 
+      part of the kernel - it does the actual crypting.
+    </para>
+    <para>
+      This HOWTO will only document the 2.5+ version of IPSEC. FreeS/WAN is recommended for Linux 2.4 users for now, but be aware
+      that its configuration wil differ from the native IPSEC.
+    </para>
+    <para>
+      <note>
+	<para>
+	  As this is written, 2.5.47 has not even been released! A lot of what follows is likely to change. To try this with 2.5.46,
+	  fetch patches from the linux kernel mailinglist. Crude userspace utilities are <ulink url="ftp://ftp.inr.ac.ru/ip-routing/ipsec">
+	    here</ulink>.
+	</para>
+      </note>
+    </Para>
+    <para>
+      First, we'll show how to setup secure communication between two hosts. This sample can be made much
+      more complicated and powerful but we'll only do that in a later section.
+    </para>
+    <sect1 id="lartc.ipsec.intro"><title>Intro</title>
+      <para>
+	IPSEC is a complicated subject. A lot of information is available online, this HOWTO will concentrate on getting you
+	up and running and explaining the basic principles.
+      </para>
+      <para>
+	IPSEC offers a secure version of the Internet Protocol. Security in this context means two different things: encryption and authentication. 
+	A naive vision of security offers only encryption but it can easily be shown that is insufficient - you may be communicating encyphered,
+	but no guarantee is offered that the remote party is the one you expect it to be.
+      </para>
+      <para>
+	This is why SSL certificates exist - just doing crypto without authentication does not cut it.
+      </para>
+      <para>
+	IPSEC supports 'Encapsulated Security Payload' (ESP) for encryption and 'Authentication Header' (AH) for authenticating the remote partner.
+	You should configure both of them. 
+      </para>
+      <para>
+	Both ESP and AH rely on security associations. A security association (SA) consists of a source, a destination and an instruction. A sample 
+	authentication SA may look like this:
+	<screen>
+	  add 10.0.0.11 10.0.0.216 ah 15700 -A hmac-md5 "1234567890123456";
+	</screen>
+	This says 'traffic going from 10.0.0.11 to 10.0.0.216 that needs an AH can be signed using HMAC-MD5 using secret 1234567890123456'. This instruction
+	is labelled with SPI id '15700', more about that later.
+	The interesting bit about SAs is that they are symmetrical. Both sides of a conversation share exactly the same SA. It is not mirrored on the
+	other side. Do note however that there is no 'autoreverse' rule - this SA only describes a possible authentication from 10.0.0.11 to 
+	10.0.0.216. For two-way traffic, two SAs are needed.
+      </para>
+      <para>
+	A sample ESP SA:
+	<screen>
+add 10.0.0.11 10.0.0.216 esp 15701 -E 3des-cbc "123456789012123456789012";
+	</screen>
+	This says 'traffic going from 10.0.0.11 to 10.0.0.216 that needs encryption can be encyphered using 3des-cbc with key 123456789012123456789012'. The
+	SPI id is '15701'.
+      </para>
+      <para>
+	So far, we've seen that SAs describe possible instructions, but do not in fact describe policy as to when these need to be used. In fact,
+	there could be an arbitrary number of nearly identical SAs with only differing SPI ids. Incidentally, SPI stands for Security Parameter Index.
+	To do actual crypto, we need to describe a policy. This policy can include things as 'use ipsec if available' or 'drop traffic unless we have ispec'.
+      </para>
+      <para>
+	A typical simple Security Policy (SP) looks like this:
+	<screen>
+spdadd 10.0.0.216 10.0.0.11 any -P out ipsec
+   esp/transport//require
+   ah/transport//require;
+	</screen>
+	If entered on host 10.0.0.216, this means that all traffic going out to 10.0.0.11 must be encrypted 
+	and be wrapped in an AH authenticating header. Note that this does not descibe which SA is to be used,
+	that is left as an excercise for the kernel to determine.
+      </para>
+      <para>
+	Outgoing packets are however labelled with the SAs SPI ids the kernel used for encryption and authentication 
+	so the remote can lookup the corresponding verification and decryption instruction.
+      </para>
+      <para>
+	What follows is a very simple configuration for talking from host 10.0.0.216 to 10.0.0.11 using 
+	encryption and authentication. Note that the reverse path is plaintext in this first version and that
+	this configuration should not be deployed.
+      </para>
+      <para>
+	On host 10.0.0.216:
+	<screen>
+#!/sbin/setkey -f
+add 10.0.0.216 10.0.0.11 ah 24500 -A hmac-md5 "1234567890123456";          
+add 10.0.0.216 10.0.0.11 esp 24501 -E 3des-cbc "123456789012123456789012";
 
-<Para>
-FIXME: editor vacancy.
-In the meantime, see: <ULink URL="http://www.freeswan.org/">
-  The FreeS/WAN project</ULink>.
-Another IPSec implementation for Linux is Cerberus,
-by NIST. However, their web pages have not been updated in over a year,
-and their version tended to trail well behind the current Linux kernel.
-USAGI, an alternative IPv6 implementation for Linux, also includes an
-IPSec implementation, but that might only be for IPv6.
-</Para>
+spdadd 10.0.0.216 10.0.0.11 any -P out ipsec
+   esp/transport//required
+   ah/transport//required;
+	</screen>
+      </para>
+      <para>
+	On host 10.0.0.11, the same Security Associations, no Security Policy:
+	<screen>
+#!/sbin/setkey -f
+add 10.0.0.216 10.0.0.11 ah 24500 -A hmac-md5 "1234567890123456";
+add 10.0.0.216 10.0.0.11 esp 24501 -E 3des-cbc "123456789012123456789012";
+	</screen>
+      </para>
+      <para>
+	With the above configuration in place (these files can be executed if 'setkey' is installed in /sbin),
+	'ping 10.0.0.11' from 10.0.0.216 looks like this using tcpdump:
+	<screen>
+22:37:52 10.0.0.216 &gt; 10.0.0.11: AH(spi=0x00005fb4,seq=0xa): ESP(spi=0x00005fb5,seq=0xa) (DF)
+22:37:52 10.0.0.11 &gt; 10.0.0.216: icmp: echo reply
+	</screen>
+	Note how the ping back from 10.0.0.11 is indeed plainly visible. The forward ping cannot be read by tcpdump
+	of course, but it does show the Security Parameter Index of AH and ESP, which tells 10.0.0.11 how to 
+	verify the authenticity of our packet and how to decrypt it.
+      </para>
+      <para>
+	A few things must be mentioned however. The configuration above is shown in a lot of IPSEC examples and it is very dangerous.
+	The problem is that the above contains policy on how 10.0.0.216 should treat packets going to 10.0.0.11, and that it explains how 10.0.0.11
+	should treat those packets but it does NOT instruct 10.0.0.11 to discard unauthenticated or unencrypted traffic! 
+      </para>
+      <para>
+	Anybody can now insert spoofed and completely unencrypted data and 10.0.0.11 will accept it. To remedy the above, we need an incoming 
+	Security Policy on 10.0.0.11, as follows:
+	<screen>
+#!/sbin/setkey -f 
+spdadd 10.0.0.216 10.0.0.11 any -P IN ipsec
+   esp/transport//require
+   ah/transport//require;
+	</screen>
+	This instructs 10.0.0.11 that any traffic coming to it from 10.0.0.216 is required to have valid ESP and AH.
+      </para>
+      <para>
+	Now, to complete this configuration, we need return traffic to be encrypted and authenticated as well of course. The full configuration on
+	10.0.0.216:
+	<screen>
+#!/sbin/setkey -f
+flush;
+spdflush;
 
-</chapter>
+# AH
+add 10.0.0.11 10.0.0.216 ah 15700 -A hmac-md5 "1234567890123456";
+add 10.0.0.216 10.0.0.11 ah 24500 -A hmac-md5 "1234567890123456";
+
+# ESP
+add 10.0.0.11 10.0.0.216 esp 15701 -E 3des-cbc "123456789012123456789012";
+add 10.0.0.216 10.0.0.11 esp 24501 -E 3des-cbc "123456789012123456789012";
+
+spdadd 10.0.0.216 10.0.0.11 any -P out ipsec
+           esp/transport//require
+           ah/transport//require;
+
+spdadd 10.0.0.11 10.0.0.216 any -P in ipsec
+           esp/transport//require
+           ah/transport//require;
+	  
+	</screen>
+      </para>
+      <para>
+	And on 10.0.0.11:
+	<screen>
+#!/sbin/setkey -f
+flush;
+spdflush;
+
+# AH
+add 10.0.0.11 10.0.0.216 ah 15700 -A hmac-md5 "1234567890123456";
+add 10.0.0.216 10.0.0.11 ah 24500 -A hmac-md5 "1234567890123456";
+
+# ESP
+add 10.0.0.11 10.0.0.216 esp 15701 -E 3des-cbc "123456789012123456789012";
+add 10.0.0.216 10.0.0.11 esp 24501 -E 3des-cbc "123456789012123456789012";
+
+
+spdadd 10.0.0.11 10.0.0.216 any -P out ipsec
+           esp/transport//require
+           ah/transport//require;
+
+spdadd 10.0.0.216 10.0.0.11 any -P in ipsec
+           esp/transport//require
+           ah/transport//require;
+
+	</screen>
+      </para>
+      <para>
+	Note that in this example we used identical keys for both directions of traffic. This is not required however.
+      </para>
+    </sect1>
+    <sect1 id="lartc.ipsec.automatic.keying"><title>Automatic keying</title>
+      <para>
+	In the previous section, encryption was configured using simple shared secrets. In other words, to remain secure,
+	we need to transfer our encryption configuration over a trusted channel. If we were to configure the remote host 
+	over telnet, any third party would know our shared secret and the setup would not be secure.
+      </para>
+      <para>
+	Furthermore, because the secret is shared, it is not a secret. The remote can't do a lot with our secret, but we do 
+	need to make sure that we use a different secret for communicating with all our partners. This requires a large number of keys,
+	if there are 10 parties, this needs at least 50 different secrets. 
+      </para>
+      <para>
+	To solve this, IPSEC provides Internet Key Exchange to automatically exchange randomly generated keys which are
+	transmitted using asymmetric encryption technology.
+      </para>
+      <para>
+	The Linux 2.5 IPSEC implementation works with the KAME 'racoon' IKE daemon.
+      </para>
+      <para>
+	FIXME: write more
+      </para>
+    </sect1>
+    <sect1 id="lartc.ipsec.tunnel"><title>IPSEC tunnels</title>
+      <para>
+	So far, we've only seen IPSEC in so called 'transport' mode where both endpoints understand IPSEC directly. As this is often not
+	the case, it is often necessary to have only routers understand IPSEC, and have them do the work for the hosts behind them. 
+	This is called 'tunnel mode'.
+      </para>
+      <para>
+	FIXME: write more
+      </para>
+    </sect1>
+  </chapter>
 
 <chapter id="lartc.multicast">
 <Title>Multicast routing</Title>
