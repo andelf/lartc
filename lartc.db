@@ -1759,7 +1759,7 @@ Internally, the number is stored in bps and b.
 </Para>
 
 <literallayout class='monospaced'>
-1Mbit = 1024 Kbit = 1024 * 1024 bps =&#62; bit/s
+1Mbit = 1024 Kbit = 1024 * 1024 bps =&#62; byte/s
 </literallayout>
 
 <Sect1 id="lartc.qdisc.explain">
@@ -5146,6 +5146,13 @@ answered 'Yes' to 'Configure as router and not host' while compiling your
 kernel.
 </Para>
 
+<para>
+Oskar Andreasson also has a page on all these flags and it appears to be
+better than ours, so also check 
+<ulink url="http://ipsysctl-tutorial.frozentux.net/">
+http://ipsysctl-tutorial.frozentux.net/</ulink>.
+</para>
+
 <Sect2>
 <Title>Generic ipv4</Title>
 
@@ -7986,20 +7993,14 @@ The Linux 2.4/2.5 bridge is documented on
   <Title>State of bridging and iptables</Title>
 
 <Para>
-As of Linux 2.4.14, bridging and iptables do not 'see' each other without
+As of Linux 2.4.20, bridging and iptables do not 'see' each other without
 help. If you bridge packets from eth0 to eth1, they do not 'pass' by
 iptables. This means that you cannot do filtering, or NAT or mangling or
-whatever.
+whatever. In Linux 2.5.45 and higher, this is fixed.
 </Para>
-
-<Para>
-There are several projects going on to fix this, the truly right one is by
-the author of the Linux 2.4 bridging code, Lennert Buytenhek. He recently
-informed us that as of bridge-nf 0.0.2 (see the url above), the code is
-stable and usable in production environments.  He is now asking the kernel
-people if and how the patch can be merged, stay tuned!
-</Para>
-
+<para>
+You may also see 'ebtables' mentioned which is yet another project - it
+allows you to do wild things as MACNAT and 'brouting'. It is truly scary.
 </Sect1>
 
 <Sect1 id="lartc.bridging.shaping">
@@ -8978,8 +8979,15 @@ Mihai RUSU &lt;dizzy&percnt;roedu.net&gt;
 Jamal Hadi Salim &lt;hadi&percnt;cyberus.ca&gt;
 </Para>
 </ListItem>
-<ListItem>
 
+<ListItem>
+<Para>
+Ren? Serral &lt;rserral%ac.upc.es&gt; 
+</Para>
+</ListItem>
+
+
+<ListItem>
 <Para>
 David Sauer &lt;davids&percnt;penguin.cz&gt;
 </Para>
@@ -9045,6 +9053,8 @@ Glen Turner &lt;glen.turner&percnt;aarnet.edu.au&gt;
 Tea Sponsor: Eric Veldhuyzen &lt;eric&percnt;terra.nu&gt; 
 </Para>
 </ListItem>
+
+
 
 <ListItem>
 <Para>
