@@ -16,9 +16,11 @@ href=http://www.virtu.nl>Virtu Secure Webservices</a>) &lt;remco@virtu.nl&gt; <b
 Martijn van Oosterhout &lt;kleptog@cupid.suninternet.com&gt; <br>
 Paul B Schroeder &lt;paulsch@us.ibm.com&gt; <br>
 <a href="http://jsp.ds9a.nl/">Jasper Spaans</a> &lt;jasper@spaans.ds9a.nl&gt; <br>
-<a href="mailto:HOWTO@ds9a.nl">HOWTO@ds9a.nl</a> (HOWTO) / 
+<a href="mailto:HOWTO@ds9a.nl">HOWTO@ds9a.nl</a> (HOWTO related only, do
+<strong>not</strong> send questions) <br>
 <a href="mailto:LARTC@mailman.ds9a.nl">lartc@mailman.ds9a.nl</a> 
-(<a href="#mailinglist">mailing list</a>)</td><td valign=bottom align=right><table border=1>
+(<a href="#mailinglist">mailing list</a>/<a
+href=http://mailman.ds9a.nl/pipermail/lartc/>archive</a>, the <strong>only</strong> place to send questions!</a>)</td><td valign=bottom align=right><table border=1>
 <tr><td>
 <a href="#news">News</a> </td>
 <td><a href="#mailinglist">Mailinglist</a> </td>
@@ -29,6 +31,13 @@ Paul B Schroeder &lt;paulsch@us.ibm.com&gt; <br>
 </td></tr>
 </table></td>
 </table>
+<center>
+Massive thanks to:<br>
+<small>
+<?
+readfile("HOWTO/cvs/2.4routing/contriblist");
+?>
+</small></center>
 <p>
 
 Linux has very advanced Routing, filtering and traffic shaping options.
@@ -39,18 +48,18 @@ This site attempts to document how to configure and use these features.
 <table border=1>
 <tr><td valign=top>2001-12-03</td><td>All other queueing disciplines are now
 documented as well. Furthermore, '<a
-href=http://ds9a.nl/2.4Routing/HOWTO//cvs/2.4routing/output/2.4routing-12.html>hashed filtered
+href=http://ds9a.nl/lartc/HOWTO//cvs/2.4routing/output/2.4routing-12.html>hashed filtered
 queueing</a>' (last section) is also
 explained. Some chapters were shuffled, this chapter is mostly new:
 <a
-href=http://ds9a.nl/2.4Routing/HOWTO//cvs/2.4routing/output/2.4routing-14.html>14.
+href=http://ds9a.nl/lartc/HOWTO/cvs/2.4routing/output/2.4routing-14.html>14.
 Advanced & less common queueing disciplines</a>. Chapter 9 was improved a
 lot too. Only policing filters are next!
 </td>
 <tr><td valign=top>2001-12-01</td><td>CBQ is now nearly completely
 documented. And how shaping works in general as well. Big reorganization.
 Read all about it <a
-href=http://ds9a.nl/2.4Routing/HOWTO//cvs/2.4routing/output/2.4routing-9.html>here</a>!
+href=http://ds9a.nl/lartc/HOWTO//cvs/2.4routing/output/2.4routing-9.html>here</a>!
 </td>
 <tr><td valign=top>2001-11-28</td><td>Lecture was given to a pretty full
 room, read more about it <a
@@ -72,7 +81,7 @@ supplier has so far managed to ship a broken system twice. New hardware has
 just arrived, so we hope to be back soon.. Apologies for having the
 mailinglist down for so long...
 </td>
-<tr><td>2000</td><td><a href=oldnews.html>Older news</a></td>
+<tr><td>2000/2001</td><td><a href=oldnews.html>Older news</a></td>
 </table>
 <a name="mailinglist"></a>
 <H2>LARTC Mailinglist</H2>
@@ -94,7 +103,7 @@ become 'members only' - so please <a
 href=http://mailman.ds9a.nl/mailman/listinfo/lartc>subscribe</a> first!</font>
 
 <a name="download"></a>
-<H2>Linux 2.4 Advanced Routing &amp; Traffic Control HOWTO</H2>
+<H2>Linux Advanced Routing &amp; Traffic Control HOWTO</H2>
 <p>
 Current version is 0.9.0 Files were last updated at 
 <?

@@ -1,11 +1,15 @@
 # $Id$ 
 
-all: dummy 2.4routing.txt 2.4routing.dvi 2.4routing.ps 2.4routing.ps.gz 2.4routing.pdf 2.4routing.pdf.gz output/2.4routing.html 2.4routing-howto.html 2.4routing.tar.gz 
+all: dummy 2.4routing.txt 2.4routing.dvi 2.4routing.ps 2.4routing.ps.gz \
+     2.4routing.pdf 2.4routing.pdf.gz output/2.4routing.html \
+     2.4routing-howto.html 2.4routing.tar.gz contriblist
 
 dummy:
 	cvs update
 	cvs log > cvs.log
 
+contriblist: 2.4routing.txt
+	./makecontriblist > contriblist
 
 clean:
 	rm -f *~ 2.4routing.{txt,dvi,ps,ps.gz,pdf,pdf.gz,tex,tar.gz} output/2.4routing*html 
