@@ -8146,7 +8146,15 @@ On a Cisco, this is done using the command 'clear arp-cache', under
 Linux, use 'arp -d ip.address'. You can also wait for the cache to expire
 manually, which can take rather long.
 </Para>
-
+<para>
+You can speed this up using the wonderful 'arping' tool, which on many
+distributions is part of the 'iputils' package. Using 'arping' you can send
+out unsollicited ARP messages so as to update remote arp caches. 
+</para>
+<para>
+This is a very powerful technique that is also used by 'black hats' to
+subvert your routing!
+</para>
 <Para>
 You may also discover that your network was misconfigured if you are/were of
 the habit of specifying routes without netmasks. To explain, some versions
@@ -8602,6 +8610,7 @@ helping.
    <author><firstname>Joe</firstname><surname>Van Andel</surname></author>
    </Para>
   </ListItem>
+
   <ListItem>
    <Para>
    <author><firstname>Michael</firstname><othername>T.</othername>
@@ -8609,6 +8618,17 @@ helping.
    <address><email>mbabcock@fibrespeed.net</email></address>
    </Para>
   </ListItem>
+
+
+  <ListItem>
+   <Para>
+   <author><firstname>Christopher</firstname>
+     <surname>Barton</surname></author>
+   <address><email>cpbarton%uiuc.edu</email></address>
+   </Para>
+  </ListItem>
+
+
   <ListItem>
    <Para>
    <author><firstname>Ard</firstname><surname>van Breemen</surname></author>
