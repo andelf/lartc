@@ -1,14 +1,13 @@
 <html>
-<head><title>Linux 2.4 Advanced Routing &amp; Traffic Control HOWTO</title></head>
+<head><title>Linux Advanced Routing &amp; Traffic Control HOWTO</title></head>
 <body bgcolor=#ffffff>
 
-<table><tr><td>
-<H1>Linux 2.4 Advanced Routing &amp; Traffic Control</H1>
-</td><td valign=top><a href=http://www.powerdns.com><img
-src=http://ds9a.nl/pub/pdns88x33c.gif></a></td>
-</table>
+<table width=100%><tr><td>
+<H1>Linux Advanced Routing &amp; Traffic Control</H1>
 
-<a href="http://ds9a.nl/">bert hubert</a> (<a
+</td><td valign=top align=right><a href=http://www.powerdns.com><img
+src=http://ds9a.nl/pub/pdns88x33c.gif></a><p></td>
+<tr><td><a href="http://ds9a.nl/">bert hubert</a> (<a
 href=http://www.powerdns.com>PowerDNS.COM BV</a>) <a href=mailto:bert.hubert@netherlabs.nl>&lt;bert.hubert@netherlabs.nl&gt;</a>,<br>
 <a href="http://linuxpower.cx/~greg/">Greg Maxwell</a> <a
 href=mailto:greg@linuxpower.cx>&lt;greg@linuxpower.cx&gt;</a> and <br>
@@ -19,23 +18,35 @@ Paul B Schroeder &lt;paulsch@us.ibm.com&gt; <br>
 <a href="http://jsp.ds9a.nl/">Jasper Spaans</a> &lt;jasper@spaans.ds9a.nl&gt; <br>
 <a href="mailto:HOWTO@ds9a.nl">HOWTO@ds9a.nl</a> (HOWTO) / 
 <a href="mailto:LARTC@mailman.ds9a.nl">lartc@mailman.ds9a.nl</a> 
-(<a href="#mailinglist">mailing list</a>)
-<p>
-<strong>Click <a href="#download">here</a> to download NOW!</strong>
+(<a href="#mailinglist">mailing list</a>)</td><td valign=bottom align=right><table border=1>
+<tr><td>
+<a href="#news">News</a> </td>
+<td><a href="#mailinglist">Mailinglist</a> </td>
+<td><strong><a href="#download">Download</a></strong></td>
+<td><a href="#jobs">Jobs</a> </td>
+<td><a href="#bazaar">Bazaar</a></td>
+<td><a href="#sponsor">Sponsor</a>
+</td></tr>
+</table></td>
+</table>
 <p>
 
-Linux 2.4 has very advanced Routing, filtering and traffic shaping options.
+Linux has very advanced Routing, filtering and traffic shaping options.
 This site attempts to document how to configure and use these features.
 
-<p>
-After some prodding by Rusty Russell, work started on the Advanced Routing
-&amp; Traffic Shaping HOWTO. Rusty had also suggested writing a complete,
-from the ground up, 2.4 Routing document. We attempted to do so but the
-momentum lacked. We have therefore decided to concentrate on the advanced
-HOWTO.
-
+<a name="news"></a>
 <h2>News</H2>
 <table border=1>
+<tr><td valign=top>2001-12-03</td><td>All other queueing disciplines are now
+documented as well. Furthermore, '<a
+href=http://ds9a.nl/2.4Routing/HOWTO//cvs/2.4routing/output/2.4routing-12.html>hashed filtered
+queueing</a>' (last section) is also
+explained. Some chapters were shuffled, this chapter is mostly new:
+<a
+href=http://ds9a.nl/2.4Routing/HOWTO//cvs/2.4routing/output/2.4routing-14.html>14.
+Advanced & less common queueing disciplines</a>. Chapter 9 was improved a
+lot too. Only policing filters are next!
+</td>
 <tr><td valign=top>2001-12-01</td><td>CBQ is now nearly completely
 documented. And how shaping works in general as well. Big reorganization.
 Read all about it <a
@@ -60,23 +71,7 @@ broken</a>,
 supplier has so far managed to ship a broken system twice. New hardware has
 just arrived, so we hope to be back soon.. Apologies for having the
 mailinglist down for so long...
-
 </td>
-<tr><td valign=top>2001-07-17</td><td><a href=/404.html>Our server broke
-down, badly</a>. Mailinglist defunct. Very unhappy</td>
-<tr><td valign=top>2001-07-15</td><td>New <a href=autoloadbalance.php>tentative
-document</a> about 'auto loadbalancing'. Might become a chapter, or a separate project one
-day</td>
-<tr><td valign=top>2001-07-13</td><td>Bert, Jasper and Remco will attend <a
-href=http://www.hal2001.org>HAL2001</a>, a hackers conference. We're all in
-the FHQ committee who are arranging for the 1gbit/s internet uplink on the
-campground, we look forward to seeing you there!</td>
-
-<tr><td valign=top>2001-03-11</td><td>Information on Path MTU Discovery
-problems, and more obscure settings documented</td>
-<tr><td valign=top>2001-02-09</td><td>Some new additions, but the major news
-is that our PDFs finally look good! Get our Makefile and see how it is
-done. To celebrate, we bumped the version number to 0.3.0.</td>
 <tr><td>2000</td><td><a href=oldnews.html>Older news</a></td>
 </table>
 <a name="mailinglist"></a>
@@ -140,14 +135,16 @@ href="/cgi-bin/viewcvs4.cgi/2.4routing">changes</a>
 (fixed, and now looking very spiffy!)
 <li><a href="HOWTO//cvs/2.4routing/2.4routing.tar.gz">HTML tarfile</A>
 </ul>
+<a name="jobs"></a>
 <H2>Jobs list</H2>
 Like the Linux kernel, we have a jobs list. If you have any expertise
 in any of these areas, please pitch in.
 <ul>
 <li>There are a *lot* of FIXME notices, so this means YOU!</li>
-<li>Multicast routing</li>
 <li>IPsec</li>
+<li>Multipath routing
 </ul>
+<a name="bazaar"></a>
 <H2>Bazaar</H2>
 This HOWTO is intended to be very much a <a
 href="http://www.tuxedo.org/~esr/writings/cathedral-bazaar/">Bazaar</a> style development. If it
@@ -168,7 +165,8 @@ The idea is that this HOWTO will be a cooperative effort, much like the
 Linux kernel itself. For the moment, we will be playing 'Linus', and we soon
 hope to be joined by Alans, Daves, Ingos etcetera.
 <p>
-
+<a name="sponsor"></a>
+<H2>Sponsor</h2>
 <a href=http://www.powerdns.com>
 This site made possible by PowerDNS, for all your domain needs. 
 </a>

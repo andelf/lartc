@@ -1269,7 +1269,7 @@ If you have a device which has identical link speed as actual available
 rate, like a phone modem, this configuration will help promote fairness:
 <verb>
 # tc qdisc add dev ppp0 root sfq perturb 10
-# tc qdisc -s -d ls
+# tc -s -d qdisc ls
 qdisc sfq 800c: dev eth0 quantum 1514b limit 128p flows 128/1024 perturb 10sec 
  Sent 4812 bytes 62 pkts (dropped 0, overlimits 0) 
 </verb>
@@ -3379,7 +3379,7 @@ You can use it as any other kind of filter.
 I recommend you to look at all DiffServ examples included in iproute2 distribution. I promise I will try to
 complement this text as soon as I can. Besides, all I have explained is the result of a lot of tests.
 I would thank you tell me if I'm wrong in any point.
-<sect2>Ingress policer qdisc
+<sect1>Ingress policer qdisc
 <p> 
 The Ingress qdisc comes in handy if you need to ratelimit a host without
 help from routers or other Linux boxes. You can police incoming bandwidth
