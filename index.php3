@@ -27,10 +27,26 @@ Paul B Schroeder &lt;paulsch@us.ibm.com&gt; <br>
 <a href="#mailinglist">lartc@mailman.ds9a.nl</a>
 (<small>mailing list</a>/<a
 href=http://mailman.ds9a.nl/pipermail/lartc/>archive</a>, the <strong>only</strong> place to send
-questions!</a></small>)<br>
+questions!</a>)<br>
+(<font color=#ff0000><a href=#mailinglist>subscribe</a> before posting!</font>)<br></small>
 #lartc on <a href=http://www.openprojects.net>irc.openprojects.net</a> (<a
 href=dejairc.php>archives</a>)</td><td valign=bottom align=right>
 
+</td>
+<td valign=top>Translations:
+<br>
+<a
+href=http://www.linux-france.org/prj/inetdoc/i/net/guides/2.4routingfr/>
+	[ French ]
+</a>
+<br><a href="http://www.gnukorea.org/2.4routing-kr/2.4routing.html">
+	[ Korean ]
+</a>
+<br>
+<a
+href=http://mr0vka.eu.org/tlumaczenia/2.4routing.html>
+	[ Polish ]
+</a>
 </td>
 </table>
 <center>
@@ -60,7 +76,29 @@ This site attempts to document how to configure and use these features.
 
 <a name="news"></a>
 <h2>News</H2>
+I'm running <b>dangerously</b> low on Marks &amp; Spencer Earl Grey tea and
+M&amp;S closed in Europe and no other place here sells bags that can
+compare. I hear that Twinings (the black boxes) are also ok. So if you are
+from the UK and are feeling thankful, my office is at the Duinweg 37,
+2585 AM, The Hague, The Netherlands. Thanks - bert hubert. I think you can
+just shake the bags out of the foil package and ship them in a regular
+envelope.
+<p>
 <table border=1>
+<tr><td valign=top>2002-02-07</td><td>Back from holiday. Bought lartc.org, 
+will bring it in service soon. New <a
+href=http://mr0vka.eu.org/tlumaczenia/2.4routing.html>Polish
+translation!</a></td>
+<tr><td valign=top>2002-01-13</td><td>Downtime. I returned home yesterday
+evening in what might be described as a 'highly entertained' state and
+accidentally shut down <a href=http://outpost.powerdns.com>outpost</a>
+instead of my laptop. Also, I'm on holiday from beginning this week until
+early February. So expect some silence.</td>
+<tr><td valign=top>2002-01-04</td><td>We now have a favicon! Stolen from <a
+href=http://www.kernel.org>www.kernel.org</a>. In other news, I've been
+painting the <a href=http://ds9a.nl>house</a> and I'm busy at <a
+href=http://www.powerdns.com>work</a> so it has been a bit quiet. But I'm
+still there, don't worry.</td>
 <tr><td valign=top>2002-01-04</td><td>We now have a favicon! Stolen from <a
 href=http://www.kernel.org>www.kernel.org</a>. In other news, I've been
 painting the <a href=http://ds9a.nl>house</a> and I'm busy at <a
@@ -78,52 +116,7 @@ href=manpages/>manpages</a> now include a huge CBQ page. Read it and weep.</td>
 <a href=http://www.openprojects.net>irc.openprojects.net</a>. Join #lartc
 to chat about Linux &amp; Routing &amp; Shaping!</td>
 
-<tr><td valign=top>2001-12-06</td><td>Finished documenting policing filters,
-added short piece on Generic Random Early Detection queueing.
 
-This is a major release and as such some things are changing. We are no
-longer the '2.4 HOWTO', the canonical name now is 'Linux Advanced Routing
-&amp; Shaping HOWTO', the canonical URL is <a
-href=http://ds9a.nl/lartc>http://ds9a.nl/lartc</a>. Bumped the version
-number to 0.9.0. Now is the time to help us spot mistakes, I'm going to push
-the HOWTO to the LDP somewhere next week, I want it to be perfect then. Oh,
-and we re-licensed under the Open Publication License, which increases
-your freedom as a user.
-<tr><td valign=top>2001-12-03</td><td>All other queueing disciplines are now
-documented as well. Furthermore, '<a
-href=http://ds9a.nl/lartc/HOWTO//cvs/2.4routing/output/2.4routing-12.html>hashed filtered
-queueing</a>' (last section) is also
-explained. Some chapters were shuffled, this chapter is mostly new:
-<a
-href=http://ds9a.nl/lartc/HOWTO/cvs/2.4routing/output/2.4routing-14.html>14.
-Advanced & less common queueing disciplines</a>. Chapter 9 was improved a
-lot too. Only policing filters are next!
-</td>
-<tr><td valign=top>2001-12-01</td><td>CBQ is now nearly completely
-documented. And how shaping works in general as well. Big reorganization.
-Read all about it <a
-href=http://ds9a.nl/lartc/HOWTO//cvs/2.4routing/output/2.4routing-9.html>here</a>!
-</td>
-<tr><td valign=top>2001-11-28</td><td>Lecture was given to a pretty full
-room, read more about it <a
-href=http://ds9a.nl/cbq-presentation>here</a>.</td>
-<tr><td valign=top>2001-11-22</td><td>Mailinglist has been back for a while
-and is in full swing again. Server broken again, due to crappy 1U case
-design we are seeing CPU temperatures of 80C. In contact with vendor. Bert
-Hubert will be giving a lecture about CBQ during this year's <a
-href=http://www.linux-kongress.de>Linux Kongress</a>
-, you need to <b>be there</b>. There will be a tremendous Netfilter/iptables presence!
-</td>
-<tr><td valign=top>2001-09-11</td><td><a
-href=http://outpost.powerdns.com>New server</a>! If you can read this, it
-works. Expect the mailinglist to return shortly.
-</td>
-<tr><td valign=top>2001-09-09</td><td><a href=/404.html>Server still
-broken</a>,
-supplier has so far managed to ship a broken system twice. New hardware has
-just arrived, so we hope to be back soon.. Apologies for having the
-mailinglist down for so long...
-</td>
 <tr><td>2000/2001</td><td><a href=oldnews.html>Older news</a></td>
 </table>
 <a name="mailinglist"></a>
@@ -144,6 +137,9 @@ and google has picked it up as well.
 <font color=#ff0000>Please note that due to excessive spam the list has
 become 'members only' - so please <a
 href=http://mailman.ds9a.nl/mailman/listinfo/lartc>subscribe</a> first!</font>
+The moderator will not approve postings from non-subscribed addresses as he
+is not available at all times. If you just want to post, and not receive
+mail, you can indicate this on the Mailman mailinglist management page.
 
 <a name="download"></a>
 <H2>Linux Advanced Routing &amp; Traffic Control HOWTO</H2>
@@ -163,7 +159,8 @@ Current version is 0.9.0 Files were last updated at
 	}
 ?> 
 <p>
-The French version by Laurent Foucher and Philippe Latu from the 
+The French
+ version by Laurent Foucher and Philippe Latu from the 
 <a href=http://www.linux-france.org/prj/inetdoc>
 Technology Institute of the University of Toulouse</a>
 plus Thierry Mallard and Yannick Quenec'hdu from 
@@ -174,7 +171,9 @@ here</a>. Terrific work!
 <p>
 A Korean translation can be found on
 <a href="http://www.gnukorea.org/2.4routing-kr/2.4routing.html">here</a>.
-
+<p>
+Polish translation is <a
+href=http://mr0vka.eu.org/tlumaczenia/2.4routing.html>here</a>.
 <ul>
 <li><a href="HOWTO/cvs/2.4routing/cvs.log">CVS Changelog</a>
 <li><a href="HOWTO/cvs/2.4routing/2.4routing.sgml">SGML</A>

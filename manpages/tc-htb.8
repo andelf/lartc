@@ -1,6 +1,6 @@
-.TH CBQ 8 "16 December 2001" "iproute2" "Linux"
+.TH HTB 8 "10 January 2002" "iproute2" "Linux"
 .SH NAME
-CBQ \- Hierarchy Token Bucket
+HTB \- Hierarchy Token Bucket
 .SH SYNOPSIS
 .B tc qdisc ... dev
 dev
@@ -78,16 +78,16 @@ you are busy building your configuration.
 FIXME
 
 .SH QDISC
-The root of a CBQ qdisc class tree has the following parameters:
+The root of a HTB qdisc class tree has the following parameters:
 
 .TP 
 parent major:minor | root
-This mandatory parameter determines the place of the CBQ instance, either at the
+This mandatory parameter determines the place of the HTB instance, either at the
 .B root
 of an interface or within an existing class.
 .TP
 handle major:
-Like all other qdiscs, the CBQ can be assigned a handle. Should consist only
+Like all other qdiscs, the HTB can be assigned a handle. Should consist only
 of a major number, followed by a colon. Optional, but very useful if classes
 will be generated within this qdisc.
 .TP 

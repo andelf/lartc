@@ -60,17 +60,19 @@ function manpage($name,$desc="",$there=0)
 	print("</tr>");
 }
 manpage("tc","The main command",1);
+manpage("tc-bfifo","Byte limited First In First Out (redirect to pbfifo)",0);
 manpage("tc-filter","tc filters in depth",0);
 manpage("tc-cbq","The Class Based Queueing qdisc",1);
+manpage("tc-cbq-details","The Class Based Queueing qdisc in gory detail",0);
 manpage("tc-dsmark","The DiffServ qdisc");
-manpage("tc-htb","The Hierarchy Token Bucket qdisc");
-manpage("tc-sfq","Stochastic Fairness Queueing",1);
-manpage("tc-red","Random Early Detection",1);
-manpage("tc-tbf","Token Bucket Filter",1);
-manpage("tc-pfifo","Packet limited First In First Out");
-manpage("tc-bfifo","Byte limited First In First Out");
+manpage("tc-htb","The Hierarchy Token Bucket qdisc",1);
+manpage("tc-pbfifo","Packet &amp; byte limited First In First Out",1);
+manpage("tc-pfifo","Packet limited First In First Out (redirect to pbfifo)",0);
+manpage("tc-pfifo_fast","Default three-band scheduler",1);
 manpage("tc-prio","N-band classful scheduler",1);
-manpage("tc-pfifo_fast","Default three-band scheduler");
+manpage("tc-red","Random Early Detection",1);
+manpage("tc-sfq","Stochastic Fairness Queueing",1);
+manpage("tc-tbf","Token Bucket Filter",1);
 ?>
 </table>
 

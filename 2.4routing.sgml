@@ -3299,6 +3299,10 @@ Maximum number of retries for unicast solicitation.
 Maximum queue  length  for a pending arp request - the number of packets which
 are accepted from other layers while the ARP address is still resolved.
 
+<tag>Internet QoS: Architectures and Mechanisms for Quality of Service,
+Zheng Wang, ISBN 1-55860-608-4</tag> Hardcover textbook covering topics
+related to Quality of Service. Good for understanding basic concepts.
+
 </descrip>
 
 <sect2>Routing settings
@@ -5074,9 +5078,11 @@ helping.
 
 <itemize>
 <item>Ron Brinker &lt;service%emcis.com&gt;
+<item>?ukasz Bromirski &lt;L.Bromirski@prosys.com.pl&gt;
 <item>Lennert Buytenhek &lt;buytenh@gnu.org&gt;
 <item>Esteve Camps &lt;esteve@hades.udg.es&gt;
 <item>Stef Coene &lt;stef.coene@docum.org&gt;
+<item>Don Cohen &lt;don-lartc%isis.cs3-inc.com&gt;
 <item>Jonathan Corbet &lt;lwn%lwn.net&gt;
 <item>Gerry Creager N5JXS &lt;gerry%cs.tamu.edu&gt;
 <item>Marco Davids &lt;marco@sara.nl&gt;
