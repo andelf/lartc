@@ -1825,7 +1825,9 @@ spdadd 10.0.0.216 10.0.0.11 any -P in ipsec
 	Note that in this example we used identical keys for both directions of traffic. This is not in any way required however.
       </para>
       <para>
-	To examine the configuration we just created, 
+	To examine the configuration we just created, execute <command>setkey -D</command>, which shows the Security Associations or 
+	<command>setkey -DP</command> which shows the configured policies.
+      </para>
     </sect1>
     <sect1 id="lartc.ipsec.automatic.keying"><title>Automatic keying</title>
       <para>
@@ -1853,7 +1855,8 @@ spdadd 10.0.0.216 10.0.0.11 any -P in ipsec
 	transmitted using asymmetric encryption technology, according to negotiated algorithm details.
       </para>
       <para>
-	The Linux 2.5 IPSEC implementation works with the KAME 'racoon' IKE daemon.
+	The Linux 2.5 IPSEC implementation works with the KAME 'racoon' IKE daemon. As of 8 November, the Racoon version in Alexey's kametools
+	distribution is non-functional.
       </para>
       <para>
 	FIXME: write more
@@ -1862,7 +1865,7 @@ spdadd 10.0.0.216 10.0.0.11 any -P in ipsec
     <sect1 id="lartc.ipsec.tunnel"><title>IPSEC tunnels</title>
       <para>
 	So far, we've only seen IPSEC in so called 'transport' mode where both endpoints understand IPSEC directly. As this is often not
-	the case, it is often necessary to have only routers understand IPSEC, and have them do the work for the hosts behind them. 
+	the case, it may be necessary to have only routers understand IPSEC, and have them do the work for the hosts behind them. 
 	This is called 'tunnel mode'.
       </para>
       <para>
@@ -1916,6 +1919,17 @@ spdadd 10.0.0.0/24 130.161.0.0/16 any -P in ipsec
 	</note>
       </para>
     </sect1>
+    <sect1 id="lartc.ipsec.interop"><title>IPSEC interoperation with other systems</title>
+      <para>
+	FIXME: Write this
+      </para>
+      <sect2 id="lartc.ipsec.interop.win32"><title>Windows</title>
+	<para>
+	  FIXME: Write this
+	</para>
+      </sect2>
+    </sect1>
+
   </chapter>
 
 <chapter id="lartc.multicast">
