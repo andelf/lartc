@@ -2239,12 +2239,12 @@ protocol 1 0xff'.
 You can mark packets with either ipchains and have that mark survive routing
 across interfaces. This is really useful to for example only shape traffic on
 eth1 that came in on eth0. Syntax: 
-# tc filter add dev eth1 protocol ip parent 1:0 prio 1 handle 6 fw classid 1:1
+# tc filter add dev eth1 protocol ip parent 1:0 prio 1 handle 6 fw flowid 1:1
 Note that this is not a u32 match!
 
 You can place a mark like this:
 <verb>
-# iptables -A FORWARD -t mangle -i eth0 -j MARK --set-mark 6
+# iptables -A PREROUTING -t mangle -i eth0 -j MARK --set-mark 6
 </verb>
 The number 6 is arbitrary.
 
@@ -5112,6 +5112,7 @@ helping.
 <item>Jason Lunz &lt;j@cc.gatech.edu&gt;
 <item>Stuart Lynne &lt;sl@fireplug.net&gt;
 <item>Alexey Mahotkin &lt;alexm@formulabez.ru&gt;
+<item>Predrag Malicevic &lt;pmalic@ieee.org&gt;
 <item>Andreas Mohr &lt;andi%lisas.de&gt;
 <item>Andrew Morton &lt;akpm@zip.com.au&gt;
 <item>Wim van der Most 
@@ -5135,7 +5136,6 @@ helping.
 <item>Charles Tassell &lt;ctassell%isn.net&gt;
 <item>Glen Turner &lt;glen.turner%aarnet.edu.au&gt;
 <item>Song Wang &lt;wsong@ece.uci.edu&gt;
-
 </itemize>
 
 </article>

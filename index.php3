@@ -85,6 +85,12 @@ just shake the bags out of the foil package and ship them in a regular
 envelope.
 <p>
 <table border=1>
+<tr><td valign=top>2002-02-19</td><td>Spam. Due to a broken IPv6 patch, our
+postfix has been an open relay somewhere in January. It was fixed promptly,
+but we're still trying to get out of a lot of spamlists.
+Relays.osirusoft.com keeps on listing us, we hope they will get round to
+removing us soon. This may be the cause of mail not arriving. I'm trying to
+move postfix to another local interface, stay tuned.</td>
 <tr><td valign=top>2002-02-07</td><td>Back from holiday. Bought lartc.org, 
 will bring it in service soon. New <a
 href=http://mr0vka.eu.org/tlumaczenia/2.4routing.html>Polish
