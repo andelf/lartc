@@ -7140,7 +7140,7 @@ This chapter was written by Esteve Camps &lt;esteve@hades.udg.es&gt;.
 <Title>Introduction</Title>
 
 <Para>
-First of all, first of all, it would be a great idea for you to read RFCs
+First of all, it would be a great idea for you to read RFCs
 written about this (RFC2474, RFC2475, RFC2597 and RFC2598) at 
 <ULink URL="http://www.ietf.org/html.charters/diffserv-charter.html">
   IETF DiffServ working Group web site</ULink> and
@@ -10131,6 +10131,7 @@ different queues based on iptables rules, which are used to mark packets
 which are then shaped.
 </Para></ListItem>
 </VarListEntry>
+
 <VarListEntry>
 <Term>Virtual Router
 Redundancy Protocol implementation (
@@ -10194,6 +10195,26 @@ from the network, and my 486 took over, which you can see from the higher
 latency.
 </Para></ListItem>
 </VarListEntry>
+
+
+<VarListEntry>
+<Term>tc-config
+<ULink URL="http://slava.local.nsys.by/projects/tc_config/">(site)</ULink>
+</Term>
+<ListItem>
+<Para>
+tc_config is set of scripts for linux 2.4+ traffic control
+configuration on RedHat systems and (hopefully) derivatives.
+(linux 2.2.X with ipchains is obsotete).
+Uses cbq qdisc as root one, and sfq qdisc at leafs.
+</Para>
+<Para>
+Includes snmp_pass utility for getting stats on traffic control via snmp.
+Write
+</Para>
+</ListItem>
+</VarListEntry>
+
 </VariableList>
 </Para>
 
@@ -10300,6 +10321,7 @@ of practical information, examples, tests and also points out some CBQ/tc bugs.
 </Para>
 </ListItem>
 </VarListEntry>
+
 <VarListEntry>
 <Term>TCP/IP Illustrated, volume 1, W. Richard Stevens, ISBN 0-201-63346-9</Term>
 <ListItem>
@@ -10309,6 +10331,16 @@ well.
 </Para>
 </ListItem>
 </VarListEntry>
+
+<VarListEntry>
+<Term>Policy Routing Using Linux, Matthew G. Marsh, ISBN 0-672-32052-5</Term>
+<ListItem>
+<Para>
+A introduction to policy routing with lots of examples.
+</Para>
+</ListItem>
+</VarListEntry>
+
 </VariableList> 
 </Para>
 
