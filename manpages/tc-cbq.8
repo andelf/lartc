@@ -114,7 +114,7 @@ this may not be feasible, see the
 .B minburst
 parameter below.
 
-.SH LINK SHARING BETWEEN CLASSES
+.SH CLASSIFICATION
 Within the one CBQ instance many classes may exist. Each of these classes
 contains another qdisc, by default 
 .BR tc-pfifo (8).
@@ -124,7 +124,6 @@ determine which class should receive the data. If a verdict is reached, this
 process is repeated for the recipient class which might have further
 means of classifying traffic to its children, if any.
 
-.SH CLASSIFICATION
 CBQ has the following methods available to classify a packet to any child 
 classes.
 .TP
@@ -185,12 +184,15 @@ consider the minor number of the reference to be the priority. Retrieve
 a class from the defmap of this class for the priority. If this did not
 contain a class, consult the defmap of this class for the 
 .B BEST_EFFORT
-class. If this is an upward reference, or no BEST_EFFORT class was defined,
+class. If this is an upward reference, or no 
+.B BEST_EFFORT 
+class was defined,
 enter the fallback algorithm. If a valid class was found, and it is not a
 leaf node, restart the loop at this class. If it is a leaf, choose it and 
 terminate. If
-neither the priority distilled from the classid, nor the BEST_EFFORT priority
-yielded a class, enter the fallback algorithm.
+neither the priority distilled from the classid, nor the 
+.B BEST_EFFORT 
+priority yielded a class, enter the fallback algorithm.
 .P
 The fallback algorithm resides outside of the loop and is as follows.
 .TP
@@ -212,7 +214,32 @@ Choose the class at which breakout to the fallback algorithm occured. Terminate.
 .P
 The packet is enqueued to the class which was chosen when either algorithm 
 terminated. It is therefore possible for a packet to be enqueued *not* at a
-leaf node, but in the middle of he hierarchy.
+leaf node, but in the middle of the hierarchy.
+
+.SH LINK SHARING ALGORITHM
+When dequeueing for sending to the network device, CBQ decides which of its 
+classes will be allowed to send. It does so with a Weighted Round Robin process
+in which each class with packets gets a chance to send in turn. The WRR process
+starts by asking the highest priority classes (lowest numerically - 
+highest semantically) for packets, and will continue to do so until they
+have no more data to offer, in which case the process repeats for lower 
+priorities.
+
+.B CERTAINTY ENDS HERE, ANK PLEASE HELP
+
+Each class is not allowed to send at length though - they can only dequeue a
+configurable amount of data during each round. 
+
+If a class is about to go overlimit, and it is not
+.B bounded
+it will try to borrow avgidle from siblings that are not
+.B isolated. 
+This process is repeated from the bottom upwards. If a class is unable
+to borrow enough avgidle to send a packet, it is throttled and not asked
+for a packet for enough time for the avgidle to increase above zero.
+
+.B I REALLY NEED HELP FIGURING THIS OUT. REST OF DOCUMENT IS PRETTY CERTAIN
+.B AGAIN.
 
 .SH QDISC
 The root qdisc of a CBQ class tree has the following parameters:
