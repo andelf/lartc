@@ -1,0 +1,239 @@
+.TH TC 8 "8 December 2001" "iproute2" "Linux"
+.SH NAME
+tc \- show / manipulate traffic control settings
+.SH SYNOPSIS
+.B tc qdisc [ add | change | replace ] dev 
+DEV 
+.B 
+[ parent 
+qdisc-id 
+.B | root ] 
+.B [ handle 
+qdisc-id ] qdisc
+[ qdisc specific parameters ]
+.P
+
+.B tc class [ add | change | replace ] dev
+DEV
+.B parent 
+qdisc-id 
+.B [ classid 
+class-id ] qdisc
+[ qdisc specific parameters ]
+.P
+
+.B tc filter add dev
+DEV
+.B  [ parent
+qdisc-id
+.B | root ] protocol
+protocol
+.B prio
+priority filtertype
+[ filtertype specific parameters ]
+.B flowid
+flow-id
+
+.B tc [-s | -d ] qdisc show [ dev 
+DEV 
+.B  ]
+.P
+.B tc [-s | -d ] class show dev 
+DEV 
+.P
+.B tc filter show dev 
+DEV 
+
+
+
+.SH DESCRIPTION
+.B Tc
+is used to configure Traffic Control in the Linux kernel. 
+It can be used to shape, reorder or drop traffic according to specified rules.
+
+Processing of traffic is controlled by three kinds of objects: qdiscs, 
+classes and filters. 
+
+.SH QDISCS
+.B qdisc 
+is short for 'queueing discipline' and it is elementary to 
+understanding traffic control. Whenever the kernel needs to send a 
+packet to an interface, it is 
+.B enqueued
+to the qdisc configured for that interface. Immediately afterwards, the kernel
+tries to get as many packets as possible from the qdisc, for giving them
+to the network adaptor driver.
+
+A simple QDISC is the 'pfifo' one, which does no processing at all. The only
+thing it does is contain traffic for when the network interface is busy, or it
+gets more traffic than it can handle.
+
+.SH CLASSES
+Some qdiscs can contain further qdiscs - traffic may then be enqueued in any
+of the inner qdiscs, which are called
+.B classes.
+When the kernel tries to dequeue a packet from such a 
+.B classful qdisc
+it can come from any of the classes. A qdisc may for example prioritize 
+certain kinds of traffic by trying to dequeue from certain classes
+before others.
+
+.SH FILTERS
+A
+.B filter
+is used by a classful qdisc to determine in which class a packet will
+be enqueued. Whenever traffic arrives in a classful queueing discipline,
+it calls all filters attached to it to determine where to send it.
+
+It is important to notice that filters reside 
+.B within
+qdiscs - they are not masters of what happens.
+
+.SH CLASSLESS QDISCS
+The classless qdiscs are:
+.TP 
+[p|b]fifo
+Simplest usable qdisc, pure First In, First Out behaviour. Limited in 
+packets or in bytes.
+.TP
+pfifo_fast
+Standard qdisc for 'Advanced Router' enabled kernels. Consists of a three-band
+queue which honors Type of Service flags by default.
+.TP
+red
+Random Early Detection simulates physical congestion by randomly dropping
+packets when nearing configured bandwidth allocation. Well suited to very
+large bandwidth applications.
+.TP 
+sfq
+Stochastic Faireness Queueing reorders queued traffic so each 'session'
+gets to send a packet in turn.
+.TP
+tbf
+The Token Bucket Filter is suited for slowing traffic down to a precisely
+configured level. Scales well to large bandwidths. 
+.SH CONFIGURING CLASSLESS QDISCS
+In the absence of classful qdiscs, classless qdiscs can only be attached at 
+the root of a device. Full syntax:
+.P
+.B tc qdisc add dev 
+DEV 
+.B root 
+QDISC QDISC-PARAMETERS
+
+To remove, issue
+.P
+.B tc qdisc del dev
+DEV
+.B root
+
+The  
+.B pfifo_fast
+qdisc is the automatic default in the absence of a configured qdisc.
+
+.SH CLASSFUL QDISCS
+The classful qdiscs are:
+.TP
+CBQ
+Class Based Queueing implements a rich linksharing hierarchy of classes. 
+It contains shaping elements as well as prioritizing capabilities. Shaping is
+performed using link idle time calculations based on average packetsize and
+underlying link bandwidth. The latter may be ill-defined for some interfaces.
+.TP
+HTB
+The Hierarchy Token Bucket implements a rich linksharing hierarchy of 
+classes with an emphasis on conforming to existing practices. HTB facilitates
+guaranteeing bandwidth to classes, while also allowing specification of upper
+limits to inter-class sharing. It contains shaping elements, based on TBF and
+can prioritize classes.	
+.TP 
+PRIO
+The PRIO qdisc is a non-shaping container for a configurable number of 
+classes which are dequeued in order. This allows for easy prioritization 
+of traffic, where lower classes are only able to send if higher ones have 
+no packets available. To facilitate configuration, Type Of Service bits are 
+honored by default.
+.SH THEORY OF OPERATION
+Classful qdiscs form a tree, where each class has a single parent. 
+A parent may have multiple children. Some qdiscs allow for runtime addition
+of classes (CBQ, HTB) while others (PRIO) are created with a static number of 
+children.
+
+Qdiscs which allow dynamic classes can have zero or more subclasses to 
+which traffic may be enqueued. 
+
+Furthermore, each class contains a
+.B leaf qdisc
+which by default has 
+.B pfifo_fast 
+behaviour, but another qdisc can be attached in place. This qdisc may again 
+contain classes, but each class can have only one leaf qdisc. 
+
+When a packet enters a classful qdisc it can be 
+.B classified
+to one of the children. Three criteria are available, although not all qdiscs 
+may use all three:
+.TP 
+tc filters
+If tc filters are attached to a classful qdisc, they are consulted first 
+for relevant instructions. Filters can match on all fields of a packet header, 
+as well as on the firewall mark applied by ipchains or iptables. See 
+.BR tc-filters (8).
+.TP
+Type of Service
+Some qdiscs have built in rules for classifying packets based on the TOS field.
+.TP
+skb->prio
+Userspace programs can encode a class-id in the 'skb->prio' field using 
+IOCTL commands. 
+.P
+Each node within the tree can have its own filters but higher level filters
+may also point directly to lower classes.
+
+If classification did not succeed, packets are enqueued to the leaf qdisc 
+attached to that class. Check qdisc specific manpages for details, however.
+
+.SH NAMING
+All qdiscs, classes and filters have IDs, which can either be specified
+or automatically assigned. 
+
+IDs consist of a major number and a minor number, separated by a colon.
+
+.TP 
+QDISCS
+A qdisc, which potentially can have children, 
+gets assigned a major number, called a 'handle', leaving the minor 
+number namespace available for classes. The handle is expressed as '10:'. 
+It is customary to explicitly assign a handle to qdiscs expected to have 
+children.
+
+.TP 
+CLASSES
+Classes residing under a qdisc share their qdisc major number, but each have
+a separate minor number called a 'classid', that has no relation to their 
+parent classes, only to their parent qdisc. The same naming custom as for 
+qdiscs applies.
+
+.TP 
+FILTERS
+Filters have a three part ID, which is only needed when using a hashed
+filter hierarchy, for which see
+.BR tc-filters (8).
+
+.SH HISTORY
+.B tc
+was written by Alexey N. Kuznetsov and added in Linux 2.2.
+.SH SEE ALSO
+.BR tc-cbq (8),
+.BR tc-htb (8),
+.BR tc-sfq (8),
+.BR tc-red (8),
+.BR tc-tbf (8),
+.BR tc-pfifo (8),
+.BR tc-bfifo (8),
+.BR tc-pfifo_fast (8),
+.BR tc-filters (8)
+
+.SH AUTHOR
+Manpage maintained by bert hubert (ahu@ds9a.nl)
+
