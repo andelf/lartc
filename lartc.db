@@ -9189,7 +9189,7 @@ is *vital* that you check your netmasks!
 </chapter>
 
 <chapter id="lartc.dynamic-routing">
-  <Title>Dynamic routing - OSPF and BGP</Title>
+<Title>Dynamic routing - OSPF and BGP</Title>
 
 <Para>
 Once your network starts to get really big, or you start to consider 'the
@@ -9266,7 +9266,264 @@ Although the examples are Cisco-specific, they are remarkably similar
 to the configuration language in Zebra :-)
 </Para>
 
+<Sect1 id="lartc.dynamic-routing.ospf">
+	<sect1info>
+		<author>
+		<FirstName>Pedro</FirstName><Surname>Larroy Tovar</Surname>
+		<affiliation>
+		<address>
+		<email>piotr@omega.resa.es</email>
+		</address>
+		</affiliation>
+		</author>
+	</sect1info><Title>Setting up OSPF with Zebra</Title>
+
+	<para>
+		Please, let <ulink url="mailto:piotr@omega.resa.es">me</ulink> know if any of the following information is not accurate or if you have any suggestions.
+		<ulink url="http://www.zebra.org">Zebra</ulink> is a great dynamic routing software written by Kunihiro Ishiguro, Toshiaki Takada and Yasuhiro Ohara. With Zebra, setting up OSPF is fast an simple, but in practice there's a lot of parameters to tune if you have very specific needs. OSPF stands for Open Shortest Path First, and some of its principal features are:
+		<VariableList>
+			<VarListEntry>
+				<Term>Hierachical</Term>
+				<ListItem>
+				<Para>
+				Networks are grouped by <emphasis>areas</emphasis>, which are interconnected by a <emphasis>backbone area</emphasis> which will be designated as <emphasis>area 0</emphasis>. All traffic goes through area 0, and all the routers in area 0 have routing information about all the other areas.
+				</Para>
+				</ListItem>
+			</VarListEntry>
+
+			<VarListEntry>
+				<Term>Short convergence</Term>
+				<ListItem>
+				<Para>
+				Routes are propagated very fast, compared with RIP, for example.
+				</Para></ListItem>
+			</VarListEntry>
+			
+			<VarListEntry>
+				<Term>Bandwith efficient</Term>
+				<ListItem>
+				<Para>
+				Uses multicasting instead of broadcasting, so it doesn't flood other hosts with routing information that may not be of interest for them, thus reducing network overhead. Also, <emphasis>Internal Routers</emphasis> (those which only have interfaces in one area) Don't have routing information about other areas. Routers with interfaces in more than one area are called <emphasis>Area Border Routers</emphasis>, and hold topological information about the areas they are connected to.
+				</Para></ListItem>
+			</VarListEntry>
+
+			<VarListEntry>
+				<Term>Cpu intensive</Term>
+				<ListItem>
+				<Para>
+				OSPF is based on Dijkstra's <ulink url="http://www.soi.wide.ad.jp/class/99007/slides/13/07.html">Shortest Path First algorithm</ulink>, which is expensive compared to other routing algorithms. But really is not that bad, since the Shortest Path is only calculed for each area, also for small to medium sized networks this won't be an issue, and you won't even notice.
+				</Para></ListItem>
+			</VarListEntry>
+			
+			<VarListEntry>
+				<Term>Link state</Term>
+				<ListItem>
+				<Para>
+				OSPF counts with the special characteristics of networks and interfaces, such as bandwith, link failures, and monetary cost.
+				</Para></ListItem>
+			</VarListEntry>
+			
+			<VarListEntry>
+				<Term>Open protocol and GPLed software</Term>
+				<ListItem>
+				<Para>
+				OSPF is an open protocol, and Zebra is GPL software, which has obvious advantages over propietary software and protocols.
+				</Para></ListItem>
+			</VarListEntry>
+
+		</VariableList>
+  </para>
+  
+	<Sect2 id="lartc.dynamic-routing.ospf.prereq">
+	<Title>Prerequisites</Title>
+		<para>
+
+			<VariableList>
+				
+				<VarListEntry>
+					<Term>Linux Kernel:</Term>
+					<ListItem>
+					<Para>
+					Compiled with CONFIG_NETLINK_DEV and CONFIG_IP_MULTICAST (I am not sure if anything more is also needed).
+					</Para></ListItem>
+				</VarListEntry>
+				
+				<VarListEntry>
+					<Term>Iproute</Term>
+					<ListItem>
+					<Para>
+					</Para></ListItem>
+				</VarListEntry>
+				
+				<VarListEntry>
+					<Term>Zebra</Term>
+					<ListItem>
+					<Para>
+					Get it with your favorite package manager or from <ulink url="http://www.zebra.org">http://www.zebra.org</ulink>.
+					</Para></ListItem>
+				</VarListEntry>
+			</VariableList>
+		</para>
+	</sect2>  
+	<Sect2 id="lartc.dynamic-routing.ospf.zebracfg">
+	<Title>Configuring Zebra</Title>
+		<para>
+			Let's take this network as an example:
+			<screen>
+			----------------------------------------------------
+			| 192.168.0.0/24                                   |
+			|                                                  |
+			|      Area 0    100BaseTX Switched                |
+			|     Backbone     Ethernet                        |
+			----------------------------------------------------
+			  |           |                |              |
+			  |           |                |              |
+			  |eth1       |eth1            |eth0          |
+			  |100BaseTX  |100BaseTX       |100BaseTX     |100BaseTX
+			  |.1         |.2              |.253          |
+			 ---------   ------------   -----------      ----------------
+			 |R Omega|   |R Atlantis|   |R Legolas|      |R Frodo       |
+			 ---------   ------------   -----------      ----------------
+			  |eth0         |eth0             |             |          |
+			  |             |                 |             |          |
+			  |2MbDSL/ATM   |100BaseTX        |10BaseT      |10BaseT   |10BaseT
+			------------   ------------------------------------       -------------------------------
+			| Internet |   | 172.17.0.0/16        Area 1      |       |  192.168.1.0/24 wlan  Area 2|
+			------------   |         Student network (dorm)   |       |       barcelonawireless     |
+			               ------------------------------------       -------------------------------
+			</screen>
+			Don't be afraid by this diagram, zebra does most of the work automatically, so it won't take any work to put all the routes up with zebra. It would be painful to mantain all those routes by hand in a day to day basis. The most important thing you must have clear, is the network topology. And take special care with Area 0, since it's the most important.
+			First configure zebra, editing zebra.conf and adapt it to your needs:
+			<screen>
+			hostname omega
+			password xxx 
+			enable password xxx
+			!
+			! Interface's description.
+			!
+			!interface lo
+			! description test of desc.
+			!
+			interface eth1
+			multicast
+			!
+			! Static default route
+			!
+			ip route 0.0.0.0/0 212.170.21.129
+			!
+			log file /var/log/zebra/zebra.log
+			</screen>
+			In Debian, I will also had to edit /etc/zebra/daemons so they start at boot:
+			<screen>
+			zebra=yes
+			ospfd=yes
+			</screen>
+			Now we have to edit ospfd.conf if you are still runnig IPV4 or ospf6d.conf if you run IPV6. My ospfd.conf looks like:
+			<screen>
+			hostname omega
+			password xxx
+			enable password xxx
+			!
+			router ospf
+			  network 192.168.0.0/24 area 0
+			  network 172.17.0.0/16 area 1
+			!
+			! log stdout
+			log file /var/log/zebra/ospfd.log
+			</screen>
+			Here we instruct ospf about our network topology.
+		</para>
+	</sect2>
+	
+	<Sect2 id="lartc.dynamic-routing.ospf.running">
+	<Title>Running Zebra</Title>
+		<para>
+			Now, we have to start Zebra; either by hand by typing "zebra -d" or with some script like "/etc/init.d/zebra start". Then carefully watching the ospdfd logs we should see something like:
+			<screen>
+			2002/12/13 22:46:24 OSPF: interface 192.168.0.1 join AllSPFRouters Multicast group.
+			2002/12/13 22:46:34 OSPF: SMUX_CLOSE with reason: 5   
+			2002/12/13 22:46:44 OSPF: SMUX_CLOSE with reason: 5
+			2002/12/13 22:46:54 OSPF: SMUX_CLOSE with reason: 5   
+			2002/12/13 22:47:04 OSPF: SMUX_CLOSE with reason: 5   
+			2002/12/13 22:47:04 OSPF: DR-Election[1st]: Backup 192.168.0.1
+			2002/12/13 22:47:04 OSPF: DR-Election[1st]: DR     192.168.0.1
+			2002/12/13 22:47:04 OSPF: DR-Election[2nd]: Backup 0.0.0.0
+			2002/12/13 22:47:04 OSPF: DR-Election[2nd]: DR     192.168.0.1
+			2002/12/13 22:47:04 OSPF: interface 192.168.0.1 join AllDRouters Multicast group.
+			2002/12/13 22:47:06 OSPF: DR-Election[1st]: Backup 192.168.0.2
+			2002/12/13 22:47:06 OSPF: DR-Election[1st]: DR     192.168.0.1
+			2002/12/13 22:47:06 OSPF: Packet[DD]: Negotiation done (Slave).
+			2002/12/13 22:47:06 OSPF: nsm_change_status(): scheduling new router-LSA origination
+			2002/12/13 22:47:11 OSPF: ospf_intra_add_router: Start
+			</screen>
+			Ignore the SMUX_CLOSE message by now, since it's about SNMP. We can see that 192.168.0.1 is the <emphasis>Designated Router</emphasis> and 192.168.0.2 is the <emphasis>Backup Designated Router</emphasis>
+		</para>
+
+		<para>
+			We can also interact with the zebra or the ospfd interface by executing:
+			<screen>
+			<prompt>$ </prompt>telnet localhost zebra
+			<prompt>$ </prompt>telnet localhost ospfd
+			</screen>
+
+			Let's see how to view if the routes are propagating, log into zebra and type:
+			
+			<screen>
+			root@atlantis:~# telnet localhost zebra
+			Trying 127.0.0.1...
+			Connected to atlantis.
+			Escape character is '^]'.
+
+			Hello, this is zebra (version 0.92a).
+			Copyright 1996-2001 Kunihiro Ishiguro.
+
+			User Access Verification
+
+			Password: 
+			atlantis&gt; show ip route
+			Codes: K - kernel route, C - connected, S - static, R - RIP, O - OSPF,
+			       B - BGP, &gt; - selected route, * - FIB route
+
+			K>* 0.0.0.0/0 via 192.168.0.1, eth1
+			C>* 127.0.0.0/8 is directly connected, lo
+			O   172.17.0.0/16 [110/10] is directly connected, eth0, 06:21:53
+			C>* 172.17.0.0/16 is directly connected, eth0
+			O   192.168.0.0/24 [110/10] is directly connected, eth1, 06:21:53
+			C>* 192.168.0.0/24 is directly connected, eth1
+			atlantis&gt; show ip ospf border-routers
+			============ OSPF router routing table =============
+			R    192.168.0.253         [10] area: (0.0.0.0), ABR
+						   via 192.168.0.253, eth1
+							 [10] area: (0.0.0.1), ABR
+						   via 172.17.0.2, eth0
+			</screen>
+			Or with iproute directly:
+			<screen>
+			root@omega:~# ip route
+			212.170.21.128/26 dev eth0  proto kernel  scope link  src 212.170.21.172 
+			192.168.0.0/24 dev eth1  proto kernel  scope link  src 192.168.0.1 
+			172.17.0.0/16 via 192.168.0.2 dev eth1  proto zebra  metric 20 
+			default via 212.170.21.129 dev eth0  proto zebra 
+			root@omega:~# 
+			</screen>
+			We can see the zebra routes, that weren't there before. It's really nice to see routes appearing just a few seconds after you start zebra and ospfd. You can check connectivity to other hosts with ping. Zebra routes are automatic, you can just add another router to the network, configure zebra, and voila!
+		</para>
+		
+		<para>
+			Hint: You can use:
+			<screen>
+			tcpdump -i eth1 ip[9] == 89
+			</screen>
+			To campture OSPF packets for analisys. OSPF ip protocol number is 89, and the protocol field is the 9nth octet on the ip header.
+		</para>
+		
+		<para>
+			OSPF has a lot of tunable parameters, specially for large networks. In further ampliations of the howto we will show some methodologies for fine tunning OSPF.
+		</para>
+	</sect2>
+</Sect1>  
 </chapter>
+
 
 <chapter id="lartc.other"
   xreflabel="Other possibilities">
@@ -10100,6 +10357,27 @@ Song Wang &lt;wsong@ece.uci.edu&gt;
    <address><email>Lyanackiev%gmx.net</email></address>
    </Para>
   </ListItem>
+  
+  <ListItem>
+   <Para>
+   <author><firstname>Pedro</firstname><surname>Larroy</surname></author>
+   <address><email>piotr%omega.resa.es</email></address>
+   <ItemizedList>
+	<ListItem>
+	<para>
+	Chapter 15, section 10: Example of a full nat solution with QoS
+	</para>
+	</ListItem>
+
+	<ListItem>
+	<para>
+	Chapter 17,, section 1: Setting up OSPF with Zebra
+	</para>
+	</ListItem>
+   </ItemizedList>
+   </Para>
+  </ListItem>
+
 
 </ItemizedList>
 
