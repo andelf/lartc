@@ -1087,8 +1087,14 @@ sets 'Maximize Throughput'. The numbers in parentheses denote the TOS value
 as reported by tcpdump and the kernel. If you divide this by two, you get
 the values mentioned by RFC1349.
 
-The default values are reasonable, you probably do not need to change
-them. 
+The default priomap is reasonable, you probably do not need to change
+it. 
+<tag>txqueuelen</tag>
+The length of this queue is gleaned from the interface configuration, which
+you can see and set with ifconfig and ip. To set the queue length to 10,
+execute: ifconfig eth0 txqueuelen 10
+
+You can't set this parameter with tc!
 </descrip>
 <sect2>Token Bucket Filter
 <p>
@@ -1192,6 +1198,30 @@ To calculate the maximum possible peakrate, multiply the configured mtu by
 100 (or more correctly, HZ, which is 100 on intel, 1024 on Alpha).
 
 </descrip>
+<sect3>Sample configuration
+<p>
+A simple but *very* useful configuration is this:
+<verb>
+# tc qdisc add dev ppp0 root tbf rate 220kbit latency 50ms burst 1500
+</verb>
+
+Ok, why is this useful? If you have a networking device with a large queue,
+like a DSL modem or a cablemodem, and you talk to it over a fast device,
+like over an ethernet interface, you will find that uploading absolutely
+destroys interactivity.
+
+This is because uploading will fill the queue in the modem, which is
+probably *huge* because this helps actually achieving good data throughput
+uploading. But this is not what you want, you want to have the queue not too
+big so interactivity remains and you can stil do other stuff while sending
+data.
+
+The line above slows down sending to a rate that does not lead to a queue in
+the modem - the queue will be in Linux, where we can control it to a limited
+size.
+
+Change 220kbit to your uplinks *actual* speed, minus a few percent. If you
+have a really fast modem, raise 'burst' a bit. 
 <sect2>Stochastic Fairness Queueing
 <p>
 Stochastic Fairness Queueing (SFQ) is a simple implementation of the fair
@@ -1233,21 +1263,22 @@ Amount of bytes a stream is allowed to dequeue before the next queue gets a
 turn. Defaults to 1 maximum sized packet (MTU-sized). Do not set below the
 MTU!
 </descrip>
-<sect2>Random Early Drop
+<sect3>Sample configuration
 <p>
-RED has some extra smartness built in. When a TCP/IP session starts, neither
-end knows the amount of bandwidth available. So TCP/IP starts to transmit
-slowly and goes faster and faster, though limited by the latency at which
-ACKs return.
+If you have a device which has identical link speed as actual available
+rate, like a phone modem, this configuration will help promote fairness:
+<verb>
+# tc qdisc add dev ppp0 root sfq perturb 10
+# tc qdisc -s -d ls
+qdisc sfq 800c: dev eth0 quantum 1514b limit 128p flows 128/1024 perturb 10sec 
+ Sent 4812 bytes 62 pkts (dropped 0, overlimits 0) 
+</verb>
 
-Once a link is filling up, RED starts dropping packets, which indicate to
-TCP/IP that the link is congested, and that it should slow down. The smart
-bit is that RED simulates real congestion, and starts to drop some packets
-some time before the link is entirely filled up. Once the link is completely
-saturated, it behaves like a normal policer.
-
-For more information on this, see the Backbone chapter.
-
+The number 800c: is the automatically assigned handle number, limit means
+that 128 packets can wait in this queue. There are 1024 hashbuckets
+available for accounting, of which 128 can be active at a time (no more
+packets fit in the queue!) Once every 10 seconds, the hashes are
+reconfigured.
 <sect2>Ingress policer qdisc
 <p> 
 The Ingress qdisc comes in handy if you need to ratelimit a host without
@@ -1402,10 +1433,10 @@ a simple FIFO.
 
 When a packet is enqueued to the PRIO qdisc, a sub-qdisc is chosen based on
 the filter commands you gave. By default, three pfifo sub-qdiscs are
-created. These sub-qdiscs are pure FIFO queues with no internal structure,
-but you can replace them by any qdisc you have available.
+created. These sub-qdiscs are by default pure FIFO queues with no internal
+structure, but you can replace them by any qdisc you have available.
 
-Whenever a packet needs to be dequeued, class :0 is tried first. Higher
+Whenever a packet needs to be dequeued, class :1 is tried first. Higher
 classes are only used of lower bands all did not give up a packet.
 
 This queue is very useful in case you want to prioritize certain kinds of
@@ -1458,9 +1489,96 @@ the values mentioned by RFC1349.
 The default values are reasonable, you probably do not need to change
 them. 
 </descrip>
-The bands are classes, and are called major:0 to major:2 by default, so if
-your PRIO qdisc is called 12:, tc filter traffic to 12:0 to grant it more
+The bands are classes, and are called major:1 to major:3 by default, so if
+your PRIO qdisc is called 12:, tc filter traffic to 12:1 to grant it more
 priority.
+
+Reiterating, band 0 goes to minor number 1! Band 1 to minor number 2, etc.
+<sect3>Sample configuration
+<p>
+We will create this tree:
+<verb>
+     root 1: prio
+       /   |   \
+     1:1  1:2  1:3
+      |    |    |
+     10:  20:  30:
+     sfq  tbf  sfq
+band  0    1    2
+</verb>
+
+Bulk traffic will go to 30:, interactive traffic to 20: or 10:.
+
+Commandlines:
+<verb>
+# tc qdisc add dev eth0 root handle 1: prio 
+## This *instantly* creates 1:1, 1:2, 1:3
+  
+# tc qdisc add dev eth0 parent 1:1 handle 10: sfq
+# tc qdisc add dev eth0 parent 1:2 handle 20: tbf rate 20kbit buffer 1600 limit 3000
+# tc qdisc add dev eth0 parent 1:3 handle 30: sfq                                
+</verb>
+
+Now lets's see what we created:
+<verb>
+# tc -s qdisc ls dev eth0 
+qdisc sfq 30: quantum 1514b 
+ Sent 0 bytes 0 pkts (dropped 0, overlimits 0) 
+
+ qdisc tbf 20: rate 20Kbit burst 1599b lat 667.6ms 
+ Sent 0 bytes 0 pkts (dropped 0, overlimits 0) 
+
+ qdisc sfq 10: quantum 1514b 
+ Sent 132 bytes 2 pkts (dropped 0, overlimits 0) 
+
+ qdisc prio 1: bands 3 priomap  1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1
+ Sent 174 bytes 3 pkts (dropped 0, overlimits 0) 
+</verb>
+As you can see, band 0 has already had some traffic, and one packet was sent
+while running this command!
+
+We now do some bulk data transfer with a tool that properly sets TOS flags,
+and take another look:
+<verb>
+# scp tc ahu@10.0.0.11:./
+ahu@10.0.0.11's password: 
+tc                   100% |*****************************|   353 KB    00:00    
+# tc -s qdisc ls dev eth0
+qdisc sfq 30: quantum 1514b 
+ Sent 384228 bytes 274 pkts (dropped 0, overlimits 0) 
+
+ qdisc tbf 20: rate 20Kbit burst 1599b lat 667.6ms 
+ Sent 2640 bytes 20 pkts (dropped 0, overlimits 0) 
+
+ qdisc sfq 10: quantum 1514b 
+ Sent 2230 bytes 31 pkts (dropped 0, overlimits 0) 
+
+ qdisc prio 1: bands 3 priomap  1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1
+ Sent 389140 bytes 326 pkts (dropped 0, overlimits 0) 
+</verb>
+As you can see, all traffic went to handle 30:, which is the lowest priority
+band, just as intended. Now to verify that interactive traffic goes to
+higher bands, we create some interactive traffic:
+
+<verb>
+# tc -s qdisc ls dev eth0
+qdisc sfq 30: quantum 1514b 
+ Sent 384228 bytes 274 pkts (dropped 0, overlimits 0) 
+
+ qdisc tbf 20: rate 20Kbit burst 1599b lat 667.6ms 
+ Sent 2640 bytes 20 pkts (dropped 0, overlimits 0) 
+
+ qdisc sfq 10: quantum 1514b 
+ Sent 14926 bytes 193 pkts (dropped 0, overlimits 0) 
+
+ qdisc prio 1: bands 3 priomap  1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1
+ Sent 401836 bytes 488 pkts (dropped 0, overlimits 0) 
+</verb>
+
+It worked - all additional traffic has gone to 10:, which is our highest
+priority qdisc. No traffic was sent to the lowest priority, which previously
+received our entire scp.
+
 <sect2>The famous CBQ qdisc
 <p>
 As said before, CBQ is the most complex qdisc available, the most hyped, the
@@ -1775,9 +1893,8 @@ of CBQ.
 <sect1>Classifying packets with filters
 <p>
 To determine which class shall process a packet, the so-called 'classifier
-chain' is called. A filter is attached to a queueing discipline, the chain
-starts at the top with the outer-most qdisc, and continues until a
-classifier matched and returned an answer.
+chain' is called each time a choice needs to be made. This chain consists of
+all filters attached to the classful qdisc that needs to decide.
 
 To reiterate the tree, which is not a tree:
 <verb>
@@ -1799,7 +1916,7 @@ directs a packet to 12: and a filter on 12: that sends the packet to 12:2.
 You might also attach this latter rule to 1:1, but you can make efficiency
 gains by having more specific tests lower in the chain.
 
-You can't filter a packet 'upwards', by the way. 
+You can't filter a packet 'upwards', by the way.
 
 And again - packets are only enqueued downwards! When they are dequeued,
 they go up again, where the interface lives. They do NOT fall off the end of
@@ -1845,7 +1962,7 @@ To select on an IP address, use this:
 This assigns traffic to 4.3.2.1 and traffic from 1.2.3.4 to the highest
 priority queue, and the rest to the next-highest one.
 
-To can concatenate matches, to match on traffic from 1.2.3.4 and from port
+You can concatenate matches, to match on traffic from 1.2.3.4 and from port
 80, do this:
 <tscreen><verb>
 # tc filter add dev eth0 parent 10:0 protocol ip prio 1 u32 match ip src 4.3.2.1/32
@@ -1929,27 +2046,27 @@ webserver and 3/8 to the mailserver.
 The functionally almost identical, but *better*, HTB configuraton is:
 
 <tscreen><verb>
-# tc qdisc add dev eth0 root handle 1: htb default 30:
+# tc qdisc add dev eth0 root handle 1: htb default 30
 
 # tc class add dev eth0 parent 1: classid 1:1 htb rate 5mbit burst 15k
 
-# tc class add dev eth0 parent 1:1 classid 10: htb rate 5mbit burst 15k
-# tc class add dev eth0 parent 1:1 classid 20: htb rate 3mbit ceil 5mbit burst 15k
-# tc class add dev eth0 parent 1:1 classid 30: htb rate 1kbit ceil 5mbit burst 15k
+# tc class add dev eth0 parent 1:1 classid 1:10 htb rate 5mbit burst 15k
+# tc class add dev eth0 parent 1:1 classid 1:20 htb rate 3mbit ceil 5mbit burst 15k
+# tc class add dev eth0 parent 1:1 classid 1:30 htb rate 1kbit ceil 5mbit burst 15k
 </verb></tscreen>
 
 The author then recommends SFQ for beneath these classes:
 <tscreen><verb>
-# tc qdisc add dev eth0 parent 10: sfq perturb 10
-# tc qdisc add dev eth0 parent 20: sfq perturb 10
-# tc qdisc add dev eth0 parent 30: sfq perturb 10
+# tc qdisc add dev eth0 parent 1:10 handle 10: sfq perturb 10
+# tc qdisc add dev eth0 parent 1:20 handle 20: sfq perturb 10
+# tc qdisc add dev eth0 parent 1:30 handle 30: sfq perturb 10
 </verb></tscreen> 
 
 Add the filters which direct traffic to the right classes:
 <tscreen><verb>
 # U32="tc filter add dev eth0 protocol ip parent 1:0 prio 1 u32"
-# $U32 match ip dport 80 0xffff flowid 10:0
-# $U32 match ip sport 25 0xffff flowid 20:0
+# $U32 match ip dport 80 0xffff flowid 1:10
+# $U32 match ip sport 25 0xffff flowid 1:20
 </verb></tscreen>
 And that's it - no unsightly unexplained numbers, no undocumented
 parameters. 
@@ -3139,13 +3256,18 @@ FIXME: fill this in
 </descrip>
 
 
-<sect>Backbone applications of traffic control
+<sect>Advanced &amp; less common queueing disciplines
 <p>
-This chapter is meant as an introduction to backbone routing, which often
+Besides the queues mentioned earlier, the kernel contains some other more
+specialized queues which are mentioned here, should you find that you have
+needs not addressed by the other queues.
+<sect1>Random Early Drop
+,p>
+This section is meant as an introduction to backbone routing, which often
 involves >100 megabit bandwidths, which requires a different approach than
 your ADSL modem at home.
 
-<sect1>Router queues
+<sect2>Router queues
 <p>
 The normal behaviour of router queues on the Internet is called tail-drop.
 Tail-drop works by queueing up to a certain amount, then dropping all traffic
@@ -4256,6 +4378,7 @@ helping.
 <item>Sheharyar Suleman Shaikh &lt;sss23@drexel.edu&gt;
 <item>Nick Silberstein &lt;nhsilber%yahoo.com&gt;
 <item>Konrads Smelkov &lt;konrads@interbaltika.com&gt;
+<item>Andreas Steinmetz &lt;ast%domdv.de&gt;
 <item>Jason Tackaberry &lt;tack@linux.com&gt;
 <item>Charles Tassell &lt;ctassell%isn.net&gt;
 <item>Glen Turner &lt;glen.turner%aarnet.edu.au&gt;

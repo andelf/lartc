@@ -36,6 +36,11 @@ HOWTO.
 
 <h2>News</H2>
 <table border=1>
+<tr><td valign=top>2001-12-01</td><td>CBQ is now nearly completely
+documented. And how shaping works in general as well. Big reorganization.
+Read all about it <a
+href=http://ds9a.nl/2.4Routing/HOWTO//cvs/2.4routing/output/2.4routing-9.html>here</a>!
+</td>
 <tr><td valign=top>2001-11-28</td><td>Lecture was given to a pretty full
 room, read more about it <a
 href=http://ds9a.nl/cbq-presentation>here</a>.</td>
