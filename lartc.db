@@ -10124,10 +10124,10 @@ which are then shaped.
 </VarListEntry>
 <VarListEntry>
 <Term>Virtual Router
-Redundancy Protocol implementation <ULink
-URL="http://w3.arobas.net/~jetienne/vrrpd/index.html"
->(site)</ULink
-></Term>
+Redundancy Protocol implementation (
+<ULink URL="http://off.net/~jme/vrrpd/">site1</ULink>,
+<ULink URL="http://www.imagestream.com/VRRP.html">site2</ULink>
+)</Term>
 <ListItem>
 <Para>
 This is purely for redundancy. Two machines with their own IP address and
