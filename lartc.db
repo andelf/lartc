@@ -657,7 +657,7 @@ default via 212.64.94.1 dev ppp0
 </Screen>
 
 <Para>
-This is pretty much self explanatory. The first 4 lines of output explicitly
+This is pretty much self explanatory. The first 3 lines of output explicitly
 state what was already implied by <command>ip address show</command>, the last line
 tells us that the rest of the world can be found via 212.64.94.1, our
 default gateway. We can see that it is a gateway because of the word
@@ -1678,7 +1678,7 @@ the native Linux IPSEC.
 	<para>
       <note>
 	<para>
-	  Userspace tools appear are available <ulink
+	  Userspace tools appear to be available <ulink
 	  url="http://sourceforge.net/projects/ipsec-tools">here</ulink>.
 There are multiple programs available, the one linked here is based on
 Racoon. 
@@ -1904,7 +1904,7 @@ spdadd 10.0.0.216 10.0.0.11 any -P in ipsec
       </para>
       <para>
 	Another problem is that with manual keying as described above we exactly define the algorithms and key lengths used, something
-	that requires a lot of coordination with the remote party. It is desireable to be able to have the ability to describe a 
+	that requires a lot of coordination with the remote party. It is desirable to be able to have the ability to describe a 
 	broader key policy such as 'We can do 3DES and Blowfish with at least the following key lengths'.
       </para>
       <para>
@@ -2614,7 +2614,7 @@ only reschedule, delay or drop it.
 <Para>
 These can be used to shape traffic for an entire interface, without any
 subdivisions. It is vital that you understand this part of queueing before
-we go on the the classful qdisc-containing-qdiscs!
+we go on the classful qdisc-containing-qdiscs!
 </Para>
 
 <Para>
@@ -2850,7 +2850,7 @@ and passes the queue without delay.
  The data arrives in TBF at a rate that's <Emphasis>smaller</Emphasis> than the
 token rate. Only a part of the tokens are deleted at output of each data packet
 that's sent out the queue, so the tokens accumulate, up to the bucket size.
-The unused tokens can then be used to send data a a speed that's exceeding the
+The unused tokens can then be used to send data at a speed that's exceeding the
 standard token rate, in case short data bursts occur.
 
 </Para>
@@ -3278,7 +3278,7 @@ tool.
 <Term>Classes</Term>
 <ListItem>
 <Para>
-A classful qdisc may have many classes, which each are internal to the
+A classful qdisc may have many classes, each of which is internal to the
 qdisc.  A class, in turn, may have several classes added to it.  So a class
 can have a qdisc as parent or an other class.
 
@@ -3350,7 +3350,7 @@ send one (in the case of an egress qdisc).
 <Para>
 Some queues, like for example the Token Bucket Filter, may need to hold on
 to a packet for a certain time in order to limit the bandwidth. This means
-that they sometimes refuse to give up a packet, even though they have one
+that they sometimes refuse to pass a packet, even though they have one
 available.
 </Para></ListItem>
 </VarListEntry>
@@ -3490,7 +3490,7 @@ your actual link speed. There is no queue to schedule then.
 <Title>The qdisc family: roots, handles, siblings and parents</Title>
 
 <Para>
-Each interface has one egress 'root qdisc', by default the earlier mentioned
+Each interface has one egress 'root qdisc'. By default, it is the earlier mentioned
 classless pfifo_fast queueing discipline. Each qdisc and class is assigned a
 handle, which can be used by later configuration statements to refer to that
 qdisc. Besides an egress qdisc, an interface may also have an ingress qdisc ,
@@ -3572,8 +3572,8 @@ directly to 12:2.
 <Para>
 When the kernel decides that it needs to extract packets to send to the
 interface, the root qdisc 1: gets a dequeue request, which is passed to
-1:1, which is in turn passed to 10:, 11: and 12:, which each query their
-siblings, and try to dequeue() from them. In this case, the kernel needs to
+1:1, which is in turn passed to 10:, 11: and 12:, each of which queries its
+siblings, and tries to dequeue() from them. In this case, the kernel needs to
 walk the entire tree, because only 12:2 contains a packet. 
 </Para>
 
@@ -3625,7 +3625,7 @@ whereas pfifo_fast is limited to simple fifo qdiscs.
 <Para>
 Because it doesn't actually shape, the same warning as for SFQ holds: either
 use it only if your physical link is really full or wrap it inside a
-classful qdisc that does shape. The last holds for almost all cable modems
+classful qdisc that does shape. The latter holds for almost all cable modems
 and DSL devices.
 </Para>
 
@@ -3811,11 +3811,11 @@ time. If it isn't, we need to throttle so that it IS idle 90% of the time.
 This is pretty hard to measure, so CBQ  instead derives the idle time from
 the number of microseconds that elapse between requests from the hardware
 layer for more data. Combined, this can be used to approximate how full or
-empty the link is.
+empty the link is.<!--which is combined with which?-->
 </Para>
 
 <Para>
-This is rather circumspect and doesn't always arrive at proper results. For
+This is rather tortuous and doesn't always arrive at proper results. For
 example, what if the actual link speed of an interface that is not really
 able to transmit the full 100mbit/s of data, perhaps because of a badly
 implemented driver? A PCMCIA network card will also never achieve 100mbit/s
@@ -3924,7 +3924,7 @@ directly, only via this parameter.
 <Para>
 As mentioned before, CBQ needs to throttle in case of overlimit. The ideal
 solution is to do so for exactly the calculated idle time, and pass 1
-packet. However, Unix kernels generally have a hard time scheduling events
+packet. For Unix kernels, however, it is generally hard to schedule events
 shorter than 10ms, so it is better to throttle for a longer period, and then
 pass minburst packets in one go, and then sleep minburst times longer.
 </Para>
@@ -4024,6 +4024,9 @@ are tried first and as long as they have traffic, other classes are not
 polled for traffic.
 </Para></ListItem>
 </VarListEntry>
+<!--It is rather confusing between high/low "priority" and
+    "priorigy number" around here.
+    How about using large/small for the latter?-->
 <VarListEntry>
 <Term>weight</Term>
 <ListItem>
@@ -4070,7 +4073,7 @@ lend out bandwidth.
 <Para>
 A class that is configured with 'isolated' will not lend out bandwidth to
 sibling classes. Use this if you have competing or mutually-unfriendly
-agencies on your link who do want to give each other freebies.
+agencies on your link who do not want to give each other freebies.
 </Para>
 
 <Para>
@@ -4339,7 +4342,7 @@ are running 'tc class change'. For example, to add best effort traffic to
 </Para>
 
 <Para>
-The priority map over at 1:0 now looks like this:
+The priority map at 1:0 now looks like this:
 </Para>
 
 <Para>
@@ -4578,7 +4581,7 @@ You can concatenate matches, to match on traffic from 1.2.3.4 and from port
 80, do this:
 
 <Screen>
-# tc filter add dev eth0 parent 10:0 protocol ip prio 1 u32 match ip src 4.3.2.1/32
+# tc filter add dev eth0 parent 10:0 protocol ip prio 1 u32 match ip src 4.3.2.1/32 \
   match ip sport 80 0xffff flowid 10:1
 </Screen>
 
@@ -4612,7 +4615,7 @@ Source mask 'match ip src 1.2.3.0/24', destination mask 'match ip dst
 <Term>On source/destination port, all IP protocols</Term>
 <ListItem>
 <Para>
-Source: 'match ip sport 80 0xffff', 'match ip dport 0xffff'
+Source: 'match ip sport 80 0xffff', destination: 'match ip dport 80 0xffff'
 </Para></ListItem>
 </VarListEntry>
 <VarListEntry>
@@ -4686,15 +4689,20 @@ that is queued to the device is first queued to the qdisc. From this concept,
 two limitations arise:
 </Para>
 
+<Orderedlist>
+<Listitem>
 <Para>
-1. Only egress shaping is possible (an ingress qdisc exists, but its
+Only egress shaping is possible (an ingress qdisc exists, but its
 possibilities are very limited compared to classful qdiscs).
 </Para>
-
+</Listitem>
+<Listitem>
 <Para>
-2. A qdisc can only see traffic of one interface, global limitations can't be
+A qdisc can only see traffic of one interface, global limitations can't be
 placed.
 </Para>
+</Listitem>
+</Orderedlist>
 
 <Para>
 IMQ is there to help solve those two limitations. In short, you can put 
@@ -4926,7 +4934,7 @@ need to be sent from A to B - eth1 might get 1, 3 and 5. eth2 would then do
 3, 4, 5, 6. But the possibility is very real that the kernel gets it like
 this: 2, 1, 4, 3, 6, 5. The problem is that this confuses TCP/IP. While not
 a problem for links carrying many different TCP/IP sessions, you won't be
-able to to a bundle multiple links and get to ftp a single file lots faster,
+able to bundle multiple links and get to ftp a single file lots faster,
 except when your receiving or sending OS is Linux, which is not easily
 shaken by some simple reordering.
 </Para>
@@ -5011,7 +5019,7 @@ policy database to act on this:
 </Para>
 
 <Para>
-Now we generate the mail.out table with a route to the slow but cheap link:
+Now we generate a route to the slow but cheap link in the mail.out table:
 
 <Screen>
 # /sbin/ip route add default via 195.96.98.253 dev ppp0 table mail.out
@@ -5197,7 +5205,7 @@ consisting of two fields: a selector and an action. The selectors,
 described below, are compared with the currently processed IP packet
 until the first match occurs, and then the associated action is performed.
 The simplest type of action would be directing the packet into defined
-CBQ class.
+class.
 </Para>
 
 <Para>
@@ -5329,6 +5337,8 @@ Some examples:
 </Para>
 
 <Para>
+Packet will match to this rule, if its time to live (TTL) is 64.
+TTL is the field starting just after 8-th byte of the IP header.
 
 <Screen>
 # tc filter add dev ppp14 parent 1:0 prio 10 u32 \
@@ -5338,17 +5348,9 @@ Some examples:
 
 </Para>
 
-<Para>
-Packet will match to this rule, if its time to live (TTL) is 64.
-TTL is the field starting just after 8-th byte of the IP header.
-</Para>
-
 
 <Para>
-Matches all TCP packets which have the ACK bit set:
-</Para>
-
-<Para>
+The following matches all TCP packets which have the ACK bit set:
 
 <Screen>
 # tc filter add dev ppp14 parent 1:0 prio 10 u32 \
@@ -5361,9 +5363,6 @@ Matches all TCP packets which have the ACK bit set:
 
 <Para>
 Use this to match ACKs on packets smaller than 64 bytes:
-</Para>
-
-<Para>
 
 <Screen>
 ## match acks the hard way,
@@ -5393,6 +5392,7 @@ tcp</Literal>, because 6 is the number of TCP protocol, present in 10-th byte of
 the IP header. On the other hand, in this example we couldn't use any
 specific selector for the first match - simply because there's no specific
 selector to match TCP ACK bits.
+<!--orders & extractionis seem to be confusing in this paragraph-->
 </Para>
 
 <Para>
@@ -5493,6 +5493,7 @@ This classifier filters based on the results of the routing tables. When a
 packet that is traversing through the classes reaches one that is marked
 with the "route" filter, it splits the packets up based on information in
 the routing table.
+<!--a packet <-> the packets-->
 </Para>
 
 <Para>
@@ -5506,8 +5507,8 @@ the routing table.
 <Para>
 Here we add a route classifier onto the parent node 1:0 with priority 100. 
 When a packet reaches this node (which, since it is the root, will happen
-immediately) it will consult the routing table and if one matches will
-send it to the given class and give it a priority of 100. Then, to finally
+immediately) it will consult the routing table. If the packet matches, it will
+be send to the given class and have a priority of 100. Then, to finally
 kick it into action, you add the appropriate routing entry:
 </Para>
 
@@ -5552,8 +5553,7 @@ networks or hosts and specify how the routes match the filters.
 </Para>
 
 <Para>
-The above rule says packets going to the network 192.168.10.0 match class id
-1:10.
+The above rule matches the packets going to the network 192.168.10.0.
 </Para>
 
 <Para>
@@ -5583,8 +5583,8 @@ Here the filter specifies that packets from the subnetwork 192.168.2.0
 
 <Para>
 To make even more complicated setups possible, you can have filters that
-only match up to a certain bandwidth. You can declare a filter to entirely
-cease matching above a certain rate, or only to not match only the bandwidth
+only match up to a certain bandwidth. You can declare a filter either to entirely
+cease matching above a certain rate, or not to match only the bandwidth
 exceeding a certain rate.
 </Para>
 
@@ -5679,7 +5679,7 @@ them slower.
 
 <Para>
 Another difference is that a policer can only let a packet pass, or drop it.
-It cannot delay hold on to it in order to delay it.
+It cannot hold it in order to delay it.
 </Para>
 
 </Sect3>
@@ -5691,7 +5691,7 @@ It cannot delay hold on to it in order to delay it.
 
 <Para>
 If your filter decides that it is overlimit, it can take 'actions'.
-Currently, three actions are available:
+Currently, four actions are available:
 <VariableList>
 
 <VarListEntry>
@@ -5913,7 +5913,7 @@ the hashing table:
 Ok, some numbers need explaining. The default hash table is called 800:: and
 all filtering starts there. Then we select the source address, which lives
 as position 12, 13, 14 and 15 in the IP header, and indicate that we are
-only interested in the last part. This we send to hash table 2:, which we
+only interested in the last part. This will be sent to hash table 2:, which we
 created earlier.
 </Para>
 
@@ -6093,7 +6093,7 @@ you do not expect packets from 212.64.94.1 to arrive there.
 Lots of people will want to turn this feature off, so the kernel hackers
 have made it easy. There are files in /proc where you can tell
 the kernel to do this for you. The method is called "Reverse Path
-Filtering". Basically, if the reply to this packet wouldn't go out the
+Filtering". Basically, if the reply to a packet wouldn't go out the
 interface this packet came in, then this is a bogus packet and should be
 ignored.
 </Para>
@@ -6118,6 +6118,7 @@ Going by the example above, if a packet arrived on the Linux router on eth1
 claiming to come from the Office+ISP subnet, it would be dropped. Similarly,
 if a packet came from the Office subnet, claiming to be from somewhere
 outside your firewall, it would be dropped also.
+<!--it's not clear what Office+ISP subnet is and where eth1 is at this point.-->
 </Para>
 
 <Para>
@@ -6248,8 +6249,8 @@ rate at which it is sent.
 <Term>/proc/sys/net/ipv4/icmp_timeexceed_rate</Term>
 <ListItem>
 <Para>
-This the famous cause of the 'Solaris middle star' in traceroutes. Limits
-number of ICMP Time Exceeded messages sent. 
+This is the famous cause of the 'Solaris middle star' in traceroutes. Limits
+the rate of ICMP Time Exceeded messages sent. 
 </Para></ListItem>
 </VarListEntry>
 <VarListEntry>
@@ -6266,7 +6267,7 @@ FIXME: Is this true?
 <Para>
 FIXME: Add a little explanation about the inet peer storage?
 
-Minimum interval between garbage collection passes.  This interval is in
+Miximum interval between garbage collection passes.  This interval is in
 effect under low (or absent) memory pressure on the pool. Measured in
 jiffies.
 </Para></ListItem>
@@ -6835,15 +6836,6 @@ Maximum queue  length  for a pending arp request - the number of packets which
 are accepted from other layers while the ARP address is still resolved.
 </Para></ListItem>
 </VarListEntry>
-<VarListEntry>
-<Term>Internet QoS: Architectures and Mechanisms for Quality of Service,
-Zheng Wang, ISBN 1-55860-608-4</Term>
-<ListItem>
-<Para>
-Hardcover textbook covering topics
-related to Quality of Service. Good for understanding basic concepts.
-</Para></ListItem>
-</VarListEntry>
 </VariableList>
 </Para>
 
@@ -6856,20 +6848,10 @@ related to Quality of Service. Good for understanding basic concepts.
 <VariableList>
 
 <VarListEntry>
-<Term>/proc/sys/net/ipv4/route/error_burst</Term>
+<Term>/proc/sys/net/ipv4/route/error_burst and /proc/sys/net/ipv4/route/error_cost</Term>
 <ListItem>
 <Para>
-These parameters  are used to limit the warning messages written to the kernel
-log from  the  routing  code.  The  higher the error_cost factor is, the fewer
-messages will  be written. Error_burst controls when messages will be dropped.
-The default settings limit warning messages to one every five seconds.
-</Para></ListItem>
-</VarListEntry>
-<VarListEntry>
-<Term>/proc/sys/net/ipv4/route/error_cost</Term>
-<ListItem>
-<Para>
-These parameters  are used to limit the warning messages written to the kernel
+This parameters are used to limit the warning messages written to the kernel
 log from  the  routing  code.  The  higher the error_cost factor is, the fewer
 messages will  be written. Error_burst controls when messages will be dropped.
 The default settings limit warning messages to one every five seconds.
@@ -6932,7 +6914,7 @@ See /proc/sys/net/ipv4/route/gc_elasticity.
 <Term>/proc/sys/net/ipv4/route/max_delay</Term>
 <ListItem>
 <Para>
-Delays for flushing the routing cache.
+Maximum delay for flushing the routing cache.
 </Para></ListItem>
 </VarListEntry>
 <VarListEntry>
@@ -6954,7 +6936,7 @@ FIXME: fill this in
 <Term>/proc/sys/net/ipv4/route/min_delay</Term>
 <ListItem>
 <Para>
-Delays for flushing the routing cache.
+Minimum delay for flushing the routing cache.
 </Para></ListItem>
 </VarListEntry>
 <VarListEntry>
@@ -7290,7 +7272,7 @@ skb-&gt;tc_index variable.
 
 <Para>
 Classifier is invoked. The classifier will be executed and it will return a class ID that will be stored in
-skb-&gt;tc_index variable.If no filter matches are found, we consider the default_index option to be the
+skb-&gt;tc_index variable. If no filter matches are found, we consider the default_index option to determine the
 classId to store. If neither set_tc_index nor default_index has been declared results may be
 unpredictable.
 </Para>
@@ -7376,9 +7358,10 @@ This is the basic command to declare a TC_INDEX filter:
             [ classid CLASSID ] [ police POLICE_SPEC ]
 </Screen>
 
+<Para>
 Next, we show the example used to explain TC_INDEX operation mode. Pay attention to bolded words:
 
-
+<Screen>
 tc qdisc add dev eth0 handle 1:0 root dsmark indices 64 <Emphasis remap="bf">set_tc_index</Emphasis>
 
 tc filter add dev eth0 parent 1:0 protocol ip prio 1 tcindex <Emphasis remap="bf">mask 0xfc  shift 2</Emphasis>
@@ -7394,7 +7377,7 @@ tc class add dev eth0 parent 2:0 classid 2:1 cbq bandwidth 10Mbit rate 1500Kbit 
 tc qdisc add dev eth0 parent 2:1 pfifo limit 5
 
 tc filter add dev eth0 parent 2:0 protocol ip prio 1 <Emphasis remap="bf">handle 0x2e</Emphasis> tcindex <Emphasis remap="bf">classid 2:1 pass_on</Emphasis>
-
+</Screen>
 
 
 (This code is not complete. It's just an extract from EFCBQ example included in iproute2 distribution).
@@ -7444,7 +7427,7 @@ Key = Value1 &#62;&#62; SHIFT
 </Para>
 
 <Para>
-In the example, MASK=0xFC i SHIFT=2.
+In the example, MASK=0xFC and SHIFT=2.
 
 <Screen>
 Value1 = 10111000 &#38; 11111100 = 10111000
@@ -7460,11 +7443,12 @@ and the classid will be returned (in our example, classid 2:1) and stored in skb
 </Para>
 
 <Para>
-But if any filter with that identifier is found, the result will depend on fall_through flag declaration. If so,
+But if any filter with that identifier is not found, the result will depend on fall_through flag declaration. If so,
 value key is returned as classid. If not, an error is returned and process continues with the rest filters. Be
 careful if you use fall_through flag; this can be done if a simple relation exists between values
 
 of skb-&gt;tc_index variable and class id's.
+<!--what "this" here means?-->
 </Para>
 
 <Para>
@@ -7552,7 +7536,7 @@ Cookbook.
   <Title>Random Early Detection (RED)</Title>
 
 <Para>
-This section is meant as an introduction to backbone routing, which often
+This section is meant as an introduction to the queuing at backbone networks, which often
 involves &gt;100 megabit bandwidths, which requires a different approach than
 your ADSL modem at home.
 </Para>
@@ -8011,17 +7995,15 @@ Cost". Only one of these bits is allowed to be set. Rob van Nieuwkerk, the
 author of the ipchains TOS-mangling code, puts it as follows:
 </Para>
 
+<BlockQuote>
 <Para>
-
-<Screen>
 Especially the "Minimum Delay" is important for me. I switch it on for
 "interactive" packets in my upstream (Linux) router. I'm
 behind a 33k6 modem link. Linux prioritizes packets in 3 queues. This
 way I get acceptable interactive performance while doing bulk
 downloads at the same time. 
-</Screen>
-
 </Para>
+</BlockQuote>
 
 <Para>
 The most common use is to set telnet &#38; ftp control connections to "Minimum
@@ -8336,21 +8318,32 @@ general outgoing path.
 </Para>
 
 <Para>
-
-<Screen>
 Here is run down for packet traversing the network from kaosarn
 to and from the Internet.
+</Para>
 
-For web/http traffic:
+<VariableList>
+<VarListEntry>
+ <Term>For web/http traffic</Term>
+ <ListItem>
+  <Para><Screen>
 kaosarn http request-&#62;naret-&#62;silom-&#62;donmuang-&#62;internet
 http replies from Internet-&#62;donmuang-&#62;silom-&#62;kaosarn
+  </Screen></Para>
+ </ListItem>
+</VarListEntry>
 
-For non-web/http requests(eg. telnet):
+<VarListEntry>
+ <Term>For non-web/http requests(eg. telnet)</Term>
+ <ListItem>
+  <Para><Screen>
 kaosarn outgoing data-&#62;naret-&#62;donmuang-&#62;internet
 incoming data from Internet-&#62;donmuang-&#62;kaosarn
-</Screen>
+  </Screen></Para>
+ </ListItem>
+</VarListEntry>
+</VariableList>
 
-</Para>
 
 </Sect2>
 
@@ -8578,7 +8571,7 @@ too much.
 <Term>Make sure uploads don't harm downloads, and the other way around</Term>
 <ListItem>
 <Para>
-This is a much observed phenomenon where upstream traffic simply destroys
+This is a much observed phenomenon where outgress traffic simply destroys
 download speed.
 </Para></ListItem>
 </VarListEntry>
@@ -8974,7 +8967,7 @@ If the last two lines give an error, update your tc tool to a newer version!
 	<sect1 id="lartc.cookbook.fullnat.intro"><title>Example of a full nat solution with QoS</title>
 		<para>
 			I'm Pedro Larroy
-<address><email>piotr%member.fsf.org</email></address>. Here I'm describing a common set up where we have lots of users in a private network connected to the Internet trough a Linux router with a public ip address that is doing network address translation (NAT). I use this QoS setup to give access to the Internet to 198 users in a university dorm, in which I live and I'm netadmin of. The users here do heavy use of peer to peer programs, so proper traffic control is a must. I hope this serves as a practical example for all interested lartc readers.
+<email>piotr%member.fsf.org</email>. Here I'm describing a common set up where we have lots of users in a private network connected to the Internet trough a Linux router with a public ip address that is doing network address translation (NAT). I use this QoS setup to give access to the Internet to 198 users in a university dorm, in which I live and I'm netadmin of. The users here do heavy use of peer to peer programs, so proper traffic control is a must. I hope this serves as a practical example for all interested lartc readers.
 		</para>
 
 		<para>
@@ -9011,7 +9004,7 @@ If the last two lines give an error, update your tc tool to a newer version!
 	<sect2>
 	<Title>Let's begin optimizing that scarce bandwidth</Title>
 		<para>
-			First we set up some qdiscs in which we will classify the traffic. We create a htb qdisc with 6 classes with ascending priority. Then we have classes that will always get allocated rate, but can use the unused bandwidth that other classes don't need. Recall that classes with higher priority ( i.e with a lower prio number ) will get excess of bandwith allocated first. Our connection is 2Mb down 300kbits/s up Adsl. I use 240kbit/s as ceil rate just because it's the higher I can set it before latency starts to grow, due to buffer filling in whatever place between us and remote hosts. This parameter should be timed experimentally, raising it and lowering while observing latency between some near hosts.
+			First we set up some qdiscs in which we will classify the traffic. We create a htb qdisc with 6 classes with ascending priority. Then we have classes that will always get allocated rate, but can use the unused bandwidth that other classes don't need. Recall that classes with higher priority ( i.e with a lower prio number ) will get excess of bandwith allocated first. Our connection is 2Mb down 300kbits/s up Adsl. I use 240kbit/s as ceil rate just because it's the higher I can set it before latency starts to grow, due to buffer filling in whatever place between us and remote hosts. This parameter should be timed experimentally, raising and lowering it while observing latency between some near hosts.
 		</para>
 		<para>
 			Adjust CEIL to 75% of your upstream bandwith limit by now, and where I use eth0, you should use the interface which has a public Internet address. To begin our example execute the following in a root shell:
@@ -9050,7 +9043,7 @@ tc qdisc add dev eth0 parent 1:15 handle 150: sfq perturb 10
 					<Term>classid 1:10 htb rate 80kbit ceil 80kbit prio 0</Term>
 					<ListItem>
 					<Para>
-					This is the higher priority class. The packets in this class will have the lowest delay and would get the excess of bandwith first so it's a good idea to limit the ceil rate to this class. We will send through this class the following packets that benefit from low delay, such as interactive traffic: <emphasis>ssh, telnet, dns, quake3, irc, and packets with the SYN flag</emphasis>.
+					This is the highest priority class. The packets in this class will have the lowest delay and would get the excess of bandwith first so it's a good idea to limit the ceil rate to this class. We will send through this class the following packets that benefit from low delay, such as interactive traffic: <emphasis>ssh, telnet, dns, quake3, irc, and packets with the SYN flag</emphasis>.
 					</Para>
 					</ListItem>
 				</VarListEntry>
@@ -9120,7 +9113,7 @@ tc filter add dev eth0 parent 1:0 protocol ip prio 4 handle 4 fw classid 1:13
 tc filter add dev eth0 parent 1:0 protocol ip prio 5 handle 5 fw classid 1:14
 tc filter add dev eth0 parent 1:0 protocol ip prio 6 handle 6 fw classid 1:15
 			</Screen>
-			We have just told the kernel that packets that has a specific FWMARK value ( hanlde x fw ) go in the specified class ( classid x:x). Next you will see how to mark packets with iptables. 
+			We have just told the kernel that packets that have a specific FWMARK value ( handle x fw ) go in the specified class ( classid x:x). Next you will see how to mark packets with iptables. 
 		</para>
 		
 		<para>
@@ -9135,7 +9128,7 @@ input   +------------+    decision    +-­-------+       |       +-------------+ 
                         +-------+                    +--------+
 
 			</Screen>
-			I assume you have all your tables creak and with default policy ACCEPT ( -P ACCEPT ) if you haven't poked with iptables yet, It should be ok by default. Ours private network is a class B with address 172.17.0.0/16 and public ip is 212.170.21.172
+			I assume you have all your tables created and with default policy ACCEPT ( -P ACCEPT ) if you haven't poked with iptables yet, It should be ok by default. Ours private network is a class B with address 172.17.0.0/16 and public ip is 212.170.21.172
 		</para>
 
 		<para>
@@ -9191,6 +9184,7 @@ iptables -t mangle -I PREROUTING -p tcp -m tcp --tcp-flags SYN,RST,ACK SYN -j RE
 			And so on.
 			
 			When we are done adding rules to PREROUTING in mangle, we terminate the PREROUTING table with:
+<!-- sport/dport 80 examples? -->
 			<Screen>
 iptables -t mangle -A PREROUTING -j MARK --set-mark 0x6
 			</Screen>
@@ -9479,7 +9473,7 @@ popping up all the time.
 <Para>
 The Internet has mostly standardized on OSPF (RFC 2328) and BGP4 (RFC 1771).
 Linux supports both, by way of <application>gated</application> and 
-<application>zebra</application>
+<application>zebra</application>.
 </Para>
 
 <Para>
@@ -9581,7 +9575,7 @@ to the configuration language in Zebra :-)
 				<Term>Bandwith efficient</Term>
 				<ListItem>
 				<Para>
-				Uses multicasting instead of broadcasting, so it doesn't flood other hosts with routing information that may not be of interest for them, thus reducing network overhead. Also, <emphasis>Internal Routers</emphasis> (those which only have interfaces in one area) Don't have routing information about other areas. Routers with interfaces in more than one area are called <emphasis>Area Border Routers</emphasis>, and hold topological information about the areas they are connected to.
+				Uses multicasting instead of broadcasting, so it doesn't flood other hosts with routing information that may not be of interest for them, thus reducing network overhead. Also, <emphasis>Internal Routers</emphasis> (those which only have interfaces in one area) don't have routing information about other areas. Routers with interfaces in more than one area are called <emphasis>Area Border Routers</emphasis>, and hold topological information about the areas they are connected to.
 				</Para></ListItem>
 			</VarListEntry>
 
@@ -9670,7 +9664,7 @@ to the configuration language in Zebra :-)
 ------------   |         Student network (dorm)   |       |       barcelonawireless     |
                ------------------------------------       -------------------------------
 			</screen>
-			Don't be afraid by this diagram, zebra does most of the work automatically, so it won't take any work to put all the routes up with zebra. It would be painful to mantain all those routes by hand in a day to day basis. The most important thing you must have clear, is the network topology. And take special care with Area 0, since it's the most important.
+			Don't be afraid by this diagram, zebra does most of the work automatically, so it won't take any work to put all the routes up with zebra. It would be painful to maintain all those routes by hand in a day to day basis. The most important thing you must make clear, is the network topology. And take special care with Area 0, since it's the most important.
 			First configure zebra, editing zebra.conf and adapt it to your needs:
 			<screen>
 hostname omega
@@ -9691,12 +9685,12 @@ ip route 0.0.0.0/0 212.170.21.129
 !
 log file /var/log/zebra/zebra.log
 			</screen>
-			In Debian, I will also had to edit /etc/zebra/daemons so they start at boot:
+			In Debian, I will also have to edit /etc/zebra/daemons so they start at boot:
 			<screen>
 zebra=yes
 ospfd=yes
 			</screen>
-			Now we have to edit ospfd.conf if you are still runnig IPV4 or ospf6d.conf if you run IPV6. My ospfd.conf looks like:
+			Now we have to edit ospfd.conf if you are still running IPV4 or ospf6d.conf if you run IPV6. My ospfd.conf looks like:
 			<screen>
 hostname omega
 password xxx
@@ -9792,7 +9786,7 @@ root@omega:~#
 			<screen>
 tcpdump -i eth1 ip[9] == 89
 			</screen>
-			To capture OSPF packets for analisys. OSPF ip protocol number is 89, and the protocol field is the 9th octet on the ip header.
+			To capture OSPF packets for analysis. OSPF ip protocol number is 89, and the protocol field is the 9th octet on the ip header.
 		</para>
 		
 		<para>
@@ -9931,7 +9925,7 @@ the router is connected to:
 <Title>Checking Configuration</Title>
 
 <para>
-Note: vtysh is a multiplexer an connects all the Zebra interfaces
+Note: vtysh is a multiplexer and connects all the Zebra interfaces
 together.
 </para>
 
@@ -9956,7 +9950,7 @@ anakin#
 </screen>
 
 <para>
-Let's see which routes we got from our neigbors:
+Let's see which routes we got from our neighbors:
 </para>
 
 <screen>
@@ -10058,7 +10052,7 @@ segment, but turn off ARP on them. Only the LVS machine does ARP - it then
 decides which of the backend hosts should handle an incoming packet, and
 sends it directly to the right MAC address of the backend server. Outgoing
 traffic will flow directly to the router, and not via the LVS machine, which
-does therefor not need to see your 5Gbit/s of content flowing to the world,
+does therefore not need to see your 5Gbit/s of content flowing to the world,
 and cannot be a bottleneck.
 </Para>
 
@@ -10209,13 +10203,13 @@ latency.
 <ListItem>
 <Para>
 tc_config is set of scripts for linux 2.4+ traffic control
-configuration on RedHat systems and (hopefully) derivatives.
+configuration on RedHat systems and (hopefully) derivatives
 (linux 2.2.X with ipchains is obsotete).
 Uses cbq qdisc as root one, and sfq qdisc at leafs.
 </Para>
 <Para>
 Includes snmp_pass utility for getting stats on traffic control via snmp.
-Write
+FIXME: Write
 </Para>
 </ListItem>
 </VarListEntry>
@@ -10258,7 +10252,7 @@ URL="http://defiant.coinet.com/iproute2/ip-cref/"
 ></Term>
 <ListItem>
 <Para>
-HTML version of Alexeys LaTeX documentation - explains part of iproute2 in
+HTML version of Alexey's LaTeX documentation - explains part of iproute2 in
 great detail
 </Para></ListItem>
 </VarListEntry>
@@ -10344,6 +10338,16 @@ well.
 A introduction to policy routing with lots of examples.
 </Para>
 </ListItem>
+</VarListEntry>
+
+<VarListEntry>
+<Term>Internet QoS: Architectures and Mechanisms for Quality of Service,
+Zheng Wang, ISBN 1-55860-608-4</Term>
+<ListItem>
+<Para>
+Hardcover textbook covering topics
+related to Quality of Service. Good for understanding basic concepts.
+</Para></ListItem>
 </VarListEntry>
 
 </VariableList> 
@@ -10760,6 +10764,13 @@ Chris Murray &lt;cmurray@stargate.ca&gt;
 </Para>
 </ListItem>
 <ListItem>
+
+<Para>
+Takeo NAKANO &lt;nakano@apm.seikei.ac.jp&gt;
+</Para>
+</ListItem>
+<ListItem>
+
 
 <Para>
 Patrick Nagelschmidt &lt;dto%gmx.net&gt;
