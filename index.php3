@@ -81,7 +81,10 @@ href=http://www.student.kun.nl/a.vanleeuwen/index-en.html>Arthur van
 Leeuwen</a> we finally have <a
 href=http://lartc.org/HOWTO//cvs/2.4routing/output/2.4routing-4.html#ss4.2>
 a good section on how to combine multiple
-internet links succesfully.</a></td>
+internet links succesfully. Today is also <font color=#ff0000>FLAG
+DAY!</font>. I've shifted to DocBook and all 'deep links' are now dead. 
+The good news is that DocBook has features to make deep links more robust, 
+so expect some nice URLs soon.</a></td>
 <tr><td valign=top>2002-03-15</td><td>Psssst! Sneak preview of what I've
 been doing the past year and a half or so: the <a
 href=http://pdns.powerdns.com>PowerDNS not-for-profit release</a>. In other
@@ -158,8 +161,8 @@ mail, you can indicate this on the Mailman mailinglist management page.
 <p>
 Current version is 0.9.0 Files were last updated at 
 <?
-	if(!($st=stat("HOWTO/cvs/2.4routing/2.4routing.sgml")))
-		$st=stat("2.4routing.sgml");
+	if(!($st=stat("HOWTO/cvs/2.4routing/lartc.db")))
+		$st=stat("lartc.db");
 	print date("Y-m-d H:i",$st[9]);
 	print " CET ";
 
@@ -187,13 +190,15 @@ Polish translation is <a
 href=http://mr0vka.eu.org/tlumaczenia/2.4routing.html>here</a>.
 <ul>
 <li><a href="HOWTO/cvs/2.4routing/cvs.log">CVS Changelog</a>
-<li><a href="HOWTO/cvs/2.4routing/2.4routing.sgml">SGML</A>
-<li><a href="HOWTO//cvs/2.4routing/2.4routing.txt">ASCII</A>, .txt
-<li><a href="HOWTO//cvs/2.4routing/output/2.4routing.html">HTML</A>, <a href="HOWTO//cvs/2.4routing/2.4routing-howto.html">One-big-page
-HTML</A>, <a href="HOWTO//cvs/2.4routing/2.4routing.tar.gz">HTML tarfile</A>
-<li><a href="HOWTO//cvs/2.4routing/2.4routing.dvi">dvi</A>
-<li><a href="HOWTO//cvs/2.4routing/2.4routing.ps">ps</A>, <a href="HOWTO//cvs/2.4routing/2.4routing.ps.gz">ps.gz</A>
-<li><a href="HOWTO//cvs/2.4routing/2.4routing.pdf">pdf</A>, <a href="HOWTO//cvs/2.4routing/2.4routing.pdf.gz">pdf.gz</A>
+<li><a href="HOWTO/cvs/2.4routing/lartc.db">SGML</A>
+<li><a href="HOWTO//cvs/2.4routing/lartc.txt">ASCII</A>, .txt
+<li><a href="HOWTO//cvs/2.4routing/html/index.html">HTML</A>, <a
+href="HOWTO//cvs/2.4routing/lartc.html">One-big-page
+HTML</A>, <a href="HOWTO//cvs/2.4routing/lartc.tar.gz">HTML tarfile</A>
+<li><a href="HOWTO//cvs/2.4routing/lartc.dvi">dvi</A>
+<li><a href="HOWTO//cvs/2.4routing/lartc.ps">ps</A>, <a href="HOWTO//cvs/2.4routing/lartc.ps.gz">ps.gz</A>
+<li><a href="HOWTO//cvs/2.4routing/lartc.pdf">pdf</A>, <a
+href="HOWTO//cvs/2.4routing/lartc.pdf.gz">pdf.gz</A>
 </ul>
 <a name="jobs"></a>
 <H2>Jobs list</H2>

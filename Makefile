@@ -1,33 +1,9 @@
 # $Id$ 
 
-all: dummy 2.4routing.txt 2.4routing.dvi 2.4routing.ps 2.4routing.ps.gz \
-     2.4routing.pdf 2.4routing.pdf.gz output/2.4routing.html \
-     2.4routing-howto.html 2.4routing.tar.gz contriblist
-
-dummy:
-	cvs update
-	cvs log > cvs.log
-
-contriblist: 2.4routing.txt
-	./makecontriblist > contriblist
+all: lartc.txt lartc.pdf html/index.html html.tar.gz lartc.dvi lartc.pdf.gz lartc.ps lartc.ps lartc.ps.gz lartc.html
 
 clean:
-	rm -f *~ 2.4routing.{txt,dvi,ps,ps.gz,pdf,pdf.gz,tex,tar.gz} output/2.4routing*html 
-
-%.txt: %.sgml
-	sgml2txt -f $<
-
-%.tex: %.sgml
-	sgml2latex -o tex $<
-	grep -v "{t1enc}" $@ > $@.tmp
-	mv $@.tmp $@
-
-%.dvi: %.tex
-	latex $<
-	latex $<
-
-%.pdf: %.dvi
-	dvipdfm $<
+	rm -rf *.dvi *.pdf *.tex *.toc *.aux *.txt *.ps *.bak *.tmp *~ *.log html *.pdf.gz *.ps.gz html.tar.gz lartc.html
 
 %.pdf.gz: %.pdf
 	gzip < $<  > $@
@@ -35,18 +11,28 @@ clean:
 %.ps.gz: %.ps
 	gzip < $<  > $@
 
-%.ps: %.dvi
-	dvips -o $@ $<
 
-2.4routing-howto.html: 2.4routing.sgml
-	sgml2html -s 0 2.4routing.sgml 
-	mv 2.4routing.html 2.4routing-howto.html
+html/index.html: lartc.db
+	db2html -o html lartc.db
 
+html.tar.gz: html/index.html
+	tar czf html.tar.gz html/
 
+%.txt: %.db
+	docbook2txt $<
 
-output/2.4routing.html: 2.4routing.sgml
-	-mkdir output
-	(cd output;sgml2html -H header -F footer ../2.4routing.sgml)
+%.pdf: %.db
+	docbook2pdf $<
 
-2.4routing.tar.gz: output/2.4routing.html
-	tar cvzf 2.4routing.tar.gz output/2.4routing*html
+%.ps: %.db
+	docbook2ps $<
+
+%.dvi: %.db
+	docbook2dvi $<
+
+lartc.html:
+	docbook2html lartc.db --nochunks | tail +4 > $@
+
+publish:
+	rsync --copy-links --delete -avrze ssh ./html pdns.txt pdns.pdf \
+	spoon.powerdns.com:/opt/websites/downloads.powerdns.com/www/documentation/
