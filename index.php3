@@ -11,13 +11,17 @@ src=http://ds9a.nl/pub/pdns88x33c.gif></a><p></td>
 
 <tr><td><a href="http://ds9a.nl/">bert hubert</a> (<a
 href=http://www.powerdns.com>PowerDNS.COM BV</a>) ,<br>
+<table><tr valign=top><td>
+Section authors: </td>
+<td>
 <a href="http://linuxpower.cx/~greg/">Greg Maxwell</a> <a
-href=mailto:greg@linuxpower.cx></a> and <br>
+href=mailto:greg@linuxpower.cx></a>, 
 <a href=http://slashme.org>Remco van Mook</a> (<a
 href=http://www.virtu.nl>Virtu Secure Webservices</a>) <br>
-Martijn van Oosterhout <br>
-Paul B Schroeder <br>
-<a href="http://jsp.ds9a.nl/">Jasper Spaans</a>  <br>
+Martijn van Oosterhout,
+Paul B Schroeder,
+<a href="http://jsp.ds9a.nl/">Jasper Spaans</a></td></table>
+<br>
 <a href="mailto:send-mail-to-the-mailinglist-not-to-the-HOWTO-authors-unless-you-have-a-complaint-or-patch-about-the-HOWTO!@ds9a.nl">HOWTO@ds9a.nl</a> <small>(HOWTO related only, do
 <strong>not</strong> send questions)</small> <br>
 <a href="#mailinglist">lartc@mailman.ds9a.nl</a>
