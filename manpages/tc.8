@@ -2,7 +2,7 @@
 .SH NAME
 tc \- show / manipulate traffic control settings
 .SH SYNOPSIS
-.B tc qdisc [ add | change | replace ] dev 
+.B tc qdisc [ add | change | replace | link ] dev 
 DEV 
 .B 
 [ parent 
@@ -22,7 +22,7 @@ class-id ] qdisc
 [ qdisc specific parameters ]
 .P
 
-.B tc filter add dev
+.B tc filter [ add | change | replace ] dev
 DEV
 .B  [ parent
 qdisc-id
@@ -44,13 +44,28 @@ DEV
 .B tc filter show dev 
 DEV 
 
-
-
 .SH DESCRIPTION
 .B Tc
-is used to configure Traffic Control in the Linux kernel. 
-It can be used to shape, reorder or drop traffic according to specified rules.
+is used to configure Traffic Control in the Linux kernel. Traffic Control consists 
+of the following:
 
+.TP 
+SHAPING
+When traffic is shaped, its rate of transmission is under control. Shaping may 
+be more than lowering the available bandwidth - it is also used to smooth out 
+bursts in traffic for better network behaviour.
+
+.TP 
+REORDERING
+By changing the relative positions of packets it is possible to improve interactivity
+for traffic that needs it while still guaranteeing bandwidth to bulk transfers. Reordering
+is also called prioritizing.
+
+.TP
+DROP
+Traffic exceeding a set bandwidth may also be dropped forthwith.
+
+.P
 Processing of traffic is controlled by three kinds of objects: qdiscs, 
 classes and filters. 
 
@@ -64,9 +79,9 @@ to the qdisc configured for that interface. Immediately afterwards, the kernel
 tries to get as many packets as possible from the qdisc, for giving them
 to the network adaptor driver.
 
-A simple QDISC is the 'pfifo' one, which does no processing at all. The only
-thing it does is contain traffic for when the network interface is busy, or it
-gets more traffic than it can handle.
+A simple QDISC is the 'pfifo' one, which does no processing at all and is a pure 
+First In, First Out queue. It does however store traffic when the network interface
+can't handle it momentarily.
 
 .SH CLASSES
 Some qdiscs can contain further qdiscs - traffic may then be enqueued in any
@@ -166,7 +181,7 @@ Furthermore, each class contains a
 .B leaf qdisc
 which by default has 
 .B pfifo_fast 
-behaviour, but another qdisc can be attached in place. This qdisc may again 
+behaviour though another qdisc can be attached in place. This qdisc may again 
 contain classes, but each class can have only one leaf qdisc. 
 
 When a packet enters a classful qdisc it can be 
@@ -195,7 +210,7 @@ attached to that class. Check qdisc specific manpages for details, however.
 
 .SH NAMING
 All qdiscs, classes and filters have IDs, which can either be specified
-or automatically assigned. 
+or be automatically assigned. 
 
 IDs consist of a major number and a minor number, separated by a colon.
 
@@ -210,7 +225,7 @@ children.
 .TP 
 CLASSES
 Classes residing under a qdisc share their qdisc major number, but each have
-a separate minor number called a 'classid', that has no relation to their 
+a separate minor number called a 'classid' that has no relation to their 
 parent classes, only to their parent qdisc. The same naming custom as for 
 qdiscs applies.
 
@@ -219,6 +234,43 @@ FILTERS
 Filters have a three part ID, which is only needed when using a hashed
 filter hierarchy, for which see
 .BR tc-filters (8).
+
+.SH TC COMMANDS
+The following commands are available for qdiscs, classes and filter:
+.TP
+add
+Add a qdisc, class or filter to a node. For all entities, a 
+.B parent
+must be passed, either by passing its ID or by attaching directly to the root of a device. 
+When creating a qdisc or a filter, it can be named with the
+.B handle
+parameter. A class is named with the
+.B classid
+parameter.
+
+.TP
+remove
+A qdisc can be removed by specifying its handle, which may also be 'root'. All subclasses and their leaf qdiscs 
+are automatically deleted, as well as any filters attached to them.
+
+.TP
+change
+Some entities can be modified 'in place'. Shares the syntax of 'add', with the exception
+that the handle cannot be changed and neither can the parent. In other words, 
+.B
+change 
+cannot move a node.
+
+.TP
+replace
+Performs a nearly atomic remove/add on an existing node id. If the node does not exist yet
+it is created.
+
+.TP
+link
+Only available for qdiscs and performs a replace where the node 
+must exist already.
+
 
 .SH HISTORY
 .B tc
