@@ -167,7 +167,7 @@ U 2.4routing/2.4routing.sgml
 </verb></tscreen>
 
 If you spot an error, or want to add something, just fix it locally, and run
-cvs diff -u, and send the result off to us.
+cvs -z3 diff -uBb, and send the result to us.
 
 A Makefile is supplied which should help you create postscript, dvi, pdf,
 html and plain text. You may need to install sgml-tools, ghostscript and
@@ -551,6 +551,127 @@ Now all that is left is to generate John's table, and flush the route cache:
 
 And we are done. It is left as an exercise for the reader to implement this
 in ip-up.
+
+<sect1>Routing for multiple uplinks/providers
+<p>
+A common configuration is the following, in which there are two providers
+that connect a local network (or even a single machine) to the big Internet.
+
+<tscreen><verb>
+                                                                 ________
+                                          +------------+        /
+                                          |            |       |
+                            +-------------+ Provider 1 +-------
+        __                  |             |            |     /
+    ___/  \_         +------+-------+     +------------+    |
+  _/        \__      |     if1      |                      /
+ /             \     |              |                      |
+| Local network -----+ Linux router |                      |     Internet
+ \_           __/    |              |                      |
+   \__     __/       |     if2      |                      \
+      \___/          +------+-------+     +------------+    |
+                            |             |            |     \
+                            +-------------+ Provider 2 +-------
+                                          |            |       |
+                                          +------------+        \________
+</verb></tscreen>
+
+There are usually two questions given this setup.
+
+<sect2>Split access
+<p>
+The first is how to route answers to packets coming in over a
+particular provider, say Provider 1, back out again over that same provider.
+
+Let us first set some symbolical names. Let <tt>$IF1</tt> be the name of the
+first interface (if1 in the picture above) and <tt>$IF2</tt> the name of the
+second interface. Then let <tt>$IP1</tt> be the IP address associated with
+<tt>$IF1</tt> and <tt>$IP2</tt> the IP address associated with
+<tt>$IF2</tt>. Next, let <tt>$P1</tt> be the IP address of the gateway at
+Provider 1, and <tt>$P2</tt> the IP address of the gateway at provider 2.
+Finally, let <tt>$P1_NET</tt> be the IP network <tt>$P1</tt> is in,
+and <tt>$P2_NET</tt> the IP network <tt>$P2</tt> is in.
+
+One creates two additional routing tables, say <tt>T1</tt> and <tt>T2</tt>.
+These are added in /etc/iproute2/rt_tables. Then you set up routing in
+these tables as follows:
+
+<tscreen><verb>
+ip route add $P1_NET dev $IF1 src $IP1 table T1
+ip route add default via $P1 table T1
+ip route add $P2_NET dev $IF2 src $IP2 table T2
+ip route add default via $P2 table T2
+</verb></tscreen>
+
+Nothing spectacular, just build a route to the gateway and build a
+default route via that gateway, as you would do in the case of a single
+upstream provider, but put the routes in a seperate table per provider.
+Note that the network route suffices, as it tells you how to find any host
+in that network, which includes the gateway, as specified above.
+
+Next you set up the main routing table. It is a good idea to route
+things to the direct neighbour through the interface connected to that
+neighbour. Note the `src' arguments, they make sure the right outgoing IP
+address is chosen.
+
+<tscreen><verb>
+ip route add $P1_NET dev $IF1 src $IP1
+ip route add $P2_NET dev $IF2 src $IP2
+</verb></tscreen>
+
+Then, your preference for default route:
+
+<tscreen><verb>
+ip route add default via $P1
+</verb></tscreen>
+
+Next, you set up the routing rules. These actually choose what routing table
+to route with. You want to make sure that you route out a given
+interface if you already have the corresponding source address:
+
+<tscreen><verb>
+ip rule add from $IP1 table T1
+ip rule add from $IP2 table T2
+</verb></tscreen>
+
+This set of commands makes sure all answers to traffic coming in on a
+particular interface get answered from that interface.
+
+Now, this is just the very basic setup. It will work for all processes
+running on the router itself, and for the local network, if it is
+masqueraded. If it is not, then you either have IP space from both providers
+or you are going to want to masquerade to one of the two providers. In both
+cases you will want to add rules selecting which provider to route out from
+based on the IP address of the machine in the local network.
+
+<sect2>Load balancing
+<p>
+The second question is how to balance traffic going out over the two providers.
+This is actually not hard if you already have set up split access as above.
+
+Instead of choosing one of the two providers as your default route,
+you now set up the default route to be a multipath route. In the default
+kernel this will balance routes over the two providers. It is done
+as follows (once more building on the example in the section on
+split-access):
+
+<tscreen><verb>
+ip route add default scope global nexthop via $P1 dev $IF1 weight 1 \
+                                  nexthop via $P2 dev $IF2 weight 1
+</verb></tscreen>
+
+This will balance the routes over both providers. The <tt>weight</tt>
+parameters can be tweaked to favor one provider over the other.
+
+Note that balancing will not be perfect, as it is route based, and routes
+are cached. This means that routes to often-used sites will always
+be over the same provider.
+
+Furthermore, if you really want to do this, you probably also want to look
+at Julian Anastasov's patches at <url
+url="http://www.linuxvirtualserver.org/~julian/#routes" name="Julian's route
+patch page">. They will make things nicer to work with.
+
 <sect>GRE and other tunnels
 <p>
 There are 3 kinds of tunnels in Linux. There's IP in IP tunneling, GRE tunneling and tunnels that live outside the kernel (like, for example PPTP). 
@@ -5093,6 +5214,7 @@ helping.
 
 <itemize>
 <item>Juanjo Alins &lt;juanjo%mat.upc.es&gt;
+<item>Joe Van Andel
 <item>Michael T. Babcock &lt;mbabcock@fibrespeed.net&gt;
 <item>Ard van Breemen &lt;ard%kwaak.net&gt;
 <item>Ron Brinker &lt;service%emcis.com&gt;
@@ -5155,6 +5277,8 @@ helping.
 <item>Glen Turner &lt;glen.turner%aarnet.edu.au&gt;
 <item>Tea Sponsor: Eric Veldhuyzen &lt;eric%terra.nu&gt; 
 <item>Song Wang &lt;wsong@ece.uci.edu&gt;
+
+
 </itemize>
 
 </article>

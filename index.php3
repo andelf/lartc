@@ -32,12 +32,11 @@ href=dejairc.php>archives</a>)</td><td valign=bottom align=right>
 <td valign=top>Translations:
 <br>
 <a
-href=http://www.linux-france.org/prj/inetdoc/i/net/guides/2.4routingfr/>
-	[ French ]
-</a>
-<br><a href="http://www.gnukorea.org/2.4routing-kr/2.4routing.html">
-	[ Korean ]
-</a>
+href=http://www.linux-france.org/prj/inetdoc/guides/Advanced-routing-Howto/>
+
+	[ French ]</a> (fixed)
+<br><a href="http://www.gnukorea.org/">
+	[ Korean ]</a>
 <br>
 <a
 href=http://mr0vka.eu.org/tlumaczenia/2.4routing.html>
@@ -76,15 +75,22 @@ This site attempts to document how to configure and use these features.
 
 <a name="news"></a>
 <h2>News</H2>
-I'm running <b>dangerously</b> low on Marks &amp; Spencer Earl Grey tea and
-M&amp;S closed in Europe and no other place here sells bags that can
-compare. I hear that Twinings (the black boxes) are also ok. So if you are
-from the UK and are feeling thankful, my office is at the Duinweg 37,
-2585 AM, The Hague, The Netherlands. Thanks - bert hubert. I think you can
-just shake the bags out of the foil package and ship them in a regular
-envelope.
-<p>
 <table border=1>
+<tr><td valign=top>2002-04-11</td><td>Thanks to <a
+href=http://www.student.kun.nl/a.vanleeuwen/index-en.html>Arthur van
+Leeuwen</a> we finally have <a
+href=http://lartc.org/HOWTO//cvs/2.4routing/output/2.4routing-4.html#ss4.2>
+a good section on how to combine multiple
+internet links succesfully.</a></td>
+<tr><td valign=top>2002-03-15</td><td>Psssst! Sneak preview of what I've
+been doing the past year and a half or so: the <a
+href=http://pdns.powerdns.com>PowerDNS not-for-profit release</a>. In other
+news, the tea crisis has subsided. Family went to the UK and brought a
+year's supply of tea.</td>
+<tr><td valign=top>2002-03-10</td><td>Started migration to DocBook! I think
+the <a href=lartc.pdf>PDF</a> looks a lot better. The <a
+href=docbook-html>HTML</a> isn't bad either. <a href=lartc.txt>Text</a> needs
+some work though. Let <a href=mailto:ahu@ds9a.nl>me</a> know what you think!</td>
 <tr><td valign=top>2002-02-23</td><td>Moved to <a
 href=http://lartc.org>lartc.org</a>!</td>
 <tr><td valign=top>2002-02-19</td><td>Spam. Due to a broken IPv6 patch, our
@@ -171,8 +177,7 @@ The French
 Technology Institute of the University of Toulouse</a>
 plus Thierry Mallard and Yannick Quenec'hdu from 
 <a href=http://www.idealx.com>
-Idealx</a> is available <a
-href=http://www.linux-france.org/prj/inetdoc/i/net/guides/2.4routingfr/>
+Idealx</a> is available <a href=http://www.linux-france.org/prj/inetdoc/guides/Advanced-routing-Howto>
 here</a>. Terrific work! 
 <p>
 A Korean translation can be found on
