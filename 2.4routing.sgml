@@ -2437,7 +2437,25 @@ TTL is the field starting just after 8-th byte of the IP header.
 # tc filter add dev ppp14 parent 1:0 prio 10 u32 \
      match u8 0x10 0xff at nexthdr+13 \
      protocol tcp \
-     flowid 1:3 \
+     flowid 1:3 
+</verb></tscreen>
+
+FIXME: it has been pointed out that this syntax does not work currently.
+
+Stuart DJ Lynne uses this to match ACKs:
+
+<tscreen><verb>
+## match acks the hard way,
+## IP protocol 6,
+## IP header length 0x5(32 bit words),
+## IP Total length 0x34
+## TCP ack set (bit 5, offset 33)
+# tc filter add dev ppp14 parent 1:0 protocol ip prio 10 u32 \
+            match ip protocol 6 0xff \
+            match u8 0x05 0x0f at 0 \
+            match u8 0x34 0xff at 3 \
+            match u8 0x10 0xff at 33 \
+            flowid 1:3
 </verb></tscreen>
 
 <p>
@@ -3114,7 +3132,7 @@ This chapter was written by Esteve Camps &lt;esteve@hades.udg.es&gt;.
 
 First of all, first of all, it would be a great idea for you to read RFCs
 written about this (RFC2474, RFC2475, RFC2597 and RFC2598) at <url
-url="http://www.ietf.org/html.carters/diffserv-charter.html" name="IETF
+url="http://www.ietf.org/html.charters/diffserv-charter.html" name="IETF
 DiffServ working Group web site"> and <url
 url="http://ica1www.epfl.ch/~almesber" name="Werner Almesberger web site">
 (he wrote the code to support Differentiated Services on Linux).
@@ -4511,6 +4529,7 @@ helping.
 <item>Jonathan Day &lt;jd9812@my-deja.com&gt;
 <item>Martin Devera aka devik &lt;devik@cdi.cz&gt;
 <item>Stephan "Kobold" Gehring &lt;Stephan.Gehring@bechtle.de&gt;
+<item>Jacek Glinkow&lt;jglinkow%hns.com&gt;
 <item>Nadeem Hasan &lt;nhasan@usa.net&gt;
 <item>Vik Heyndrickx &lt;vik.heyndrickx@edchq.com&gt;
 <item>Koos van den Hout &lt;koos@kzdoos.xs4all.nl&gt;
@@ -4518,6 +4537,7 @@ helping.
 <item>Pawel Krawczyk &lt;kravietz%alfa.ceti.pl&gt;
 <item>Philippe Latu &lt;philippe.latu%linux-france.org&gt;
 <item>Jason Lunz &lt;j@cc.gatech.edu&gt;
+<item>Stuart Lynne &lt;sl@fireplug.net&gt;
 <item>Alexey Mahotkin &lt;alexm@formulabez.ru&gt;
 <item>Andreas Mohr &lt;andi%lisas.de&gt;
 <item>Wim van der Most 
