@@ -17,9 +17,6 @@
       
       <collab>
 	<collabname>Gregory Maxwell (Section Author)</collabname>
-        <affiliation>
-          <address><email>remco%virtu.nl</email></address>
-        </affiliation>
       </collab>
 
       
@@ -53,7 +50,7 @@
      <collab>
        <collabname>Pedro Larroy (Section Author)</collabname>
         <affiliation>
-          <address><email>piotr%omega.resa.ed</email></address>
+          <address><email>piotr%omega.resa.es</email></address>
         </affiliation>
      </collab>
 
@@ -1663,7 +1660,7 @@ is available.
     </para>
     <para>
       This HOWTO will only document the 2.5+ version of IPSEC. FreeS/WAN is recommended for Linux 2.4 users for now, but be aware
-      that its configuration wil differ from the native IPSEC.
+      that its configuration will differ from the native IPSEC.
     </para>
     <para>
 	As of 2.5.49, IPSEC works without further patches.
@@ -1678,6 +1675,10 @@ url="ftp://ftp.inr.ac.ru/ip-routing/iputils-ss021109-try.tar.bz2">
 	    here</ulink> (<ulink url="http://ds9a.nl/ipsec/setkey.tar.gz">pre-compiled
 binary &amp; manpage</ulink>). Compiling these userspace utilities requires editing the Makefiles in there to point them at your
 	  2.5.x kernel. This situation is expected to improve rapidly however.
+	</para>
+	<para>
+	  Better tools appear to be available <ulink url="http://sourceforge.net/projects/ipsec-tools">here</ulink>, they
+	  are actively being maintained.
 	</para>
 	<para>
 	When compiling your kernel, be sure to turn on 'PF_KEY', 'AH', 'ESP' and
