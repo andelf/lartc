@@ -2588,15 +2588,80 @@ police
 <sect1>Policing filters
 <p>
 To make even more complicated setups possible, you can have filters that
-only match up to a certain bandwidth. In other words, if you have a 4mbit/s
-filter and offer it 5mbit/s of traffic, 1mbit/s of traffic will not be sent
-to the classid you specified, but will get other treatment.
+only match up to a certain bandwidth. You can declare a filter to entirely
+cease matching above a certain rate, or only to not match only the bandwidth
+exceeding a certain rate.
 
-The default treatment is not to match, which will lead to reclassification
-to the 'best effort' class. You can also specify that overlimit packets
-should be dropped, or sent to another class.
+So if you decided to police at 4mbit/s, but 5mbit/s of traffic is present,
+you can stop matching either the entire 5mbit/s, or only not match 1mbit/s,
+and do send 4mbit/s to the configured class.
 
-FIXME: continue
+If bandwidth exceeds the configured rate, you can drop a packet, reclassify
+it, or see if another filter will match it.
+
+<sect2>Ways to police
+<p>
+There are basically two ways to police. If you compiled the kernel 
+with 'Estimators', the kernel can measure for each filter how much traffic
+it is passing, more or less. These estimators are very easy on the CPU, as
+they simply count 25 times per second how many data has been passed, and
+calculate the bitrate from that.
+
+The other way works again via a Token Bucket Filter, this time living within
+your filter. The TBF only matches traffic UP TO your configured bandwidth,
+if more is offered, only the excess is subject to the configured overlimit
+action.
+
+<sect3>With the kernel estimator
+<p>
+This is very simple and has only one parameter: avrate. Either the flow
+remains below avrate, and the filter classifies the traffic to the classid
+configured, or your rate exceeds it in which case the specified action is
+taken, which is 'reclassify' by default.
+
+The kernel uses an Exponential Weighted Moving Average for your bandwidth
+which makes it less sensitive to short bursts.
+
+<sect3>With Token Bucket Filter
+<p>
+Uses the following parameters:
+<itemize>
+<item>buffer/maxburst
+<item>mtu/minburst
+<item>mpu
+<item>rate
+</itemize>
+
+Which behave identical to those described in the Token Bucket Filter
+section.
+
+<sect2>Overlimit actions
+<p>
+If your filter decides that it is overlimit, it can take 'actions'.
+Currently, three actions are available:
+<descrip>
+<tag>continue</tag>
+Unknown
+<tag>drop</tag>
+This is a very fierce option which simply discards traffic exceeding a
+certain rate. It is often used in the ingress policer and has limited uses.
+For example, you may have a nameserver that falls over if offered more than
+5mbit/s of packets, in which case an ingress filter could be used to make
+sure no more is ever offered.
+<tag>Pass/OK</tag>
+Pass on traffic ok. Might be used to disable a complicated filter, but leave
+it in place.
+<tag>reclassify</tag>
+Most often comes down to reclassification to Best Effort. This is the
+default action.
+</descrip>
+
+<sect2>Examples
+<p>
+The only real example known is mentioned in the 'Protecting your host 
+from SYN floods' section. 
+
+FIXME: if you have used this, please share your experience with us
 
 <sect1>Hashing filters for very fast massive filtering
 <p>
@@ -4255,39 +4320,6 @@ pre-bridge hardware addresses which are no longer correct.
 On a Cisco, this is done using the command 'clear arp-cache', under
 Linux, use 'arp -d ip.address'. You can also wait for the cache to expire
 manually, which can take rather long.
-<sect>Advanced Linux Routing
-<p>
-This section is for all you people who either want to understand why the
-whole system works or have a configuration that's so bizarre that you
-need the low down to make it work.
-
-This section is completely optional. It's quite possible that this section
-will be quite complex and really not intended for normal users. You have
-been warned.
-
-FIXME: Decide what really needs to go in here.
-<sect1>How does packet queueing really work?
-<p>This is the low-down on how the packet queueing system really works.
-
-Lists the steps the kernel takes to classify a packet, etc...
-
-FIXME: Write this.
-
-<sect1>Advanced uses of the packet queueing system
-<p>Go through Alexey's extremely tricky example involving the unused bits
-in the TOS field.
-
-FIXME: Write this.
-
-<sect1>Other packet shaping systems
-<p>I'd like to include a brief description of other packet shaping systems
-in other operating systems and how they compare to the Linux one. Since Linux
-is one of the few OSes that has a completely original (non-BSD derived) TCP/IP
-stack, I think it would be useful to see how other people do it.
-
-Unfortunately I have no experience with other systems so cannot write this.
-
-FIXME: Anyone? - Martijn
 
 <sect>Dynamic routing - OSPF and BGP
 <p>
