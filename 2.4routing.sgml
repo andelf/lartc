@@ -14,7 +14,7 @@ Remco van Mook &lt;remco@virtu.nl&gt; &nl;
 Martijn van Oosterhout &lt;kleptog@cupid.suninternet.com&gt; &nl;
 Paul B Schroeder  &lt;paulsch@us.ibm.com&gt; &nl;
 Jasper Spaans &lt;jasper@spaans.ds9a.nl&gt; &nl;
-howto@ds9a.nl
+howto@ds9a.nl 
 <date>v0.9.0 $Date$
 <abstract>
 A very hands-on approach to iproute2, traffic shaping and a bit of netfilter
@@ -69,30 +69,17 @@ In short, if your STM-64 backbone breaks down and distributes pornography to
 your most esteemed customers - it's never our fault. Sorry.
 
 Copyright (c) 2001 by bert hubert, Gregory Maxwell, Martijn van
-Oosterhout, Remco van Mook, Paul B. Schroeder and others.
+Oosterhout, Remco can Mook, Paul B. Schroeder and others. This material may
+be distributed only subject to the terms and conditions set forth in the
+Open Publication License, v1.0 or later (the latest version is presently
+available at http://www.opencontent.org/openpub/).
 
 Please freely copy and distribute (sell or give away) this document in any
 format. It's requested that corrections and/or comments be fowarded to the
-document maintainer. You may create a derivative work and distribute it
-provided that you:
-
-<enum>
-<item>Send your derivative work (in the most suitable format such as sgml) to
-the LDP (Linux Documentation Project) or the like for posting on the Internet. 
-If not the LDP, then let the LDP know where it is available. 
-
-<item>License the derivative work with this same license or use GPL. Include a
-copyright notice and at least a pointer to the license used. 
-
-<item>Give due credit to previous authors and major contributors. 
-
-</enum>
-If you're considering making a derived work other than a translation, it's
-requested that you discuss your plans with the current maintainer. 
+document maintainer. 
 
 It is also requested that if you publish this HOWTO in hardcopy that you
 send the authors some samples for 'review purposes' :-) 
-
 
 <sect1>Prior knowledge
 <p>
@@ -108,7 +95,7 @@ Very nice introduction, explaining what a network is, and how it is
 connected to other networks
 <tag>Linux Networking-HOWTO (Previously the Net-3 HOWTO)</tag>
 Great stuff, although very verbose. It learns you a lot of stuff that's
-already configured if you are able to connect to the internet. 
+already configured if you are able to connect to the Internet. 
 Should be located in <file>/usr/doc/HOWTO/NET3-4-HOWTO.txt</file> but can be also be found 
 <url url="http://www.linuxports.com/howto/networking"
 name="online">
@@ -123,7 +110,7 @@ A small list of things that are possible:
 	<item>Throttle bandwidth TO certain computers
 	<item>Help you to fairly share your bandwidth
 	<item>Protect your network from DoS attacks
-	<item>Protect the internet from your customers
+	<item>Protect the Internet from your customers
 	<item>Multiplex several servers as one, for load balancing or
 enhanced availability
 	<item>Restrict access to your computers
@@ -156,7 +143,7 @@ but be extra careful. If you have validated something, please let us know so
 we can remove the FIXME notice.
 
 About this HOWTO, I will take some liberties along the road. For example, I
-postulate a 10Mbit internet connection, while I know full well that those
+postulate a 10Mbit Internet connection, while I know full well that those
 are not very common.
 <sect1>Access, CVS &amp; submitting updates
 <p>
@@ -362,7 +349,7 @@ become vital later on.
 <p>
 Well, we now know how to find 10.x.y.z addresses, and we are able to reach
 212.64.94.1. This is not enough however, so we need instructions on how to
-reach the world. The internet is available via our ppp connection, and it
+reach the world. The Internet is available via our ppp connection, and it
 appears that 212.64.94.1 is willing to spread our packets around the
 world, and deliver results back to us.
 
@@ -507,7 +494,7 @@ rules, see Alexey's ip-cref documentation.
 <p>
 Let's take a real example once again, I have 2 (actually 3, about time I
 returned them) cable modems, connected to a Linux NAT ('masquerading')
-router. People living here pay me to use the internet. Suppose one of my
+router. People living here pay me to use the Internet. Suppose one of my
 house mates only visits hotmail and wants to pay less. This is fine with me,
 but you'll end up using the low-end cable modem.
 
@@ -569,7 +556,17 @@ in ip-up.
 There are 3 kinds of tunnels in Linux. There's IP in IP tunneling, GRE tunneling and tunnels that live outside the kernel (like, for example PPTP). 
 <sect1>A few general remarks about tunnels:
 <p>
-Tunnels can be used to do some very unusual and very cool stuff. They can also make things go horribly wrong when you don't configure them right. Don't point your default route to a tunnel device unless you know <bf>exactly</bf> what you are doing :-). Furthermore, tunneling increases overhead, because it needs an extra set of IP headers. Typically this is 20 bytes per packet, so if the normal packet size (MTU) on a network is 1500 bytes, a packet that is sent through a tunnel can only be 1480 bytes big. This is not necessarily a problem, but be sure to read up on IP packet fragmentation/reassembly when you plan to connect large networks with tunnels. Oh, and of course, the fastest way to dig a tunnel is to dig at both sides.
+Tunnels can be used to do some very unusual and very cool stuff. They can
+also make things go horribly wrong when you don't configure them right.
+Don't point your default route to a tunnel device unless you know
+<bf>exactly</bf> what you are doing :-). Furthermore, tunneling increases
+overhead, because it needs an extra set of IP headers. Typically this is 20
+bytes per packet, so if the normal packet size (MTU) on a network is 1500
+bytes, a packet that is sent through a tunnel can only be 1480 bytes big.
+This is not necessarily a problem, but be sure to read up on IP packet
+fragmentation/reassembly when you plan to connect large networks with
+tunnels. Oh, and of course, the fastest way to dig a tunnel is to dig at
+both sides.
 <p>
 <sect1>IP in IP tunneling
 <p>
@@ -700,17 +697,7 @@ Of course, you can replace netb with neta for router B.
 
 <sect2>IPv6 Tunneling
 <p>
-
-A short bit about IPv6 addresses:<p>
-IPv6 addresses are, compared to IPv4 addresses, monstrously big. An example:
-<verb>3ffe:2502:200:40:281:48fe:dcfe:d9bc</verb>
-So, to make writing them down easier, there are a few rules:
-<itemize>
-<item>Don't use leading zeroes. Same as in IPv4.
-<item>Use colons to separate every 16 bits or two bytes.
-<item>When you have lots of consecutive zeroes, you can write this down as ::. You can only do this once in an address and only for quantities of 16 bits, though.
-</itemize>
-Using these rules, the address 3ffe:0000:0000:0000:0000:0020:34A1:F32C can be written down as 3ffe::20:34A1:F32C, which is a lot shorter. 
+See Section 6 for a short bit about IPv6 Addresses.
 <p>
 On with the tunnels.
 
@@ -785,6 +772,9 @@ address and only for quantities of 16 bits, though.
 
 The address 2002:836b:9820:0000:0000:0000:836b:9886 can be written down
 as 2002:836b:9820::836b:9886, which is somewhat friendlier.
+
+Another example, the address 3ffe:0000:0000:0000:0000:0020:34A1:F32C can be
+written down as 3ffe::20:34A1:F32C, which is a lot shorter.
 
 IPv6 is intended to be the successor of the current IPv4. Because it
 is relatively new technology, there is no worldwide native IPv6 network
@@ -915,7 +905,7 @@ IPv6 tunnel brokers available on the Internet. They are willing to configure
 their Cisco with an extra tunnel for you. Mostly by means of a friendly
 web interface. Search for "ipv6 tunnel broker" on your favourite search engine.
 
-<sect>IPsec: secure IP over the internet
+<sect>IPsec: secure IP over the Internet
 <p>
 FIXME: editor vacancy.
 In the meantime, see: <url url="http://www.freeswan.org/" name="The
@@ -1004,12 +994,12 @@ Linux even goes far beyond what Frame and ATM provide.
 With queueing we determine the way in which data is <em>sent</em>. It is
 important to realise that we can only shape data that we transmit.
 
-With the way the internet works, we have no direct control of what people
+With the way the Internet works, we have no direct control of what people
 send us. It's a bit like your (physical!) mailbox at home. There is no way
 you can influence the world to modify the amount of mail they send you,
 short of contacting everybody.
 
-However, the internet is mostly based on TCP/IP which has a few features
+However, the Internet is mostly based on TCP/IP which has a few features
 that help us. TCP/IP has no way of knowing the capacity of the network
 between two hosts, so it just starts sending data faster and faster ('slow
 start') and when packets start getting lost, because there is no room to
@@ -1202,7 +1192,7 @@ To calculate the maximum possible peakrate, multiply the configured mtu by
 <p>
 A simple but *very* useful configuration is this:
 <verb>
-# tc qdisc add dev ppp0 root tbf rate 220kbit latency 50ms burst 1500
+# tc qdisc add dev ppp0 root tbf rate 220kbit latency 50ms burst 1540
 </verb>
 
 Ok, why is this useful? If you have a networking device with a large queue,
@@ -1359,8 +1349,7 @@ qdisc.
 These handles consist of two parts, a major number and a minor number. It is
 habitual to name the root qdisc '1:', which is equal to '1:0'. 
 
-Because classful qdiscs can have a lot of children, you should give them
-their own namespace by giving them a separate major number.
+CBQ leaf nodes need to have the same major number as their parent. 
 <sect3>How filters are used to classify traffic 
 <p>
 Recapping, a typical hierarchy might look like this:
@@ -1725,6 +1714,8 @@ renormalized weight is multiplied by the 'allot' parameter to determine how
 much data can be sent in one round.
 </descrip>
 
+Please note that all nodes within an CBQ hierarchy need to share the same
+major number!
 <sect3>CBQ parameters that determine link sharing &amp; borrowing
 <p>
 Besides purely limiting certain kinds of traffic, it is also possible to
@@ -1755,7 +1746,7 @@ to swap bandwidth.
 This configuration limits webserver traffic to 5mbit and smtp traffic to 3
 mbit, and limits the sum to 5mbit:
 <verb>
-# tc qdisc add dev eth0 root handle 1:0 cbq bandwidth 100Mbit         \ 
+# tc qdisc add dev eth0 root handle 1:0 cbq bandwidth 100Mbit         \
   avpkt 1000 cell 8
 # tc class add dev eth0 parent 1:0 classid 1:1 cbq bandwidth 100Mbit  \
   rate 5Mbit weight 0.5Mbit prio 8 allot 1514 cell 8 maxburst 20      \
@@ -1770,23 +1761,24 @@ As said before, CBQ requires a *lot* of knobs. All parameters are explained
 above, however. The corresponding HTB configuration is lots simpler.
 
 <verb>
-# tc class add dev eth0 parent 1:1 classid 10: cbq bandwidth 100Mbit  \
+# tc class add dev eth0 parent 1:1 classid 1:3 cbq bandwidth 100Mbit  \
   rate 5Mbit weight 0.5Mbit prio 5 allot 1514 cell 8 maxburst 20      \
   avpkt 1000 bounded                                                    
-# tc class add dev eth0 parent 1:1 classid 20: cbq bandwidth 100Mbit  \
+# tc class add dev eth0 parent 1:1 classid 1:4 cbq bandwidth 100Mbit  \
   rate 3Mbit weight 0.3Mbit prio 5 allot 1514 cell 8 maxburst 20      \
   avpkt 1000 bounded
 </verb>
 
 These are our two classes. Note how we scale the weight with the configured
 rate. Also note that both classes are bounded and won't therefore try to
-borrow traffic.
+borrow traffic. The classid's need to be within the same major number as the
+parent CBQ, by the way!
 
 <verb>
-# tc qdisc add dev eth0 parent 10: tbf rate 5Mbit buffer 10Kb/8 limit \
-  15Kb mtu 1500
-# tc qdisc add dev eth0 parent 20: tbf rate 3Mbit buffer 10Kb/8 limit \
-  15Kb mtu 1500
+# tc qdisc add dev eth0 parent 1:3 tbf rate 5Mbit buffer 10Kb/8 limit \
+  15Kb mtu 1540
+# tc qdisc add dev eth0 parent 1:4 tbf rate 3Mbit buffer 10Kb/8 limit \
+  15Kb mtu 1540
 </verb>
 
 Here we install token bucket filters in the two configured subclasses. The
@@ -1795,9 +1787,9 @@ bucket of 10kbytes of tokens, a maximum 'pre-bucket' backlog of 15kbyte.
 
 <verb>
 # tc filter add dev eth0 parent 1:0 protocol ip prio 1 u32 match ip \
-  sport 80 0xffff flowid 10:0
+  sport 80 0xffff flowid 1:3
 # tc filter add dev eth0 parent 1:0 protocol ip prio 1 u32 match ip \
-  sport 25 0xffff flowid 20:0
+  sport 25 0xffff flowid 1:4
 </verb>
 
 These commands, attached directly to the root, send traffic to the right
@@ -1808,8 +1800,9 @@ we use 'tc qdisc add' to actually configure these classes.
 
 You may wonder what happens to traffic that is not classified by any of the
 two rules. It appears that in this case, data will then be processed within
-1:0, and be unlimited. This can be configured in a variety of ways, which I
-do not understand. Use HTB :-)
+1:0, and be unlimited. The unfiltered behaviour can be configured in a
+variety of ways, which have not yet been documented adequately. HTB is
+clearer in this respect, so you may prefer it.
 
 If smtp+web together try to exceed the set limit of 5mbit/s, bandwidth will
 be divided according to the weight parameter, giving 5/8 of traffic to  the
@@ -2089,6 +2082,14 @@ The number 6 is arbitrary.
 
 If you don't want to understand the full tc filter syntax, just use
 iptables, and only learn to select on fwmark.
+<tag>On the TOS field</tag>
+To select interactive, minimum delay traffic:
+<verb>
+# tc filter add dev ppp0 parent 1:0 protocol ip prio 10 u32 \
+      match ip tos 0x10 0xff \
+     flowid 1:4
+</verb>
+Use 0x08 0xff for bulk traffic.
 </descrip>
 
 For more filtering commands, see the Advanced Filters chapter.
@@ -2158,7 +2159,7 @@ Router A should now be able to ping 10.0.0.1, 10.0.0.3 and 10.0.0.5 over the
 If this works, Router A should make 10.0.0.5 its route for reaching network
 2, and Router B should make 10.0.0.4 its route for reaching network 1. For
 the special case where network 1 is your network at home, and network 2 is
-the internet, Router A should make 10.0.0.5 its default gateway.
+the Internet, Router A should make 10.0.0.5 its default gateway.
 
 <sect1>Caveats
 <p>
@@ -2280,7 +2281,7 @@ Bases the decision on which route the packet will be routed by
 <tag>rsvp, rsvp6</tag>
 Routes packets based on <url
 url="http://www.isi.edu/div7/rsvp/overview.html" name="RSVP ">. Only useful
-on networks you control - the internet does not respect RSVP.
+on networks you control - the Ifnternet does not respect RSVP.
        
 <tag>tcindex</tag>
 Used in the DSMARK qdisc, see the relevant section.
@@ -2773,7 +2774,7 @@ will be documented here initially, but we're working on it.
 <p>
 By default, routers route everything, even packets which 'obviously' don't
 belong on your network. A common example is private IP space escaping onto
-the internet. If you have an interface with a route of 195.96.96.0/24 to it,
+the Internet. If you have an interface with a route of 195.96.96.0/24 to it,
 you do not expect packets from 212.64.94.1 to arrive there.
 
 Lots of people will want to turn this feature off, so the kernel hackers
@@ -3734,12 +3735,12 @@ $TC filter ls dev $INDEV parent ffff:
 <sect1>Ratelimit ICMP to prevent dDoS
 <p>
 Recently, distributed denial of service attacks have become a major nuisance
-on the internet. By properly filtering and ratelimiting your network, you can
+on the Internet. By properly filtering and ratelimiting your network, you can
 both prevent becoming a casualty or the cause of these attacks.
 
 You should filter your networks so that you do not allow non-local IP source
 addressed packets to leave your network. This stops people from anonymously
-sending junk to the internet. 
+sending junk to the Internet. 
 
 <!-- FIXME: netfilter one liner.  Is there a netfilter one-liner? Martijn -->
 
@@ -3885,7 +3886,7 @@ This is quite risky because Squid does
 utilize lots of cpu power which might
 result in slower over-all network performance
 or the server itself might crash and no one on the
-network will be able to access the internet if
+network will be able to access the Internet if
 that occurs.
 
 
@@ -3903,7 +3904,7 @@ route the "mark"ed packets to the Squid server.
  Addresses used
  10.0.0.1 naret (NetFilter server)
  10.0.0.2 silom (Squid server)
- 10.0.0.3 donmuang (Router connected to the internet)
+ 10.0.0.3 donmuang (Router connected to the Internet)
  10.0.0.4 kaosarn (other server on network)
  10.0.0.5 RAS
  10.0.0.0/24 main network
@@ -4074,25 +4075,25 @@ general outgoing path.
 
 <tscreen><verb>
 Here is run down for packet traversing the network from kaosarn
-to and from the internet.
+to and from the Internet.
 
 For web/http traffic:
 kaosarn http request->naret->silom->donmuang->internet
-http replies from internet->donmuang->silom->kaosarn
+http replies from Internet->donmuang->silom->kaosarn
 
 For non-web/http requests(eg. telnet):
 kaosarn outgoing data->naret->donmuang->internet
-incoming data from internet->donmuang->kaosarn
+incoming data from Internet->donmuang->kaosarn
 </verb></tscreen>
 
 <sect1>Circumventing Path MTU Discovery issues with per route MTU settings
 <p>
-For sending bulk data, the internet generally works better when using larger
+For sending bulk data, the Internet generally works better when using larger
 packets. Each packet implies a routing decision, when sending a 1 megabyte
 file, this can either mean around 700 packets when using packets that are as
 large as possible, or 4000 if using the smallest default.
 
-However, not all parts of the internet support full 1460 bytes of payload
+However, not all parts of the Internet support full 1460 bytes of payload
 per packet. It is therefore necessary to try and find the largest packet
 that will 'fit', in order to optimize a connection.
 
@@ -4105,10 +4106,10 @@ message stating that it was forced to drop a packet because of this. The
 sending host acts on this hint by sending smaller packets, and by iterating
 it can find the optimum packet size for a connection over a certain path.
 
-This used to work well until the internet was discovered by hooligans who do
+This used to work well until the Internet was discovered by hooligans who do
 their best to disrupt communications. This in turn lead administrators to
 either block or shape ICMP traffic in a misguided attempt to improve
-security or robustness of their internet service.
+security or robustness of their Internet service.
 
 What has happened now is that Path MTU Discovery is working less and less
 well and fails for certain routes, which leads to strange TCP/IP sessions
@@ -4353,7 +4354,7 @@ Overview:
   Cisco Systems
   <url
 url="http://www.cisco.com/univercd/cc/td/doc/cisintwk/idg4/nd2003.htm"
-name="Designing large-scale IP internetworks">
+name="Designing large-scale IP Internetworks">
 
  
  
@@ -4585,12 +4586,13 @@ helping.
 <item>Jonathan Day &lt;jd9812@my-deja.com&gt;
 <item>Martin Devera aka devik &lt;devik@cdi.cz&gt;
 <item>Stephan "Kobold" Gehring &lt;Stephan.Gehring@bechtle.de&gt;
-<item>Jacek Glinkow&lt;jglinkow%hns.com&gt;
+<item>Jacek Glinkowski &lt;jglinkow%hns.com&gt;
 <item>Nadeem Hasan &lt;nhasan@usa.net&gt;
 <item>Vik Heyndrickx &lt;vik.heyndrickx@edchq.com&gt;
 <item>Koos van den Hout &lt;koos@kzdoos.xs4all.nl&gt;
 <item>Martin Josefsson &lt;gandalf%wlug.westbo.se&gt;
 <item>Pawel Krawczyk &lt;kravietz%alfa.ceti.pl&gt;
+<item>Edmund Lau &lt;edlau%ucf.ics.uci.edu&gt;
 <item>Philippe Latu &lt;philippe.latu%linux-france.org&gt;
 <item>Arthur van Leeuwen &lt;arthurvl%sci.kun.nl&gt;
 <item>Jason Lunz &lt;j@cc.gatech.edu&gt;
@@ -4599,6 +4601,7 @@ helping.
 <item>Andreas Mohr &lt;andi%lisas.de&gt;
 <item>Wim van der Most 
 <item>Stephan Mueller &lt;smueller@chronox.de&gt;
+<item>Patrick Nagelschmidt &lt;dto%gmx.net&gt;
 <item>Ram Narula &lt;ram@princess1.net&gt;
 <item>Jorge Novo &lt;jnovo@educanet.net&gt;
 <item>Patrik &lt;ph@kurd.nu&gt;
@@ -4607,6 +4610,7 @@ helping.
 <item>Jamal Hadi Salim &lt;hadi%cyberus.ca&gt;
 <item>David Sauer &lt;davids%penguin.cz&gt;
 <item>Sheharyar Suleman Shaikh &lt;sss23@drexel.edu&gt;
+<item>Stewart Shields &lt;MourningBlade%bigfoot.com&gt;
 <item>Nick Silberstein &lt;nhsilber%yahoo.com&gt;
 <item>Konrads Smelkov &lt;konrads@interbaltika.com&gt;
 <item>Andreas Steinmetz &lt;ast%domdv.de&gt;
@@ -4614,6 +4618,7 @@ helping.
 <item>Charles Tassell &lt;ctassell%isn.net&gt;
 <item>Glen Turner &lt;glen.turner%aarnet.edu.au&gt;
 <item>Song Wang &lt;wsong@ece.uci.edu&gt;
+
 </itemize>
 
 </article>

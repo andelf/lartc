@@ -4,7 +4,12 @@
 
 <table width=100%><tr><td>
 <H1>Linux Advanced Routing &amp; Traffic Control</H1>
-
+<?
+if(!ereg("^\/lartc\/",$SCRIPT_NAME))
+	print("<font color=#ff0000>You are not using the canonical URL: <a
+href=http://ds9a.nl/lartc>http://ds9a.nl/lartc</a> -
+not all links may work!</font>");
+?>
 </td><td valign=top align=right><a href=http://www.powerdns.com><img
 src=http://ds9a.nl/pub/pdns88x33c.gif></a><p></td>
 <tr><td><a href="http://ds9a.nl/">bert hubert</a> (<a
@@ -16,11 +21,12 @@ href=http://www.virtu.nl>Virtu Secure Webservices</a>) &lt;remco@virtu.nl&gt; <b
 Martijn van Oosterhout &lt;kleptog@cupid.suninternet.com&gt; <br>
 Paul B Schroeder &lt;paulsch@us.ibm.com&gt; <br>
 <a href="http://jsp.ds9a.nl/">Jasper Spaans</a> &lt;jasper@spaans.ds9a.nl&gt; <br>
-<a href="mailto:HOWTO@ds9a.nl">HOWTO@ds9a.nl</a> (HOWTO related only, do
-<strong>not</strong> send questions) <br>
-<a href="mailto:LARTC@mailman.ds9a.nl">lartc@mailman.ds9a.nl</a> 
-(<a href="#mailinglist">mailing list</a>/<a
-href=http://mailman.ds9a.nl/pipermail/lartc/>archive</a>, the <strong>only</strong> place to send questions!</a>)</td><td valign=bottom align=right><table border=1>
+<a href="mailto:HOWTO@ds9a.nl">HOWTO@ds9a.nl</a> <small>(HOWTO related only, do
+<strong>not</strong> send questions)</small> <br>
+<a href="#mailinglist">lartc@mailman.ds9a.nl</a>
+(<small>mailing list</a>/<a
+href=http://mailman.ds9a.nl/pipermail/lartc/>archive</a>, the <strong>only</strong> place to send
+questions!</a></small>)</td><td valign=bottom align=right><table border=1>
 <tr><td>
 <a href="#news">News</a> </td>
 <td><a href="#mailinglist">Mailinglist</a> </td>
@@ -56,7 +62,9 @@ longer the '2.4 HOWTO', the canonical name now is 'Linux Advanced Routing
 &amp; Shaping HOWTO', the canonical URL is <a
 href=http://ds9a.nl/lartc>http://ds9a.nl/lartc</a>. Bumped the version
 number to 0.9.0. Now is the time to help us spot mistakes, I'm going to push
-the HOWTO to the LDP somewhere next week, I want it to be perfect then.
+the HOWTO to the LDP somewhere next week, I want it to be perfect then. Oh,
+and we re-licensed under the Open Publication License, which increases
+your freedom as a user.
 <tr><td valign=top>2001-12-03</td><td>All other queueing disciplines are now
 documented as well. Furthermore, '<a
 href=http://ds9a.nl/lartc/HOWTO//cvs/2.4routing/output/2.4routing-12.html>hashed filtered
@@ -144,17 +152,14 @@ A Korean translation can be found on
 <a href="http://www.gnukorea.org/2.4routing-kr/2.4routing.html">here</a>.
 
 <ul>
-<li><a href="HOWTO/cvs/2.4routing/cvs.log">CVS Changelog</a>, or view <a
-href="/cgi-bin/viewcvs4.cgi/2.4routing">changes</a>
+<li><a href="HOWTO/cvs/2.4routing/cvs.log">CVS Changelog</a>
 <li><a href="HOWTO/cvs/2.4routing/2.4routing.sgml">SGML</A>
-<li><a href="HOWTO//cvs/2.4routing/2.4routing.txt">ASCII</A>
-<li><a href="HOWTO//cvs/2.4routing/2.4routing-howto.html">One-big-page HTML</A>
-<li><a href="HOWTO//cvs/2.4routing/output/2.4routing.html">HTML</A>
+<li><a href="HOWTO//cvs/2.4routing/2.4routing.txt">ASCII</A>, .txt
+<li><a href="HOWTO//cvs/2.4routing/output/2.4routing.html">HTML</A>, <a href="HOWTO//cvs/2.4routing/2.4routing-howto.html">One-big-page
+HTML</A>, <a href="HOWTO//cvs/2.4routing/2.4routing.tar.gz">HTML tarfile</A>
 <li><a href="HOWTO//cvs/2.4routing/2.4routing.dvi">dvi</A>
 <li><a href="HOWTO//cvs/2.4routing/2.4routing.ps">ps</A>, <a href="HOWTO//cvs/2.4routing/2.4routing.ps.gz">ps.gz</A>
 <li><a href="HOWTO//cvs/2.4routing/2.4routing.pdf">pdf</A>, <a href="HOWTO//cvs/2.4routing/2.4routing.pdf.gz">pdf.gz</A>
-(fixed, and now looking very spiffy!)
-<li><a href="HOWTO//cvs/2.4routing/2.4routing.tar.gz">HTML tarfile</A>
 </ul>
 <a name="jobs"></a>
 <H2>Jobs list</H2>
@@ -180,16 +185,22 @@ CVS password: [enter 'cvs' (without 's)]
 $ cvs co 2.4routing
 cvs server: Updating 2.4routing
 U 2.4routing/2.4routing.sgml
+...
 </pre>
 
+If you made changes and want to contribute them, run 'cvs -z3 diff -uBb',
+and mail the output to <a href=mailto:howto@ds9a.nl>howto@ds9a.nl</a>, we
+can then integrate it easily. Thanks! Please make sure that you edit the
+.sgml, by the way, the other files are generated from that one.
+
 The idea is that this HOWTO will be a cooperative effort, much like the
-Linux kernel itself. For the moment, we will be playing 'Linus', and we soon
-hope to be joined by Alans, Daves, Ingos etcetera.
+Linux kernel itself. 
 <p>
 <a name="sponsor"></a>
 <H2>Sponsor</h2>
 <a href=http://www.powerdns.com>
-This site made possible by PowerDNS, for all your domain needs. 
+This site made possible by PowerDNS, for all your domain needs and
+nameserver software.
 </a>
 <br>
 <a href=http://ds9a.nl/>Other ds9a.nl projects.</a>
@@ -209,6 +220,7 @@ ALT="Google" align="absmiddle"></A>
 <center>
 <small>
 $Id$
+
 </small>
 </center>
 </body>
