@@ -5635,7 +5635,7 @@ Uses the following parameters:
 <ListItem>
 
 <Para>
-buffer/maxburst
+burst/buffer/maxburst
 </Para>
 </ListItem>
 <ListItem>
@@ -5733,7 +5733,47 @@ from SYN floods' section.
 </Para>
 
 <Para>
-FIXME: if you have used this, please share your experience with us
+Limit incoming icmp traffic to 2kbit, drop packets
+over the limit:
+</Para>
+
+<Screen>
+tc filter add dev $DEV parent ffff: \
+    protocol ip prio 20 \
+    u32 match ip protocol 1 0xff \
+    police rate 2kbit buffer 10k drop \
+    flowid :1
+</Screen>
+
+<Para>
+Limit packets to a certain size (i.e. all packets
+with a length greater than 84 bytes will get dropped):
+</Para>
+
+<Screen>
+tc filter add dev $DEV parent ffff: \
+   protocol ip prio 20 \
+   u32 match tos 0 0 \
+   police mtu 84 drop \
+   flowid :1
+</Screen>
+
+
+<Para>
+This method can be used to drop all packets:
+</Para>
+
+<Screen>
+tc filter add dev $DEV parent ffff: \
+   protocol ip prio 20 \
+   u32 match ip protocol 1 0xff \
+   police mtu 1 drop \
+   flowid :1
+</Screen>
+
+<Para>
+It actually drops icmp packets greater-than 1 byte. While packets with
+a size of 1 byte are possible in theory, you will not find these in a real network.
 </Para>
 
 </Sect2>
