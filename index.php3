@@ -47,9 +47,15 @@ href=http://www.linux-france.org/prj/inetdoc/guides/Advanced-routing-Howto/>
 	[ Korean ]</a>
 <br>
 <a
-href=http://mr0vka.eu.org/docs/tlumaczenia/2.4routing/index.html>
+href=http://mr0vka.eu.org/tlumaczenia/2.4routing.html>
 	[ Polish ]
 </a>
+<br> 
+<a
+href=http://www.gulic.org/comos/LARTC>
+	[ Spanish ]
+</a>
+ 
 <p>
 <table bgcolor=#ff0000><tr><td>
 <a href=wondershaper><font color=#ffffff>ADSL/Cable Wondershaper!</a>
@@ -84,13 +90,16 @@ This site attempts to document how to configure and use these features.
 <a name="news"></a>
 <h2>News</H2>
 <table border=1>
+<tr><td valign=top>2003-07-28</td><td>Ricardo Javier Cardenes reports that
+the Spanish translation <a
+href=http://asgard.debian.net/lartc>is done!</a></tr>
 <tr><td valign=top>2003-07-26</td><td>
 Started updating several sections based on the massive amount of email that
 concerned readers keep sending me, thanks! Added Thomas Graf as a section
 author in recognition for his work on the OSPF and BGP chapters.
 </td></tr>
 <tr><td valign=top>2002-11-00</td><td>
-A spanish translation is appearing  <a href=http://midgard.heimy.org/~javi/asgard/lartc/>here</a>.</td></tr>
+A spanish translation is appearing  <a href=http://www.gulic.org/comos/LARTC>here</a>.</td></tr>
 <tr><td valign=top>2002-11-08</td><td>IPSEC IN LINUX 2.5.47! Read all about
 it <a href=http://lartc.org/howto/lartc.ipsec.html>here</a>.</td></tr>
 <tr><td valign=top>2002-07-20</td><td>Hate so called 'opt-in' spam? Visit 
