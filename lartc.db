@@ -165,7 +165,7 @@ available at http://www.opencontent.org/openpub/).
 
 <Para>
 Please freely copy and distribute (sell or give away) this document in any
-format. It's requested that corrections and/or comments be fowarded to the
+format. It's requested that corrections and/or comments be forwarded to the
 document maintainer. 
 </Para>
 
@@ -278,7 +278,7 @@ There are several things which should be noted about this document. While I
 wrote most of it, I really don't want it to stay that way. I am a strong
 believer in Open Source, so I encourage you to send feedback, updates,
 patches etcetera. Do not hesitate to inform me of typos or plain old errors.
-If my English sounds somewhat wooden, please realise that I'm not a native
+If my English sounds somewhat wooden, please realize that I'm not a native
 speaker. Feel free to send suggestions.
 </Para>
 
@@ -946,7 +946,7 @@ There are usually two questions given this setup.
 	  
 	  Nothing spectacular, just build a route to the gateway and build a
 	  default route via that gateway, as you would do in the case of a single
-	  upstream provider, but put the routes in a seperate table per provider.
+	  upstream provider, but put the routes in a separate table per provider.
 	  Note that the network route suffices, as it tells you how to find any host
 	  in that network, which includes the gateway, as specified above.
 	</para>
@@ -1485,7 +1485,7 @@ Linux kernel according to your own specifications.
 
 <Para>
 The file /usr/src/linux/README might be a good start.
-After you acomplished all this, and rebooted with your brand new kernel,
+After you accomplished all this, and rebooted with your brand new kernel,
 you might want to issue an '/sbin/ifconfig -a' and notice the brand 
 new 'sit0-device'. SIT stands for Simple Internet Transition. You may give
 yourself a compliment; you are now one major step closer to IP, the Next
@@ -1501,7 +1501,7 @@ that is setup especially for this particular purpose.
 <Para>
 Let's assume that you have the following IPv6 network: 3ffe:604:6:8::/64 and
 you want to connect it to 6bone, or a friend. Please note that the /64
-subnet notation works just like with regular IP adresses.
+subnet notation works just like with regular IP addresses.
 </Para>
 
 <Para>
@@ -1571,7 +1571,7 @@ ip6.int. There's a lot of information available on this topic.
 <Para>
 There is an increasing number of IPv6-aware applications available,
 including secure shell, telnet, inetd, Mozilla the browser, Apache the
-websever and a lot of others. But this is all outside the scope of this
+webserver and a lot of others. But this is all outside the scope of this
 Routing document ;-)
 </Para>
 
@@ -1791,7 +1791,7 @@ of your router, the one that sends data to your own computers.
 You also have to be sure you are controlling the bottleneck of the link.
 If you have a 100Mbit NIC and you have a router that has a 256kbit link,
 you have to make sure you are not sending more data than your router can
-handle.  Othewise, it will be the router who is controlling the link and
+handle.  Otherwise, it will be the router who is controlling the link and
 shaping the available bandwith. We need to 'own the queue' so to speak, and
 be the slowest link in the chain. Luckily this is easily possible.
 </Para>
@@ -1925,7 +1925,7 @@ TOS     Bits  Means                    Linux Priority    Band
 <Para>
 Lots of numbers. The second column contains the value of the relevant four
 TOS bits, followed by their translated meaning. For example, 15 stands for a
-packet wanting Minimal Montetary Cost, Maximum Reliability, Maximum
+packet wanting Minimal Monetary Cost, Maximum Reliability, Maximum
 Throughput AND Minimum Delay. I would call this a 'Dutch Packet'.
 </Para>
 
@@ -1935,7 +1935,7 @@ showing to which Priority they are mapped.
 </Para>
 
 <Para>
-The last column shows the result of the default priomap. On the commandline,
+The last column shows the result of the default priomap. On the command line,
 the default priomap looks like this:
 
 <Screen>
@@ -2180,7 +2180,7 @@ all.
 
 <Para>
 To calculate the maximum possible peakrate, multiply the configured mtu by
-100 (or more correctly, HZ, which is 100 on intel, 1024 on Alpha).
+100 (or more correctly, HZ, which is 100 on Intel, 1024 on Alpha).
 </Para>
 </VarListEntry>
 </VariableList>
@@ -2202,7 +2202,7 @@ A simple but *very* useful configuration is this:
 
 <Para>
 Ok, why is this useful? If you have a networking device with a large queue,
-like a DSL modem or a cablemodem, and you talk to it over a fast device,
+like a DSL modem or a cable modem, and you talk to it over a fast device,
 like over an ethernet interface, you will find that uploading absolutely
 destroys interactivity.
 </Para>
@@ -2230,7 +2230,7 @@ have a really fast modem, raise 'burst' a bit.
 
 </Sect2>
 
-<Sect2>
+<Sect2 id="lartc.sfq">
 <Title>Stochastic Fairness Queueing</Title>
 
 <Para>
@@ -2270,14 +2270,14 @@ SFQ with other qdiscs to get a best-of-both worlds situation.
 
 <Para>
 Specifically, setting SFQ on the ethernet interface heading to your
-cablemodem or DSL router is pointless without further shaping!
+cable modem or DSL router is pointless without further shaping!
 </Para>
 
 <Sect3>
 <Title>Parameters &amp; usage</Title>
 
 <Para>
-The SFQ is pretty much selftuning:
+The SFQ is pretty much self tuning:
 <VariableList>
 
 <VarListEntry>
@@ -2341,7 +2341,7 @@ reordering, slowing or dropping packets.
 </Para>
 
 <Para>
-The following tips may help in chosing which queue to use. It mentions some
+The following tips may help in choosing which queue to use. It mentions some
 qdiscs described in the
 <citetitle><xref linkend="lartc.adv-qdisc"></citetitle> chapter.
 </Para>
@@ -2559,7 +2559,7 @@ are.
      +----------------------------------------------------------+
 </Screen>
 
-Thanks to Jamal Hadi Salim for this ascii representation.
+Thanks to Jamal Hadi Salim for this ASCII representation.
 </Para>
 
 <Para>
@@ -2715,7 +2715,7 @@ A packet might get classified in a chain like this:
 
 <Para>
 The packet now resides in a queue in a qdisc attached to class 12:2. In this
-example, a filter was attached to each 'node' in the tree, each chosing a
+example, a filter was attached to each 'node' in the tree, each choosing a
 branch to take next. This can make sense. However, this is also possible:
 </Para>
 
@@ -2763,7 +2763,7 @@ shaping outer qdisc, which does the shaping.
 <Para>
 The PRIO qdisc doesn't actually shape, it only subdivides traffic based on
 how you configured your filters. You can consider the PRIO qdisc a kind
-of pfifo_fast on stereoids, whereby each band is a separate class instead of
+of pfifo_fast on steroids, whereby each band is a separate class instead of
 a simple FIFO.
 </Para>
 
@@ -2789,7 +2789,7 @@ to simple fifo qdiscs.
 <Para>
 Because it doesn't actually shape, the same warning as for SFQ holds: either
 use it only if your physical link is really full or wrap it inside a
-classful qdisc that does shape. The last holds for almost all cablemodems
+classful qdisc that does shape. The last holds for almost all cable modems
 and DSL devices.
 </Para>
 
@@ -2860,7 +2860,7 @@ Bulk traffic will go to 30:, interactive traffic to 20: or 10:.
 </Para>
 
 <Para>
-Commandlines:
+Command lines:
 
 <Screen>
 # tc qdisc add dev eth0 root handle 1: prio 
@@ -2874,7 +2874,7 @@ Commandlines:
 </Para>
 
 <Para>
-Now lets's see what we created:
+Now let's see what we created:
 
 <Screen>
 # tc -s qdisc ls dev eth0 
@@ -3013,12 +3013,12 @@ calculates the time that should pass between average packets.
 <Para>
 During operations, the effective idletime is measured using an exponential
 weighted moving average (EWMA), which considers recent packets to be
-exponentially more important than past ones. The unix loadaverage is
+exponentially more important than past ones. The UNIX loadaverage is
 calculated in the same way.
 </Para>
 
 <Para>
-The calculated idle time is substracted from the EWMA measured one, the
+The calculated idle time is subtracted from the EWMA measured one, the
 resulting number is called 'avgidle'. A perfectly loaded link has an avgidle
 of zero: packets arrive exactly once every calculated interval.  
 </Para>
@@ -3116,7 +3116,7 @@ capped at -10us.
 <Term>mpu</Term>
 <ListItem>
 <Para>
-Mininum packet size - needed because even a zero size packet is padded
+Minimum packet size - needed because even a zero size packet is padded
 to 64 bytes on ethernet, and so takes a certain time to transmit. CBQ needs
 to know this to accurately calculate the idle time.
 </Para>
@@ -3132,7 +3132,7 @@ Desired rate of traffic leaving this qdisc - this is the 'speed knob'!
 </Para>
 
 <Para>
-Internally, CBQ has a lot of finetuning. For example, classes which are
+Internally, CBQ has a lot of fine tuning. For example, classes which are
 known not to have data enqueued to them aren't queried. Overlimit classes
 are penalized by lowering their effective priority. All very smart &amp;
 complicated.
@@ -3170,7 +3170,7 @@ The following parameters control the WRR process:
 <Term>allot</Term>
 <ListItem>
 <Para>
-When the outer cbq is asked for a packet to send out on the interface, it
+When the outer CBQ is asked for a packet to send out on the interface, it
 will try all inner qdiscs (in the classes) in turn, in order of 
 the 'priority' parameter. Each time a class gets its turn, it can only send out
 a limited amount of data. 'Allot' is the base unit of this amount. See 
@@ -3232,7 +3232,7 @@ lend out bandwidth.
 <Para>
 A class that is configured with 'isolated' will not lend out bandwidth to
 sibling classes. Use this if you have competing or mutually-unfriendly
-agencies on your link who do want to give eachother freebies.
+agencies on your link who do want to give each other freebies.
 </Para>
 
 <Para>
@@ -3266,7 +3266,7 @@ to swap bandwidth.
 <Title>Sample configuration</Title>
 
 <Para>
-This configuration limits webserver traffic to 5mbit and smtp traffic to 3
+This configuration limits webserver traffic to 5mbit and SMTP traffic to 3
 mbit. Together, they may not get more than 6mbit. We have a 100mbit NIC and
 the classes may borrow bandwidth from each other.
 
@@ -3304,7 +3304,7 @@ above, however. The corresponding HTB configuration is lots simpler.
 These are our two classes. Note how we scale the weight with the configured
 rate. Both classes are not bounded, but they are connected to class 1:1
 which is bounded.  So the sum of bandwith of the 2 classes will never be
-more than 6mbit. The classid's need to be within the same major number as
+more than 6mbit. The classids need to be within the same major number as
 the parent CBQ, by the way!
 </Para>
 
@@ -3347,13 +3347,13 @@ two rules. It appears that in this case, data will then be processed within
 </Para>
 
 <Para>
-If smtp+web together try to exceed the set limit of 6mbit/s, bandwidth will
+If SMTP+web together try to exceed the set limit of 6mbit/s, bandwidth will
 be divided according to the weight parameter, giving 5/8 of traffic to  the
-webserver and 3/8 to the mailserver.
+webserver and 3/8 to the mail server.
 </Para>
 
 <Para>
-With this configuratien you can also say that webserver traffic will always
+With this configuration you can also say that webserver traffic will always
 get at minimum 5/8 * 6 mbit = 3.75 mbit.
 </Para>
 
@@ -3521,7 +3521,7 @@ FIXME: did not test 'tc class change', only looked at the source.
 
 <Para>
 Martin Devera (&lt;devik&gt;) rightly realised that CBQ is complex and does
-not seem optimized for many typical situations. His Hierarchial approach is
+not seem optimized for many typical situations. His Hierarchical approach is
 well suited for setups where you have a fixed amount of bandwidth which you
 want to divide for different purposes, giving each purpose a guaranteed
 bandwidth, with the possibility of specifying how much bandwidth can be
@@ -3942,12 +3942,12 @@ URL="http://luxik.cdi.cz/~patrick/imq/"
 </chapter>
 
 <chapter id="lartc.loadshare">
-<Title>Loadsharing over multiple interfaces</Title>
+<Title>Load sharing over multiple interfaces</Title>
 
 <Para>
 There are several ways of doing this. One of the easiest and straightforward
 ways is 'TEQL' - "True" (or "trivial") link equalizer. Like most things
-having to do with queueing, loadsharing goes both ways. Both ends of a link
+having to do with queueing, load sharing goes both ways. Both ends of a link
 may need to participate for full effect.
 </Para>
 
@@ -4010,7 +4010,7 @@ as well:
 <Para>
 FIXME: does this need something like 'nobroadcast'? A /31 is too small to
 house a network address and a broadcast address - if this doesn't work as
-planned, try a /30, and adjust the ip adresses accordingly. You might even
+planned, try a /30, and adjust the ip addresses accordingly. You might even
 try to make eth1 and eth2 do without an IP address!
 </Para>
 
@@ -4080,7 +4080,7 @@ shaken by some simple reordering.
 </Para>
 
 <Para>
-However, for lots of applications, link loadbalancing is a great idea.
+However, for lots of applications, link load balancing is a great idea.
 </Para>
 
 </Sect1>
@@ -4349,7 +4349,7 @@ CBQ class.
 </Para>
 
 <Para>
-The commandline of <Literal remap="tt">tc filter</Literal> program, used to configure the filter,
+The command line of <Literal remap="tt">tc filter</Literal> program, used to configure the filter,
 consists of three parts: filter specification, a selector and an action.
 The filter specification can be defined as:
 </Para>
@@ -4377,7 +4377,7 @@ to.
 </Para>
 
 <Para>
-The options decribed above apply to all filters, not only U32.
+The options described above apply to all filters, not only U32.
 </Para>
 
 <Sect2>
@@ -4430,7 +4430,7 @@ second, 32-bit word of the header. In TCP and UDP protocols this field
 contains packet's destination port. The number is given in big-endian
 format, i.e. older bits first, so we simply read 0x0016 as 22 decimal,
 which stands for SSH service if this was TCP. As you guess, this match
-is ambigous without a context, and we will discuss this later.
+is ambiguous without a context, and we will discuss this later.
 </Para>
 
 <Para>
@@ -4439,7 +4439,7 @@ quite easy to read: <Literal remap="tt">match c0a80100 ffffff00 at 16</Literal>.
 got here is a three byte match at 17-th byte, counting from the IP
 header start. This will match for packets with destination address
 anywhere in 192.168.1/24 network. After analyzing the examples, we
-can summarize what we have learnt.
+can summarize what we have learned.
 </Para>
 
 </Sect2>
@@ -4835,7 +4835,7 @@ Causes this filter not to match, but perhaps other filters will.
 <Para>
 This is a very fierce option which simply discards traffic exceeding a
 certain rate. It is often used in the ingress policer and has limited uses.
-For example, you may have a nameserver that falls over if offered more than
+For example, you may have a name server that falls over if offered more than
 5mbit/s of packets, in which case an ingress filter could be used to make
 sure no more is ever offered.
 </Para>
@@ -4899,7 +4899,7 @@ rule will be there.
 </Para>
 
 <Para>
-Hashing makes this possible. Let's say you have 1024 cablemodem customers in
+Hashing makes this possible. Let's say you have 1024 cable modem customers in
 your network, with IP addresses ranging from 1.2.0.0 to 1.2.3.255, and each
 has to go in another bin, for example 'lite', 'regular' and 'premium'. You
 would then have 1024 rules like this:
@@ -5139,7 +5139,7 @@ enforced using the earlier mentioned token bucket filter.
 
 <Para>
 The kernel has an internal clock which runs at 'HZ' ticks (or 'jiffies') per
-second. On intel, 'HZ' is mostly 100. So setting a *_rate file to, say 50,
+second. On Intel, 'HZ' is mostly 100. So setting a *_rate file to, say 50,
 would allow for 2 packets per second. The token bucket filter is also
 configured to allow for a burst of at most 6 packets, if enough tokens have
 been earned.
@@ -5400,7 +5400,7 @@ connection is broken.
 Default value: 9. 
 
 Multiplied with tcp_keepalive_intvl, this gives the time a link can be
-nonresponsive after a keepalive has been sent.
+non-responsive after a keepalive has been sent.
 </Para>
 </VarListEntry>
 <VarListEntry>
@@ -5432,7 +5432,7 @@ sockets may consume significant resources. Cf. tcp_max_orphans.
 <ListItem>
 <Para>
 Maximal number of remembered connection requests, which still did not
-receive an acknowledgement from connecting client. Default value is 1024 for
+receive an acknowledgment from connecting client. Default value is 1024 for
 systems with more than 128Mb of memory, and 128 for low memory machines. If
 server suffers of overload, try to increase this number. Warning! If you
 make it greater than 1024, it would be better to change TCP_SYNQ_HSIZE in
@@ -5466,7 +5466,7 @@ certain TCP stacks.
 <ListItem>
 <Para>
 How many times to retry before deciding that something is wrong
-and it is necessary to report this suspection to network layer.
+and it is necessary to report this suspicion to network layer.
 Minimal RFC value is 3, it is default, which corresponds
 to &nbsp;3sec-8min depending on RTO.
 </Para>
@@ -5542,7 +5542,7 @@ packets sent before the kernel gives up on the connection.
 Timestamps are used, amongst other things, to protect against wrapping
 sequence numbers. A 1 gigabit link might conceivably re-encounter a previous
 sequence number with an out-of-line value, because it was of a previous
-generation. The timestamp will let it recognise this 'ancient packet'.
+generation. The timestamp will let it recognize this 'ancient packet'.
 </Para>
 </VarListEntry>
 <VarListEntry>
@@ -5733,7 +5733,7 @@ Determines how  often  to  check  for stale ARP entries. After an ARP entry is
 stale it  will  be resolved again (which is useful when an IP address migrates
 to another  machine).  When  ucast_solicit is greater than 0 it first tries to
 send an  ARP  packet  directly  to  the  known  host  When  that  fails  and
-mcast_solicit is greater than 0, an ARP request is broadcasted.
+mcast_solicit is greater than 0, an ARP request is broadcast.
 </Para>
 </VarListEntry>
 <VarListEntry>
@@ -5844,9 +5844,9 @@ Writing to this file results in a flush of the routing cache.
 <Para>
 Values to  control  the  frequency  and  behavior  of  the  garbage collection
 algorithm for the routing cache. This can be important for when doing
-failover. At least gc_timeout seconds will elapse before Linux will skip
+fail over. At least gc_timeout seconds will elapse before Linux will skip
 to another route because the previous one has died. By default set to 300,
-you may want to lower it if you want to have a speedy failover.
+you may want to lower it if you want to have a speedy fail over.
 </Para>
 
 <Para>
@@ -5931,7 +5931,7 @@ FIXME: fill this in
 <Term>/proc/sys/net/ipv4/route/redirect_load</Term>
 <ListItem>
 <Para>
-Factors which  determine  if  more ICPM redirects should be sent to a specific
+Factors which  determine  if  more ICMP redirects should be sent to a specific
 host. No  redirects  will be sent once the load limit or the maximum number of
 redirects has been reached.
 </Para>
@@ -6043,7 +6043,7 @@ randomize jitter."
 </Para>
 
 <Para>
-Does not currently seem like a good canidate to use, unless you've read and
+Does not currently seem like a good candidate to use, unless you've read and
 understand the article mentioned.
 </Para>
 </blockquote>
@@ -6166,7 +6166,7 @@ other DS domains.
 <Para>
 At this point, you maybe have a lot of questions. DiffServ is more than I've
 explained. In fact, you can understand that I can not resume more than 3
-RFC's in just 50 lines :-).
+RFCs in just 50 lines :-).
 </Para>
 
 </Sect2>
@@ -6248,13 +6248,13 @@ skb-&gt;tc_index variable.
 Classifier is invoked. The classifier will be executed and it will return a class ID that will be stored in
 skb-&gt;tc_index variable.If no filter matches are found, we consider the default_index option to be the
 classId to store. If neither set_tc_index nor default_index has been declared results may be
-impredictibles.
+unpredictable.
 </Para>
 </ListItem>
 <ListItem>
 
 <Para>
-After been sent to internal qdisc's where you can reuse the result of the filter, the classid returned by
+After been sent to internal qdiscs where you can reuse the result of the filter, the classid returned by
 the internal qdisc is stored into skb-&gt;tc_index. We will use this value in the future to index a mask-
 value table. The final result to assign to the packet will be that resulting from next operation:
 
@@ -6359,7 +6359,7 @@ tc filter add dev eth0 parent 2:0 protocol ip prio 1 <Emphasis remap="bf">handle
 <Para>
 First of all, suppose we receive a packet marked as EF .  If you read RFC2598, you'll see that DSCP
 recommended value for EF traffic is 101110. This means that DS field will be 10111000 (remember that
-less signifiant bits in TOS byte are not used in DS) or 0xb8 in hexadecimal codification.
+less significant bits in TOS byte are not used in DS) or 0xb8 in hexadecimal codification.
 </Para>
 
 <Para>
@@ -6410,7 +6410,7 @@ Key = 10111000 &#62;&#62; 2 = 00101110 -&#62; 0x2E in hexadecimal
 </Para>
 
 <Para>
-The returned value will correspond to a qdisc interal filter handle (in the example, identifier 2:0). If a
+The returned value will correspond to a qdisc internal filter handle (in the example, identifier 2:0). If a
 filter with this id exists, policing and metering conditions will be verified (in case that filter includes this)
 and the classid will be returned (in our example, classid 2:1) and stored in skb-&gt;tc_index variable.
 </Para>
@@ -6517,7 +6517,7 @@ your ADSL modem at home.
 The normal behaviour of router queues on the Internet is called tail-drop.
 Tail-drop works by queueing up to a certain amount, then dropping all traffic
 that 'spills over'. This is very unfair, and also leads to retransmit 
-synchronisation. When retransmit synchronisation occurs, the sudden burst
+synchronization. When retransmit synchronization occurs, the sudden burst
 of drops from a router that has reached its fill will cause a delayed burst
 of retransmits, which will over fill the congested router again. 
 </Para>
@@ -6526,7 +6526,7 @@ of retransmits, which will over fill the congested router again.
 In order to cope with transient congestion on links, backbone routers will
 often implement large queues. Unfortunately, while these queues are good for
 throughput, they can substantially increase latency and cause TCP
-connections to behave very bursty during congestion.
+connections to behave very burstily during congestion.
 </Para>
 
 <Para>
@@ -6546,7 +6546,7 @@ latency of other connections.
 <Para>
 RED statistically drops packets from flows before it reaches its hard
 limit. This causes a congested backbone link to slow more gracefully, and
-prevents retransmit synchronisation. This also helps TCP find its 'fair'
+prevents retransmit synchronization. This also helps TCP find its 'fair'
 speed faster by allowing some packets to get dropped sooner keeping queue
 sizes low and latency under control. The probability of a packet being
 dropped from a particular connection is proportional to its bandwidth usage
@@ -6575,22 +6575,22 @@ reducing the MTU on a slow link to improve interactive response.
 </Para>
 
 <Para>
-You should make max at least twice min to prevent synchronisation. On slow
-links with small min's it might be wise to make max perhaps four or
+You should make max at least twice min to prevent synchronization. On slow
+links with small Min's it might be wise to make max perhaps four or
 more times large then min.
 </Para>
 
 <Para>
 Burst controls how the RED algorithm responds to bursts. Burst must be set
 larger then min/avpkt. Experimentally, I've found (min+min+max)/(3*avpkt) to
-work okay.
+work ok.
 </Para>
 
 <Para>
 Additionally, you need to set limit and avpkt. Limit is a safety value, after
 there are limit bytes in the queue, RED 'turns into' tail-drop. I typical set
 limit to eight times max. Avpkt should be your average packet size. 1000
-works okay on high speed Internet links with a 1500byte MTU. 
+works OK on high speed Internet links with a 1500byte MTU. 
 </Para>
 
 <Para>
@@ -6859,11 +6859,11 @@ $TC filter ls dev $INDEV parent ffff:
 </Sect1>
 
 <Sect1 id="lartc.cookbook.icmp-ratelimit">
-  <Title>Ratelimit ICMP to prevent dDoS</Title>
+  <Title>Rate limit ICMP to prevent dDoS</Title>
 
 <Para>
 Recently, distributed denial of service attacks have become a major nuisance
-on the Internet. By properly filtering and ratelimiting your network, you can
+on the Internet. By properly filtering and rate limiting your network, you can
 both prevent becoming a casualty or the cause of these attacks.
 </Para>
 
@@ -7101,7 +7101,7 @@ BUT
 
 <Para>
 This is quite risky because Squid does
-utilize lots of cpu power which might
+utilize lots of CPU power which might
 result in slower over-all network performance
 or the server itself might crash and no one on the
 network will be able to access the Internet if
@@ -7206,7 +7206,7 @@ silom# iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -j REDIRECT --to-
 
 <Para>
 For more information on setting Squid server please refer
-to Squid faq page on <ULink
+to Squid FAQ page on <ULink
 URL="http://squid.nlanr.net"
 >http://squid.nlanr.net</ULink
 >).
@@ -7433,8 +7433,8 @@ writes:
 <Para>
 The following problem: I set the mtu/mru of my leased line running ppp to
 296 because it's only 33k6 and I cannot influence the queueing on the
-other side. At 296, the response to a keypress is within a reasonable
-timeframe.
+other side. At 296, the response to a key press is within a reasonable
+time frame.
 </Para>
 
 <Para>
@@ -7512,7 +7512,7 @@ SYN packet.
 </Para>
 
 <Para>
-Recent Linux kernels, and a few pppoe drivers (notably, the excellent
+Recent Linux kernels, and a few PPPoE drivers (notably, the excellent
 Roaring Penguin one), feature the possibility to 'clamp the MSS'. 
 </Para>
 
@@ -7530,7 +7530,7 @@ works like a charm.
 
 <Para>
 In order for this to work you need at least iptables-1.2.1a and Linux 2.4.3
-or higher. The basic commandline is:
+or higher. The basic command line is:
 
 <Screen>
 # iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS  --clamp-mss-to-pmtu
@@ -7574,7 +7574,7 @@ I attempted to create the holy grail:
 <VariableList>
 
 <VarListEntry>
-<Term>Maintain low latency for interfactive traffic at all times</Term>
+<Term>Maintain low latency for interactive traffic at all times</Term>
 <ListItem>
 <Para>
 This means that downloading or uploading files should not disturb SSH or
@@ -7600,7 +7600,7 @@ download speed.
 </VarListEntry>
 </VariableList>
 It turns out that all this is possible, at the cost of a tiny bit of
-bandwidth. The reason that uploads, downloads and ssh hurt eachother is the
+bandwidth. The reason that uploads, downloads and ssh hurt each other is the
 presence of large queues in many domestic access devices like cable or DSL
 modems.
 </Para>
@@ -7618,7 +7618,7 @@ don't care how the magic is performed.
 ISPs know that they are benchmarked solely on how fast people can download.
 Besides available bandwidth, download speed is influenced heavily by packet
 loss, which seriously hampers TCP/IP performance. Large queues can help
-prevent packetloss, and speed up downloads. So ISPs configure large queues.
+prevent packet loss, and speed up downloads. So ISPs configure large queues.
 </Para>
 
 <Para>
@@ -7945,7 +7945,7 @@ If the last two lines give an error, update your tc tool to a newer version!
 </Sect2>
 
     </Sect1>
-    <sect1><title>Rate limiting a single host or netmask</title>
+    <sect1 id="lartc.single.host"><title>Rate limiting a single host or netmask</title>
       <para>
 	Although this is described in stupendous details elsewhere and in our manpages, this question gets asked a lot and 
 	happily there is a simple answer that does not need full comprehension of traffic control.
@@ -7976,6 +7976,14 @@ If the last two lines give an error, update your tc tool to a newer version!
       <para>
 	The last line tells which traffic should go to the shaped class. Traffic not matched by this rule is NOT shaped. To make more 
 	complicated matches (subnets, source ports, destination ports), see <xref linkend="lartc.filtering.simple">.
+      </para>
+      <para>
+	If you changed anything and want to reload the script, execute 'tc qdisc del dev $DEV root' to clean up your existing
+	configuration.
+      </para>
+      <para>
+	The script can further be improved by adding a last optional line 'tc qdisc add dev $DEV parent 1:1 sfq perturb 10'. See 
+	<xref linkend="lartc.sfq"> for details on what this does.
       </para>
     </sect1>
 </chapter>
@@ -8070,7 +8078,7 @@ a bridge, but like a bridge, it has little impact on network design.
 </Para>
 
 <Para>
-An advantage of the fact that it is not a brige lies in the fact that
+An advantage of the fact that it is not a bridge lies in the fact that
 packets really pass through the kernel, and can be filtered, changed,
 redirected or rerouted. 
 </Para>
@@ -8099,13 +8107,13 @@ to this, 10.0.0.1 replies with a short 'here' packet.
 <Para>
 10.0.0.7 then sends packets to the hardware address mentioned in the 'here' 
 packet. It caches this hardware address for a relatively long time, and
-after the cache expires, it reasks the question.
+after the cache expires, it re-asks the question.
 </Para>
 
 <Para>
 When building a Pseudo-bridge, we instruct the bridge to reply to these ARP
 packets, which causes the hosts in the network to send its packets to the
-bridge. The brige then processes these packets, and sends them to the
+bridge. The bridge then processes these packets, and sends them to the
 relevant interface.
 </Para>
 
@@ -8192,7 +8200,7 @@ manually, which can take rather long.
 <para>
 You can speed this up using the wonderful 'arping' tool, which on many
 distributions is part of the 'iputils' package. Using 'arping' you can send
-out unsollicited ARP messages so as to update remote arp caches. 
+out unsolicited ARP messages so as to update remote arp caches. 
 </para>
 <para>
 This is a very powerful technique that is also used by 'black hats' to
@@ -8202,7 +8210,7 @@ subvert your routing!
 <para>
 On Linux 2.4, you may need to execute 
 'echo 1 &gt; /proc/sys/net/ipv4/ip_nonlocal_bind' before being able to send
-out unsollicited ARP messages!
+out unsolicited ARP messages!
 </para>
 </note>
 <Para>
@@ -8230,7 +8238,7 @@ popping up all the time.
 </Para>
 
 <Para>
-The Internet has mostly standardised on OSPF and BGP4 (rfc1771).
+The Internet has mostly standardized on OSPF and BGP4 (rfc1771).
 Linux supports both, by way of <application>gated</application> and 
 <application>zebra</application>
 </Para>
@@ -8368,7 +8376,7 @@ server.
 </Para>
 
 <Para>
-In short whatever you need to loadbalance, at whatever level of traffic, LVS
+In short whatever you need to load balance, at whatever level of traffic, LVS
 will have a way of doing it. Some of their techniques are positively evil!
 For example, they let several machines have the same IP address on a
 segment, but turn off ARP on them. Only the LVS machine does ARP - it then
@@ -8495,7 +8503,7 @@ prevented that.
 </Para>
 
 <Para>
-This is a 'live' failover:
+This is a 'live' fail over:
 </Para>
 
 <Para>
@@ -8580,7 +8588,7 @@ URL="ftp://icaftp.epfl.ch/pub/linux/diffserv/misc/dsid-01.txt.gz"
 >document</ULink
 > by Werner Almesberger, Jamal Hadi Salim and Alexey
 Kuznetsov describes DiffServ facilities in the Linux kernel, amongst which
-are TBF, GRED, the DSMARK qdisc and the tcindex classifyer.
+are TBF, GRED, the DSMARK qdisc and the tcindex classifier.
 </Para>
 </VarListEntry>
 <VarListEntry>
@@ -8641,7 +8649,7 @@ well.
  
 It is our goal to list everybody who has contributed to this HOWTO, or
 helped us demystify how things work. While there are currently no plans
-for a Netfilter type scoreboard, we do like to recognise the people who are
+for a Netfilter type scoreboard, we do like to recognize the people who are
 helping.
 </Para>
 
@@ -8651,7 +8659,7 @@ helping.
 <ListItem>
 
    <Para>
-   <author><firstname>Juanjo</firstname><surname>Alins</surname></author>
+   <author><firstname>Junk</firstname><surname>Alins</surname></author>
    <address><email>juanjo@mat.upc.es</email></address>
    </Para>
   </ListItem>
