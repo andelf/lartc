@@ -991,47 +991,18 @@ that you have two networks to route between.
 
 (To Be Continued!)
 
-<sect>Using Class Based Queueing for bandwidth management
+<sect>Queueing Disciplines for Bandwidth Management
 <p>
-Now, when I discovered this, it <em>really</em> blew me away. Linux 2.2 comes with
-everything to manage bandwidth in ways comparable to high-end dedicated
-bandwidth management systems.
+Now, when I discovered this, it <em>really</em> blew me away. Linux 2.2/2.4
+comes with everything to manage bandwidth in ways comparable to high-end
+dedicated bandwidth management systems.
 
 Linux even goes far beyond what Frame and ATM provide. 
 
-The two basic units of Traffic Control are filters and queues. Filters place
-traffic into queues, and queues gather traffic and decide what to send
-first, send later, or drop. There are several flavours of filters and queues.
-
-The most common filters are fwmark and u32, the first lets you use the Linux
-netfilter code to select traffic, and the second allows you to select
-traffic based on ANY header. The most notable queue is Class Based
-Queue. CBQ is a super-queue, in that it contains other queues (even other
-CBQs).
-
-It may not be immediately clear what queueing has to do with bandwidth
-management, but it really does work. 
-
-For our frame of reference, I have modelled this section on an ISP where I
-learned the ropes, so to speak, Casema Internet in The Netherlands. Casema,
-which is actually a cable company, has internet needs both for their
-customers and for their own office. Most corporate computers there have
-access to the internet. In reality, they have lots of money to spend and do
-not use Linux for bandwidth management.
-
-We will explore how our ISP could have used Linux to manage their bandwidth.
-
-<sect1>What is queueing?
+<sect1>Queues and Queueing Disciplines explained
 <p>
-With queueing we determine the order in which data is <em>sent</em>. It is important
-to realise that we can only shape data that we transmit. How does changing
-the order actually determine the speed of transmission? Imagine a cash register
-which is able to process 3 customers per minute.
-
-People wishing to pay go stand in line at the 'tail end' of the queue. This
-is 'FIFO queueing' (First In, First Out). Let's suppose however that we let certain people always
-join in the middle of the queue, instead of at the end. These people spend
-a lot less time in the queue and are therefore able to shop faster. 
+With queueing we determine the way in which data is <em>sent</em>. It is
+important to realise that we can only shape data that we transmit.
 
 With the way the internet works, we have no direct control of what people
 send us. It's a bit like your (physical!) mailbox at home. There is no way
@@ -1042,33 +1013,364 @@ However, the internet is mostly based on TCP/IP which has a few features
 that help us. TCP/IP has no way of knowing the capacity of the network
 between two hosts, so it just starts sending data faster and faster ('slow
 start') and when packets start getting lost, because there is no room to
-send them, it will slow down.
+send them, it will slow down. In fact it is a bit smarter than this, but
+more about that later.
 
 This is the equivalent of not reading half of your mail, and hoping that
 people will stop sending it to you. With the difference that it works for
 the Internet :-)
 
-FIXME: explain congestion windows
+If you have a router and wish to prevent certain hosts of networks from
+downloading too fast, you need to do your shaping on the *inner* interface
+of your router, the one that sends data to your own computers.
 
-<tscreen><verb>
-[The Internet] ---<E3, T3, whatever>--- [Linux router] --- [Office+ISP]
-                                      eth1          eth0
-</verb></tscreen>
+<sect1>Simple, classless Queueing Disciplines
+<p>
+As said, with queueing disciplines, we change the way data is sent.
+Classless queueing disciplines are those that, by and large accept data and
+only reorder, delay or drop it.
 
-Now, our Linux router has two interfaces which I shall dub eth0 and eth1.
-eth1 is connected to our router which moves packets to and from our
-fibre link.
+These can be used to shape traffic for an entire interface, without any
+subdivisions. It is vital that you understand this part of queueing before
+we go on the the classful qdisc-containing-qdiscs!
 
-eth0 is connected to a subnet which contains both the corporate firewall and
-our network head ends, through which we can connect to our customers.
+By far the most widely used discipline is the pfifo_fast queue - this is the
+default. This also explains why these advanced features are so robust. They
+are nothing more than 'just another queue'.
 
-Because we can only limit what we send, we need two separate but possibly
-very similar sets of rules. By modifying queueing on eth0, we determine how
-fast data gets sent to our customers, and therefore how much downstream
-bandwidth is available for them. In short: their 'download speed'.
+Each of these queues has specific strengths and weaknesses. Not all of them
+may be as well tested.
 
-On eth1, we determine how fast we send data to The Internet,
-i.e. how fast our users, both corporate and commercial, can upload data.
+<sect2>pfifo_fast
+<p>
+This queue is, as the name says, First In, First Out, which means that no
+packet receives special treatment. At least, not quite. This queue has 3 so
+called 'bands'. Within each band, FIFO rules apply. However, as long as
+there are packets waiting in band 0, band 1 won't be processed. Same goes
+for band 1 and band 2.
+
+The kernel honors the so called Type of Service flag of packets, and takes
+care to insert 'minimum delay' packets in band 0. 
+
+<sect2>Token Bucket Filter
+<p>
+The Token Bucket Filter (TBF) is a simple queue that only passes packets
+arriving at a rate which is not exceeding some administratively set rate,
+with the possibility to allow short bursts in excess of this rate.
+
+TBF is very precise, network- and processor friendly. It should be your
+first choice if you simple want to slow an interface down!
+
+The TBF implementation consists of a buffer (bucket), constantly filled by
+some virtual pieces of information called tokens, at a specific rate (token
+rate). The most important parameter of the bucket is its size, that is the
+number of tokens it can store.
+
+Each arriving token collects one incoming data packet from the data queue
+and is then deleted from the bucket. Associating this algorithm
+with the two flows -- token and data, gives us three possible scenarios:
+
+<itemize>
+<item> The data arrives in TBF at a rate that's <em>equal</em> to the rate
+of incoming tokens. In this case each incoming packet has its matching token
+and passes the queue without delay.
+
+<item> The data arrives in TBF at a rate that's <em>smaller</em> than the
+token rate. Only a part of the tokens are deleted at output of each data packet
+that's sent out the queue, so the tokens accumulate, up to the bucket size.
+The unused tokens can then be used to send data a a speed that's exceeding the
+standard token rate, in case short data bursts occur.
+
+<item> The data arrives in TBF at a rate <em>bigger</em> than the token rate.
+This means that the bucket will soon be devoid of tokens, which causes the
+TBF to throttle itself for a while. This is called an 'overlimit situation'.
+If packets keep coming in, packets will start to get dropped.
+</itemize>
+
+The last scenario is very important, because it allows to
+administratively shape the bandwidth available to data that's passing
+the filter.
+
+The accumulation of tokens allows a short burst of overlimit data to be
+still passed without loss, but any lasting overload will cause packets to be
+constantly delayed, and then dropped.
+
+<sect2>Stochastic Fairness Queueing
+<p>
+Stochastic Fairness Queueing (SFQ) is a simple implementation of fair
+queueing algorithms family. It's less accurate than others, but it also
+requires less calculations while being almost perfectly fair.
+
+The key word in SFQ is conversation (or flow), which mostly corresponds to a
+TCP session or a UDP stream. Traffic is divided into a pretty large number
+of FIFO queues, one for each conversation. Traffic is then sent in a round
+robin fashion, giving each session the chance to send data in turn.
+
+This leads to very fair behaviour and disallows any single conversation from
+drowning out the rest. SFQ is called 'Stochastic' because it doesn't really
+allocate a queue for each session, it has an algorithm which divides traffic
+over a limited number of queues using a hashing algorithm. 
+
+Because of the hash, multiple sessions mind end up in the same bucket, which
+would halve each session's chance of sending a packet, thus halving the
+effective speed available. To prevent this situation from becoming
+noticeable, SFQ changes its hashing algorithm quite often so that any two
+colliding sessions will only do so for a small number of seconds.
+
+It is important to note that SFQ is only useful in case your actual outgoing
+interface is really full! If it isn't then there will be no queue on your
+linux machine and hence no effect. Later on we will describe how to combine
+SFQ with other qdiscs to get a best-of-both worlds situation.
+
+Specifically, setting SFQ on the ethernet interface heading to your
+cablemodem or DSL router is pointless without further shaping!
+<sect2>Random Early Drop
+<p>
+RED has some extra smartness built in. When a TCP/IP session starts, neither
+end knows the amount of bandwidth available. So TCP/IP starts to transmit
+slowly and goes faster and faster, though limited by the latency at which
+ACKs return.
+
+Once a link is filling up, RED starts dropping packets, which indicate to
+TCP/IP that the link is congested, and that it should slow down. The smart
+bit is that RED simulates real congestion, and starts to drop some packets
+some time before the link is entirely filled up. Once the link is completely
+saturated, it behaves like a normal policer.
+
+For more information on this, see the Backbone chapter.
+
+<sect2>Ingress policer qdisc
+<p> 
+The Ingress qdisc comes in handy if you need to ratelimit a host without
+help from routers or other Linux boxes. You can police incoming bandwidth
+and drop packets when this bandwidth exceeds your desired rate. This can
+save your host from a SYN flood, for example, and also works to slow down
+TCP/IP, which responds to dropped packets by reducing speed.
+
+FIXME: shaping by dropping packets seems less desirable than using, for
+example, a token bucket filter. Not sure though, Cisco CAR works this
+way, and people appear to be happy with it.
+
+See the reference to <ref id="CAR" name="IOS Committed Access Rate"> at the
+end of this document.
+
+In short: you can use this to limit how fast your computer downloads files,
+thus leaving more of the available bandwidth for others.
+
+See the section on 'Protecting your host from SYN floods' for an example on
+how this works.
+
+<sect2>Summary
+<p>
+Summarizing, these are the simple queues that actually manage traffic by
+reordering, slowing or dropping packets.
+
+Advice:
+<itemize>
+<item>
+To purely slow down outgoing traffic, use the Token Bucket Filter.
+<item>
+If your link is truly full and you want to make sure that no single session
+can dominate your outgoing bandwidth, use Stochastical Fairness Queueing.
+<item>
+If you have a big backbone and know what you are doing, consider Random
+Early Drop - see the backbone chapter.
+<item>
+To 'shape' incoming traffic which you are not forwarding, use the Ingress
+Policer. If you *are* forwarding it, use a TBF on the interface you are
+forwarding the data to.
+</itemize>
+<sect1>Classful Queueing Disciplines
+<p>
+Some queueing disciplines can contain other queueing disciplines, which are
+then suddenly called 'classes'. A class is nothing short of a qdisc, except
+that it lives within another qdisc.
+
+Classful qdiscs are very useful if you have different kinds of traffic which
+should have differing treatment. One of the classful qdiscs is called 'CBQ'
+, 'Class Based Queueing' - it is so widely mentioned that people identify
+queueing with classes solely with CBQ, but this is not the case.
+
+CBQ is merely the oldest kid on the block - yet it is by far the least
+useful qdisc and also the most complex one. I advice *against* using it.
+This may come as something of a shock to many who fell for the 'sendmail
+effect', which learns us that any complex technology which doesn't come with
+documentation must be far superior.
+
+<sect2>Flow within classful qdiscs &amp; classes
+<p>
+When traffic enters a classful qdisc, it needs to be sent to any of the
+qdiscs within, the classes. To determine what to do with a packet, the so
+called 'filters' are consulted. It is important to know that the filters are
+called from within a qdisc, and not the other way around!
+
+The filters then return with a decision, and the qdisc uses this to enqueue
+the packet into one of the classes. These classes don't know that they are
+part of an outer-qdisc, they act as they normally do: accepting packets on
+one end and outputting them again when asked.
+
+Besides containing other qdiscs, most classful qdiscs also perform shaping.
+This is useful to perform both packet reordering (with SFQ, for example) and
+rate control. You need this in cases where you have a high speed
+interface (for example, ethernet) to a slower device (a cable modem).
+
+If you were only to run SFQ, nothing would happen, as packets enter &amp;
+leave your router without delay: the output interface is far faster than
+your actual link speed.
+
+<sect2>The PRIO qdisc
+<p>
+The PRIO qdisc doesn't actually shape, it only subdivides traffic based on
+how you configured your filters. You can consider the PRIO qdisc as a kind
+of pfifo_fast on stereoids, whereby each band is a separate qdisc instead of
+a simple FIFO.
+
+When a packet is enqueued to the PRIO qdisc, a sub-qdisc is chosen based on
+the filter commands you gave. By default, three pfifo sub-qdiscs are
+created. These sub-qdiscs are pure FIFO queues with no internal structure,
+but you can replace them by any qdisc you have available.
+
+This queue is very useful in case you want to prioritize certain kinds of
+traffic without using TOS-flags but using all the power of the tc filters.
+Because it doesn't actually shape, the same warning as for SFQ holds: either
+use it only if your physical link is really full or wrap it inside a
+classful qdisc that does shape.
+
+The last holds for almost all cablemodems and DSL devices.
+<sect2>The famous CBQ qdisc
+<p>
+As said before, CBQ is the most complex qdisc available, the most hyped, the
+least understood and possibly the worst queueing discipline in the entire
+Linux kernel. This is not because the authors are evil or incompetent, far
+from it, it's just that the CBQ algorithm isn't all that good and doesn't
+really match the way Linux works.
+
+Besides being classful, CBQ is also a shaper and it is in that aspect that
+it really doesn't work very well. It works like this. If you try to shape a
+10mbit/s connection to 1mbit/s, the link should be idle 90% of the time. If
+it isn't, we need to throttle so that it IS idle 90% of the time.
+
+This is pretty hard to measure, so CBQ also needs to know how big an average
+packet is going to be, and instead derives the idle time from the number of
+microseconds that elapse between requests from the hardware layer for more
+data. Combined, this can be used to approximate how full or empty the link
+is.
+
+This is rather circumspect and doesn't always arrive at proper results. For
+example, what is the actual link speed of an interface that is not really
+able of transmitting the full 100mbit/s of data, perhaps because of a badly
+implemented driver? A PCMCIA network card will also never achieve 100mbit/s
+because of the way the bus is designed - again, how do we calculate the idle
+time?
+
+It gets even worse if we consider not-quite-real network devices like PPP
+over Ethernet or PPTP over TCP/IP. The effective bandwidth in that case is
+probably determined by the efficiency of pipes to userspace - which is huge.
+
+People who have done measurements discover that CBQ is not very accurate and
+sometimes completely misses the mark.
+
+Besides not being all that good, it also comes with little or no
+documentation AND with about 20 knobs to tune. In fact, CBQ is so hard to
+configure that people use scripts to generate the needed commands.
+
+In short - I would advise AGAINST using CBQ if you want to have accurate
+results and want to understand what you are doing.
+<sect3>CBQ parameters that have to do with shaping &amp; priorities
+<p>
+Because lots of people are using CBQ anyhow, possibly because they don't
+have anything else available, we will describe it anyhow.
+
+Besides shaping, using the aforementioned idletime approximations, CBQ also
+acts like the PRIO queue in the sense that classes can have differing
+priorities and that lower priority numbers will be polled before the higher
+priority ones.
+
+Each time a packet is requested by the hardware layer to be sent out to the
+network, a weighted round robin process starts, beginning with the lower
+priority classes. 
+
+These are then grouped and queried if they have data available. If so, it is
+returned. After a class has been allowed to dequeue a number of bytes, the
+next class within that priority is tried.
+
+Several parameters influence this Weighted Round Robin process.
+
+First the parameters that have to do with shaping:
+
+<descrip>
+<tag>avpkt</tag>
+Average size of a packet, measured in bytes. Needed for idle time
+approximation.
+<tag>bandwidth</tag>
+The physical bandwidth of your device, also needed for idle time
+calculations.
+<tag>cell</tag>
+The time a packet takes to be transmitted over an ethernet device grows in
+steps, based on the packet size. An 800 and a 806 size packet may take just
+as long to send, for example - this sets the granularity. Most often set to
+'8'.
+<tag>maxburst</tag>
+unknown
+<tag>mpu</tag>
+Mininum packet size - needed because even a zero size packet is padded
+to 64 bytes on ethernet, and so takes a certain time to transmit. CBQ needs
+to know this to accurately try to measure the idle time.
+<tag>rate</tag>
+Desired rate of traffic leaving this qdisc - this is the 'speed knob'
+</descrip>
+
+The following parameters control the WRR process:
+<descrip>
+<tag>allot</tag>
+When the outer cbq is asked for a packet to send out on the interface, it
+will try all inner qdiscs (classes) in turn, in order of the 'priority'
+parameter. Each time a class gets its turn, it can only send out a limited
+amount of data. 'Allot' is the base unit of this amount. See the 'weight'
+parameter for more information.
+
+<tag>prio</tag>
+The CBQ can also act like the PRIO device. Inner classes with lower priority
+are tried first and as long as they have traffic, other classes are not
+polled for traffic.
+
+<tag>weight</tag>
+Weight helps in the Weighted Round Robin process. Each class gets a chance
+to send in turn. If you have classes with significantly more bandwidth than
+other classes, it makes sense to allow them to send more data in one round
+than the others.
+
+A CBQ adds up all weights within a class, and normalizes them, so you can
+use arbitrary numbers: only the ratios are important. People have been 
+using 'rate/10' as a rule of thumb and it appears to work well. The
+renormalized weight is multiplied by the 'allot' parameter to determine how
+much data can be sent in one round.
+</descrip>
+
+Internally, CBQ has a lot of finetuning. For example, classes which are
+known not to have data enqueued to them aren't queried. Overlimit classes
+are penalized by lowering their effective priority. All very smart &amp;
+complicated.
+
+<sect3>CBQ parameters that determine link sharing &amp; borrowing
+<p>
+Besides purely limiting certain kinds of traffic, it is also possible to
+specify which classes can borrow capacity from other classes or, conversely,
+lend out bandwidth.
+
+A class that is configured with 'isolated' will not lend out bandwidth to
+sibling classes. Use this if you have competing or mutually-unfriendly
+agencies on your link who do want to give eachother freebies.
+
+A class can also be 'bounded', which means that it will not try to borrow
+bandwidth from sibling classes. 
+
+A typical situation might be where you have two agencies on your link which
+are both 'isolated' and 'bounded', which means that they are really limited
+to their assigened rate, and also won't allow each other to borrow.
+
+Within such an agency class, there might be other classes which are allowed
+to swap bandwidth.
 
 <sect1>First attempt at bandwidth division
 <p>
@@ -1353,23 +1655,6 @@ shaken by some simple reordering.
 
 However, for lots of applications, link loadbalancing is a great idea.
 
-<sect>More queueing disciplines &amp; classes
-<p>
-
-The Linux kernel offers us lots of queueing disciplines and several classes.
-By far the most widely used discipline is the pfifo_fast queue - this is the
-default. This also explains why these advanced features are so robust. They
-are nothing more than 'just another queue'.
-
-Each of these queues has specific strengths and weaknesses. Not all of them
-may be as well tested.
-<sect1>pfifo_fast
-<p>
-This queue is, as the name says, First In, First Out, which means that no
-packet receives special treatment. At least, not quite. This queue has 3 so
-called 'bands'. Within each band, FIFO rules apply. However, as long as
-there are packets waiting in band 0, band 1 won't be processed. Same goes
-for band 1 and band 2.
 
 
 <sect1>Hierarchical Token Bucket (HTB) queueing CBQ alternative
@@ -1419,145 +1704,18 @@ you would expect.
 As your HTB configuration gets more complex, your configuration scales
 well. With CBQ it is already complex even in simple cases! HTB is not yet a
 part of the standard kernel, but it should soon be!
-<sect1>Stochastic Fairness Queueing
 <p>
-SFQ, as said earlier, is not quite deterministic, but works (on average).
-Its main benefits are that it requires little CPU and memory. 'Real' fair
-queueing requires that the kernel keep track of all running sessions.
-
-Stochastic Fairness Queueing (SFQ) is a simple implementation
-of fair queueing algorithms family. It's less accurate than
-others, but it also requires less calculations while being
-almost perfectly fair.
-
-The key word in SFQ is conversation (or flow), being a sequence
-of data packets having enough common parameters to distinguish
-it from other conversations. The parameters used in case of
-IP packets are source and destination address, and the protocol
-number.
-
-SFQ consists of dynamically allocated number of FIFO queues,
-one queue for one conversation. The discipline runs in round-robin,
-sending one packet from each FIFO in one turn, and this is why
-it's called fair. The main advantage of SFQ is that it allows for
-fair sharing of the link between several applications and that it prevents
-bandwidth take-over by one client. SFQ however cannot determine
-interactive flows from bulk ones -- one usually needs to do
-the selection with CBQ before, and then direct the bulk traffic
-into SFQ.
-
-
-<sect1>Token Bucket Filter
-<p>
-The Token Bucket Filter (TBF) is a simple queue that only passes packets
-arriving at a rate which is not exceeding some administratively set limit,
-with the possibility to buffer short bursts.
-
-The TBF implementation consists of a buffer (bucket), constantly filled by
-some virtual pieces of information called tokens, at a specific rate (token
-rate). The most important parameter of the bucket is its size, that is the
-number of tokens it can store.
-
-Each arriving token collects one incoming data packet from the data queue
-and is then deleted from the bucket. Associating this algorithm
-with the two flows -- token and data, gives us three possible scenarios:
-
+Esteve Camps Chust &lt;marvin@grn.es&gt;&nl;
+This text is an extract from my thesis on "QoS Support in Linux", September 2000.&nl;
+<P>
+Source documents:&nl;
 <itemize>
-
-<item> The data arrives in TBF at a rate that's <em>equal</em> to the rate
-of incoming tokens. In this case each incoming packet has its matching token
-and passes the queue without delay.
-
-<item> The data arrives in TBF at a rate that's <em>smaller</em> than the
-token rate. Only a part of the tokens are deleted at output of each data packet
-that's sent out the queue, so the tokens accumulate, up to the bucket size.
-The unused tokens can then be used to send data a a speed that's exceeding the
-standard token rate, in case short data bursts occur.
-
-<item> The data arrives in TBF at a rate <em>bigger</em> than the token rate.
-In this case filter overrun occurs -- incoming data can only be sent out
-without loss until all accumulated tokens are used. After that, overlimit
-packets are dropped.
-
+<item><url url="http://ica1www.epfl.ch/~almesber" name="Draft-almesberger-wajhak-diffserv-linux-01.txt">.
+<item>Examples in iproute2 distribution.
+<item><url url="http://www.qosforum.com/white-papers/qosprot_v3.pdf" name="White Paper-QoS protocols and architectures"> and
+<url url="http://www.qosforum.com/docs/faq" name="IP QoS Frequently Asked Questions"> both by <em>Quality of Service Forum</em>.
 </itemize>
-
-<p> The last scenario is very important, because it allows to
-administratively shape the bandwidth available to data that's passing
-the filter.
-The accumulation of tokens allows short burst of overlimit data to be still
-passed without loss, but any lasting overload will cause packets to be
-constantly dropped.
-
-The Linux kernel seems to go beyond this specification, and also allows us
-to limit the speed of the burst transmission. However, Alexey warns us:
-
-<tscreen>
-Note that the peak rate TBF is much more tough: with MTU 1500
-P_crit = 150Kbytes/sec. So, if you need greater peak
-rates, use alpha with HZ=1000 :-)
-</tscreen>
-
-FIXME: is this still true with TSC (pentium+)? Well sort of
-<!-- It's like this (from sch_tbf.c):
-  Note that the minimal timer resolution is 1/HZ.
-  If no new packets arrive during this period,
-  or if the device is not awaken by EOI for some previous packet.
-  
-  So it's true as long as the box is relativly quiet. On a busily
-  routing box, it's limited by the bandwidth of the interface -->
-
-FIXME: if not, add section on raising HZ
-
-<sect1>Random Early Detect
-<p>
-RED has some extra smartness built in. When a TCP/IP session starts, neither
-end knows the amount of bandwidth available. So TCP/IP starts to transmit
-slowly and goes faster and faster, though limited by the latency at which
-ACKs return.
-
-Once a link is filling up, RED starts dropping packets, which indicate to
-TCP/IP that the link is congested, and that it should slow down. The smart
-bit is that RED simulates real congestion, and starts to drop some packets
-some time before the link is entirely filled up. Once the link is completely
-saturated, it behaves like a normal policer.
-
-For more information on this, see the Backbone chapter.
-
-<sect1>Ingress policer qdisc
-<p> 
-
-The Ingress qdisc comes in handy if you need to ratelimit a host without
-help from routers or other Linux boxes. You can police incoming bandwidth
-and drop packets when this bandwidth exceeds your desired rate. This can
-save your host from a SYN flood, for example, and also works to slow down
-TCP/IP, which responds to dropped packets by reducing speed.
-
-FIXME: instead of dropping, can we also assign it to a real queue?
-
-FIXME: shaping by dropping packets seems less desirable than using, for
-example, a token bucket filter. Not sure though, Cisco CAR works this
-way, and people appear to be happy with it.
-
-See the reference to <ref id="CAR" name="IOS Committed Access Rate"> at the
-end of this document.
-
-<!--
-FIXME: This fixme was a question, not a stated fact :-) - ahu
-
-Old text:
-For TCP/IP connections it is desirable to simply delay the packets rather
-than drop them. TCP/IP responds to lost packets by abruptly reducing speed,
-while if the packet is simply delayed, the slowdown is much more gradual.
-It's also better for bandwidth usage, since dropped packets must be resent.
-
-This is not quite true, see W. Stevens TCP/IP Illustrated series - ahu
--->
-
-In short: you can use this to limit how fast your computer downloads files,
-thus leaving more of the available bandwidth for others.
-
-See the section on protecting your host from SYN floods for an example on
-how this works.
+<sect>Special Queues
 <sect1>DSMARK
 <p>
 This chapter was written by Esteve Camps &lt;esteve@hades.udg.es&gt;.
@@ -1813,19 +1971,6 @@ You can use it as any other kind of filter.
 I recommend you to look at all DiffServ examples included in iproute2 distribution. I promise I will try to
 complement this text as soon as I can. Besides, all I have explained is the result of a lot of tests.
 I would thank you tell me if I'm wrong in any point.
-<sect>Other information
-<p>
-Esteve Camps Chust &lt;marvin@grn.es&gt;&nl;
-This text is an extract from my thesis on "QoS Support in Linux", September 2000.&nl;
-<P>
-Source documents:&nl;
-<itemize>
-<item><url url="http://ica1www.epfl.ch/~almesber" name="Draft-almesberger-wajhak-diffserv-linux-01.txt">.
-<item>Examples in iproute2 distribution.
-<item><url url="http://www.qosforum.com/white-papers/qosprot_v3.pdf" name="White Paper-QoS protocols and architectures"> and
-<url url="http://www.qosforum.com/docs/faq" name="IP QoS Frequently Asked Questions"> both by <em>Quality of Service Forum</em>.
-</itemize>
-
 <sect1>WRR
 <p>
 This qdisc is not included in the standard kernels but can be downloaded from 
@@ -3786,6 +3931,7 @@ helping.
 <item>Gerry Creager N5JXS &lt;gerry%cs.tamu.edu&gt;
 <item>Marco Davids &lt;marco@sara.nl&gt;
 <item>Jonathan Day &lt;jd9812@my-deja.com&gt;
+<item>Martin Devera aka devik &lt;devik@cdi.cz&gt;
 <item>Stephan "Kobold" Gehring &lt;Stephan.Gehring@bechtle.de&gt;
 <item>Nadeem Hasan &lt;nhasan@usa.net&gt;
 <item>Vik Heyndrickx &lt;vik.heyndrickx@edchq.com&gt;
@@ -3811,8 +3957,6 @@ helping.
 <item>Glen Turner &lt;glen.turner%aarnet.edu.au&gt;
 <item>Song Wang &lt;wsong@ece.uci.edu&gt;
 <item>Jonathan Day &lt;jd9812@my-deja.com&gt;
-
-
 </itemize>
 
 </article>
