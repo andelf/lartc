@@ -1097,7 +1097,7 @@ constantly delayed, and then dropped.
 
 <sect2>Stochastic Fairness Queueing
 <p>
-Stochastic Fairness Queueing (SFQ) is a simple implementation of fair
+Stochastic Fairness Queueing (SFQ) is a simple implementation of the fair
 queueing algorithms family. It's less accurate than others, but it also
 requires less calculations while being almost perfectly fair.
 
@@ -1111,7 +1111,7 @@ drowning out the rest. SFQ is called 'Stochastic' because it doesn't really
 allocate a queue for each session, it has an algorithm which divides traffic
 over a limited number of queues using a hashing algorithm. 
 
-Because of the hash, multiple sessions mind end up in the same bucket, which
+Because of the hash, multiple sessions might end up in the same bucket, which
 would halve each session's chance of sending a packet, thus halving the
 effective speed available. To prevent this situation from becoming
 noticeable, SFQ changes its hashing algorithm quite often so that any two
@@ -1184,7 +1184,8 @@ forwarding the data to.
 <p>
 Some queueing disciplines can contain other queueing disciplines, which are
 then suddenly called 'classes'. A class is nothing short of a qdisc, except
-that it lives within another qdisc.
+that it lives within another qdisc. We use the terms 'inner qdisc'
+, 'sub-qdisc' and 'class' interchangeably.
 
 Classful qdiscs are very useful if you have different kinds of traffic which
 should have differing treatment. One of the classful qdiscs is called 'CBQ'
@@ -1192,15 +1193,15 @@ should have differing treatment. One of the classful qdiscs is called 'CBQ'
 queueing with classes solely with CBQ, but this is not the case.
 
 CBQ is merely the oldest kid on the block - yet it is by far the least
-useful qdisc and also the most complex one. I advice *against* using it.
+useful qdisc and also the most complex one. I advise *against* using it.
 This may come as something of a shock to many who fell for the 'sendmail
 effect', which learns us that any complex technology which doesn't come with
-documentation must be far superior.
+documentation must be the best available.
 
 <sect2>Flow within classful qdiscs &amp; classes
 <p>
 When traffic enters a classful qdisc, it needs to be sent to any of the
-qdiscs within, the classes. To determine what to do with a packet, the so
+qdiscs within - the classes. To determine what to do with a packet, the so
 called 'filters' are consulted. It is important to know that the filters are
 called from within a qdisc, and not the other way around!
 
@@ -1216,12 +1217,62 @@ interface (for example, ethernet) to a slower device (a cable modem).
 
 If you were only to run SFQ, nothing would happen, as packets enter &amp;
 leave your router without delay: the output interface is far faster than
-your actual link speed.
+your actual link speed. There is no queue to process then.
 
+<sect2>The qdisc family: roots, handles, siblings and parents
+<p>
+Each interface has a 'root qdisc', by default the earlier mentioned
+classless pfifo_fast queueing discipline. Each qdisc can be assigned a
+handle, which can be used by later configuration statements to refer to that
+qdisc.
+
+These handles consist of two parts, a major number and a minor number. It is
+habitual to name the root qdisc '1:', which is equal to '1:0'. 
+
+Because classful qdiscs can have a lot of children, you should give them
+their own namespace by giving them a separate major number.
+
+Recapping, a typical hierarchy might look like this:
+<verb>
+                    root 1:
+                      |
+                    _1:1_
+                   /  |  \
+                  /   |   \
+                 /    |    \
+               10:   11:   12:
+              /   \       /   \
+           10:1  10:2   12:1  12:2
+</verb>
+
+But don't let this tree fool you! You should *not* imagine the kernel to be
+at the apex of the tree and the network below, that is just not the case.
+Packets get enqueued and dequeued at the root qdisc, which is the only thing
+the kernel talks to.
+
+A packet might get enqueued in a chain like this:
+
+	1: -> 1:1 -> 12: -> 12:2
+
+The packet now resides in a queue in qdisc 12:2.
+
+When the kernel decides that it needs to extract packets to send to the
+interface, the root qdisc 1: gets a dequeue request, which is passed to
+1:1, which is in turn passed to 10:, 11: and 12:, which each query their
+siblings, and try to dequeue() from them. In this case, the kernel needs to
+walk the entire tree, because only 12:2 contains a packet. 
+
+In short, nested qdiscs ONLY talk to their parent qdiscs, never to an
+interface. Only the root qdisc gets dequeued by the kernel! 
+
+The upshot of this is that sub-qdiscs never get dequeued faster than their
+parents allow. And this is exactly what we want: this way we can have SFQ as
+an inner class, which doesn't do any shaping, only reordering, and have a
+shaping outer class, which does the shaping.
 <sect2>The PRIO qdisc
 <p>
 The PRIO qdisc doesn't actually shape, it only subdivides traffic based on
-how you configured your filters. You can consider the PRIO qdisc as a kind
+how you configured your filters. You can consider the PRIO qdisc a kind
 of pfifo_fast on stereoids, whereby each band is a separate qdisc instead of
 a simple FIFO.
 
@@ -1240,15 +1291,15 @@ The last holds for almost all cablemodems and DSL devices.
 <sect2>The famous CBQ qdisc
 <p>
 As said before, CBQ is the most complex qdisc available, the most hyped, the
-least understood and possibly the worst queueing discipline in the entire
-Linux kernel. This is not because the authors are evil or incompetent, far
-from it, it's just that the CBQ algorithm isn't all that good and doesn't
-really match the way Linux works.
+least understood and possibly the worst queueing discipline for you in the
+entire Linux kernel. This is not because the authors are evil or
+incompetent, far from it, it's just that the CBQ algorithm isn't all that
+precise and doesn't really match the way Linux works.
 
 Besides being classful, CBQ is also a shaper and it is in that aspect that
-it really doesn't work very well. It works like this. If you try to shape a
-10mbit/s connection to 1mbit/s, the link should be idle 90% of the time. If
-it isn't, we need to throttle so that it IS idle 90% of the time.
+it really doesn't work very well. It should work like this. If you try to
+shape a 10mbit/s connection to 1mbit/s, the link should be idle 90% of the
+time. If it isn't, we need to throttle so that it IS idle 90% of the time.
 
 This is pretty hard to measure, so CBQ also needs to know how big an average
 packet is going to be, and instead derives the idle time from the number of
@@ -1258,7 +1309,7 @@ is.
 
 This is rather circumspect and doesn't always arrive at proper results. For
 example, what is the actual link speed of an interface that is not really
-able of transmitting the full 100mbit/s of data, perhaps because of a badly
+able to transmit the full 100mbit/s of data, perhaps because of a badly
 implemented driver? A PCMCIA network card will also never achieve 100mbit/s
 because of the way the bus is designed - again, how do we calculate the idle
 time?
@@ -1276,11 +1327,87 @@ configure that people use scripts to generate the needed commands.
 
 In short - I would advise AGAINST using CBQ if you want to have accurate
 results and want to understand what you are doing.
-<sect3>CBQ parameters that have to do with shaping &amp; priorities
+<sect3>CBQ shaping in detail
 <p>
 Because lots of people are using CBQ anyhow, possibly because they don't
-have anything else available, we will describe it anyhow.
+have anything else available, we will describe it here.
 
+As said before, CBQ works by making sure that the link is idle just long
+enough to bring down the real bandwidth to the configured rate. To do so, it
+calculates the time that should pass between average packets. 
+
+During operations, the effective idletime is measured using an exponential
+weighted moving average (EWMA), which considers recent packets to be
+exponentially more important than past ones. The unix loadaverage is
+calculated in the same way.
+
+The calculated idle time is substracted from the EWMA measured one, the
+resulting number is called 'avgidle'. A perfectly loaded link has an avgidle
+of zero: packets arrive exactly once every calculated interval.  
+
+An overloaded link has a negative avgidle and if it gets too negative, CBQ
+shuts down for a while and is then 'overlimit'.
+
+Conversely, an idle link might amass a huge avgidle, which would then allow
+infinite bandwidths after a few hours of silence. To prevent this, avgidle is
+capped at maxidle.
+
+If overlimit, in theory, the CBQ could throttle itself for exactly the
+amount of time that was calculated to pass between packets, and then pass
+one packet, and throttle again. But see the 'minburst' parameter below.
+
+These are parameters you can specify in order to configure shaping:
+
+<descrip>
+<tag>avpkt</tag>
+Average size of a packet, measured in bytes. Needed for idle time
+approximation.
+<tag>bandwidth</tag>
+The physical bandwidth of your device, also needed for idle time
+calculations.
+<tag>cell</tag>
+The time a packet takes to be transmitted over an ethernet device grows in
+steps, based on the packet size. An 800 and a 806 size packet may take just
+as long to send, for example - this sets the granularity. Most often set 
+to '8'. Must be an integral power of two.
+<tag>maxburst</tag>
+This number of packets is used to calculate maxidle so that when avgidle is
+at maxidle, this number of average packets can be burst before avgidle drops
+to 0. Set it higher to be more tolerant of bursts. You can't set maxidle
+directly, only via this parameter.
+<tag>minburst</tag>
+As mentioned before, CBQ needs to throttle in case of overlimit. The ideal
+solution is to do so for exactly the calculated idle time, and pass 1
+packet. However, Unix kernels generally have a hard time scheduling events
+shorter than 10ms, so it is better to throttle for a longer period, and then
+pass minburst packets in one go, and then sleep minburst times longer.
+
+The time to wait is called the offtime. Higher values of minburst lead to
+more accurate shaping in the long term, but to bigger bursts at millisecond
+timescales.
+<tag>minidle</tag>
+If avgidle is below 0, we are overlimits and need to wait until avgidle will
+be big enough to send one packet. To prevent a sudden burst from shutting
+down the link for a prolonged period of time, avgidle is reset to minidle if
+it gets too low.
+
+Minidle is specified in negative microseconds, so 10 means that avgidle is
+capped at -10us.
+<tag>mpu</tag>
+Mininum packet size - needed because even a zero size packet is padded
+to 64 bytes on ethernet, and so takes a certain time to transmit. CBQ needs
+to know this to accurately measure the idle time.
+<tag>rate</tag>
+Desired rate of traffic leaving this qdisc - this is the 'speed knob'!
+</descrip>
+
+Internally, CBQ has a lot of finetuning. For example, classes which are
+known not to have data enqueued to them aren't queried. Overlimit classes
+are penalized by lowering their effective priority. All very smart &amp;
+complicated.
+
+<sect3>CBQ classful behaviour
+<p>
 Besides shaping, using the aforementioned idletime approximations, CBQ also
 acts like the PRIO queue in the sense that classes can have differing
 priorities and that lower priority numbers will be polled before the higher
@@ -1294,32 +1421,6 @@ These are then grouped and queried if they have data available. If so, it is
 returned. After a class has been allowed to dequeue a number of bytes, the
 next class within that priority is tried.
 
-Several parameters influence this Weighted Round Robin process.
-
-First the parameters that have to do with shaping:
-
-<descrip>
-<tag>avpkt</tag>
-Average size of a packet, measured in bytes. Needed for idle time
-approximation.
-<tag>bandwidth</tag>
-The physical bandwidth of your device, also needed for idle time
-calculations.
-<tag>cell</tag>
-The time a packet takes to be transmitted over an ethernet device grows in
-steps, based on the packet size. An 800 and a 806 size packet may take just
-as long to send, for example - this sets the granularity. Most often set to
-'8'.
-<tag>maxburst</tag>
-unknown
-<tag>mpu</tag>
-Mininum packet size - needed because even a zero size packet is padded
-to 64 bytes on ethernet, and so takes a certain time to transmit. CBQ needs
-to know this to accurately try to measure the idle time.
-<tag>rate</tag>
-Desired rate of traffic leaving this qdisc - this is the 'speed knob'
-</descrip>
-
 The following parameters control the WRR process:
 <descrip>
 <tag>allot</tag>
@@ -1328,6 +1429,7 @@ will try all inner qdiscs (classes) in turn, in order of the 'priority'
 parameter. Each time a class gets its turn, it can only send out a limited
 amount of data. 'Allot' is the base unit of this amount. See the 'weight'
 parameter for more information.
+
 
 <tag>prio</tag>
 The CBQ can also act like the PRIO device. Inner classes with lower priority
@@ -1347,24 +1449,25 @@ renormalized weight is multiplied by the 'allot' parameter to determine how
 much data can be sent in one round.
 </descrip>
 
-Internally, CBQ has a lot of finetuning. For example, classes which are
-known not to have data enqueued to them aren't queried. Overlimit classes
-are penalized by lowering their effective priority. All very smart &amp;
-complicated.
-
 <sect3>CBQ parameters that determine link sharing &amp; borrowing
 <p>
 Besides purely limiting certain kinds of traffic, it is also possible to
 specify which classes can borrow capacity from other classes or, conversely,
 lend out bandwidth.
 
+<descrip>
+<tag>Isolated/sharing</tag>
 A class that is configured with 'isolated' will not lend out bandwidth to
 sibling classes. Use this if you have competing or mutually-unfriendly
 agencies on your link who do want to give eachother freebies.
 
+The control program tc also knows about 'sharing', which is the reverse 
+of 'isolated'.
+<tag>bounded/borrow</tag>
 A class can also be 'bounded', which means that it will not try to borrow
-bandwidth from sibling classes. 
-
+bandwidth from sibling classes. tc also knows about 'borrow', which is the
+reverse of 'bounded'.
+</descrip>
 A typical situation might be where you have two agencies on your link which
 are both 'isolated' and 'bounded', which means that they are really limited
 to their assigened rate, and also won't allow each other to borrow.
@@ -1372,199 +1475,316 @@ to their assigened rate, and also won't allow each other to borrow.
 Within such an agency class, there might be other classes which are allowed
 to swap bandwidth.
 
-<sect1>First attempt at bandwidth division
+<sect3>Other CBQ parameters 
 <p>
-CBQ enables us to generate several classes, and even classes within classes.
-The larger divisions might be called 'agencies'. Within these classes may be
-things like 'bulk' or 'interactive'.
+As said before, a classful qdisc needs to call the filter chain to determine
+which class a packet will be enqueued to. 
 
-For example, we may have a 10 megabit connection to 'the internet'
-which is to be shared by our customers, and our corporate needs. We should
-not allow a few people at the office to steal away large amounts of
-bandwidth which we should sell to our customers.
+Besides calling the filter, CBQ offers other options, defmap &amp; split.
+This is pretty complicated to understand, and it is not vital. But as this
+is the only known place where defmap &amp; split are properly explained, I'm
+doing my best. 
 
-On the other hand, our customers should not be able to drown out the traffic
-from our field offices to the customer database.
+As you will often want to filter on the Type of Service field only, a special
+syntax is provided. Whenever the CBQ needs to figure out where a packet
+needs to be enqueued, it checks if this node is a 'split node'. If so, one
+of the sub-qdiscs has indicated that it wishes to receive all packets with
+a certain configured priority, as might be derived from the TOS field, or
+socket options set by applications.
 
-Previously, one way to solve this was to use either Frame Relay or ATM and
-create virtual circuits. This works, but Frame is not very fine grained, ATM
-is terribly inefficient at carrying IP traffic, and neither have standardised
-ways to segregate different types of traffic into different VCs. 
+The packets' priority bits are or-ed with the defmap field to see if a match
+exists. In other words, this is a short-hand way of creating a very fast
+filter, which only matches certain priorities. A defmap of ff (hex) will
+match everything, a map of 0 nothing. A sample configuration may help make
+things clearer:
 
-However, if you do use ATM, Linux can also happily perform deft acts of fancy
-traffic classification for you too. Another way is to order separate
-connections, but this is not very practical and also not very elegant, and
-still does not solve all your problems.
+<verb>
+# tc qdisc add dev eth1 root handle 1: cbq bandwidth 10Mbit allot 1514 \
+  cell 8 avpkt 1000 mpu 64
+ 
+# tc class add dev eth1 parent 1:0 classid 1:1 cbq bandwidth 10Mbit    \
+  rate 10Mbit allot 1514 cell 8 weight 1Mbit prio 8 maxburst 20        \
+  avpkt 1000
+</verb>
+Standard CBQ preamble. I never get used to the sheer amount of numbers
+required!
 
-CBQ to the rescue!
+Defmap refers to TC_PRIO bits, which are defined as follows:
 
-Clearly we have two main classes, 'ISP' and 'Office'. Initially, we really
-don't care what the divisions do with their bandwidth, so we don't further
-subdivide their classes.
+<verb>
+TC_PRIO_BESTEFFORT              0
+TC_PRIO_FILLER                  1
+TC_PRIO_BULK                    2
+TC_PRIO_INTERACTIVE_BULK        4
+TC_PRIO_INTERACTIVE             6
+TC_PRIO_CONTROL                 7
+</verb>
 
-We decide that the customers should always be guaranteed 8 megabits of
-downstream traffic, and our office 2 megabits. 
+This corresponds to bits, counted from the right. Now the interactive, and
+the bulk classes:
 
-Setting up traffic control is done with the iproute2 tool <tt>tc</tt>.
-<tscreen><verb>
-# tc qdisc add dev eth0 root handle 10: cbq bandwidth 10Mbit avpkt 1000
-</verb></tscreen>
-<p>Ok, lots of numbers here. What has happened? We have configured
-the 'queueing discipline' of eth0. With 'root' we denote that this is the root
-discipline. We have given it the handle '10:'. We want to do CBQ, so we
-mention that on the command line as well. We tell the kernel that it can
-allocate 10Mbit and that the average packet size is somewhere around 1000
-octets.
+<verb>
+# tc class add dev eth1 parent 1:1 classid 1:2 cbq bandwidth 10Mbit     \
+  rate 1Mbit allot 1514 cell 8 weight 100Kbit prio 3 maxburst 20        \
+  avpkt 1000 split 1:0 defmap c0
 
-Now we need to generate our root class, from which all others descend:
-<tscreen><verb>
-# tc class add dev eth0 parent 10:0 classid 10:1 cbq bandwidth 10Mbit rate \
-  10Mbit allot 1514 weight 1Mbit prio 8 maxburst 20 avpkt 1000
-</verb></tscreen>
+# tc class add dev eth1 parent 1:1 classid 1:3 cbq bandwidth 10Mbit     \
+  rate 8Mbit allot 1514 cell 8 weight 800Kbit prio 7 maxburst 20        \
+  avpkt 1000 split 1:0 defmap 3f
+</verb>
+
+The 'split qdisc' is 1:0, which is where the choice will be made. C0 is
+binary for 11000000, 3F for 00111111, so these two together will match
+everything. The first class matches bits 7 & 6, and thus corresponds 
+to 'interactive' and 'control' traffic. The second class matches the rest.
+
+Node 1:0 now has a table like this:
+<verb>
+priority	send to
+0		1:3
+1		1:3
+2		1:3
+3		1:3
+4		1:3
+5		1:3
+6		1:2
+7		1:2
+</verb>
+
+
+For additional fun, you can also pass a 'change mask', which indicates
+exactly which priorities you wish to change. You only need to use this if you
+are running 'tc class change'. For example, to add best effort traffic to
+1:2, we could run this:
+
+<verb>
+# tc class change dev eth1 classid 1:2 cbq defmap 01/01
+</verb>
+
+The priority map over at 1:0 now looks like this:
+
+<verb>
+priority	send to
+0		1:2
+1		1:3
+2		1:3
+3		1:3
+4		1:3
+5		1:3
+6		1:2
+7		1:2
+</verb>
+
+FIXME: did not test this, only looked at the source.
+<sect2>Hierarchical Token Bucket 
 <p>
-Even more numbers to worry about - the Linux CBQ implementation is very
-generic. With 'parent 10:0' we indicate that this class descends from the
-root of qdisc handle '10:' we generated earlier. With 'classid 10:1' we
-name this class.
+Martin Devera (&lt;devik&gt;) rightly realised that CBQ is complex and does
+not seem optimized for many typical situations. His Hierarchial approach is
+well suited for setups where you have a fixed amount of bandwidth which you
+want to divide for different purposes, giving each purpose a guaranteed
+bandwidth, with the possibility of specifying how much bandwidth can be
+borrowed.
 
-We really don't tell the kernel a lot more, we just generate a
-class that completely fills the available device. We also specify that the
-MTU (plus some overhead) is 1514 octets. We also 'weigh' this class with
-1Mbit - a tuning parameter.
+HTB works just like CBQ but does not resort to idle time calculations to
+shape. Instead, it is a classful Token Bucket Filter - hence the name. It
+has only a few parameters, which are well documented on his 
+<url url="http://luxik.cdi.cz/~devik/qos/htb/"
+ name="site">.
 
-We now generate our ISP class:
-<tscreen><verb>
-# tc class add dev eth0 parent 10:1 classid 10:100 cbq bandwidth 10Mbit rate \
-  8Mbit allot 1514 weight 800Kbit prio 5 maxburst 20 avpkt 1000 \
-  bounded
-</verb></tscreen>
+As your HTB configuration gets more complex, your configuration scales
+well. With CBQ it is already complex even in simple cases! HTB is not yet a
+part of the standard kernel, but it should soon be!
+<sect1>Classifying packets with filters
 <p>
-We allocate 8Mbit, and indicate that this class must not exceed this by
-adding the 'bounded' parameter. Otherwise this class would have started
-borrowing bandwidth from other classes, something we will discuss later on.
+To determine which class shall process a packet, the so-called 'classifier
+chain' is called. A filter is attached to a queueing discipline, the chain
+starts at the top with the outer-most qdisc, and continues until a
+classifier matched and returned an answer.
 
-To top it off, we generate the root Office class:
-<tscreen><verb>
-# tc class add dev eth0 parent 10:1 classid 10:200 cbq bandwidth 10Mbit rate \
-  2Mbit allot 1514 weight 200Kbit prio 5 maxburst 20 avpkt 1000 \
-  bounded
-</verb></tscreen>
+To reiterate the tree, which is not a tree:
+<verb>
+                    root 1:
+                      |
+                    _1:1_
+                   /  |  \
+                  /   |   \
+                 /    |    \
+               10:   11:   12:
+              /   \       /   \
+           10:1  10:2   12:1  12:2
+</verb>
 
-To make this a bit clearer, a diagram which shows our classes:
+When enqueueing a packet, at each branch the filter chain is consulted for a
+relevant instruction. A typical setup might be to have a filter in 1:1 that
+directs a packet to 12: and a filter on 12: that sends the packet to 12:2.
 
-<tscreen><verb>
-+-------------[10: 10Mbit]-------------------------+
-|+-------------[10:1 root 10Mbit]-----------------+|
-||                                                ||
-|| +-----[10:100 8Mbit]---------+ [10:200 2Mbit]  ||
-|| |                            | |            |  ||
-|| |          ISP               | |   Office   |  ||
-|| |                            | |            |  ||
-|| +----------------------------+ +------------+  ||
-||                                                ||
-|+------------------------------------------------+|
-+--------------------------------------------------+
-</verb></tscreen>
+You might also attach this latter rule to 1:1, but you can make efficiency
+gains by having more specific tests lower in the chain.
 
-Ok, now we have told the kernel what our classes are, but not yet how to
-manage the queues. We do this presently, in one fell swoop for both classes.
+You can't filter a packet 'upwards', by the way. 
 
-<tscreen><verb>
-# tc qdisc add dev eth0 parent 10:100 sfq quantum 1514b perturb 15
-# tc qdisc add dev eth0 parent 10:200 sfq quantum 1514b perturb 15
-</verb></tscreen>
+And again - packets are only enqueued downwards! When they are dequeued,
+they go up again, where the interface lives. They do NOT fall off the end of
+the tree to the network adaptor!
 
-In this case we install the Stochastic Fairness Queueing discipline (sfq),
-which is not quite fair, but works well up to high bandwidths without
-burning up CPU cycles. There are other queueing disciplines available which
-are better, but need more CPU. The Token Bucket Filter is often used.
-
-Now there is only one thing left to do and that is to explain to the kernel
-which packets belong to which class. Initially we will do this natively with
-iproute2, but more interesting applications are possible in combination with
-netfilter.
-
-<tscreen><verb>
-# tc filter add dev eth0 parent 10:0 protocol ip prio 25 u32 match ip dst \
-  150.151.23.24 flowid 10:200
-
-# tc filter add dev eth0 parent 10:0 protocol ip prio 100 u32 match ip dst \
-  150.151.0.0/16 flowid 10:100
-</verb></tscreen>
-
-Here it is assumed that our office hides behind a firewall with IP address
-150.151.23.24 and that all of our other IP addresses should be considered
-to be part of the ISP.
-
-The u32 match is a very simple one - more sophisticated matching rules are
-possible when using netfilter to mark our packets, which we can then match on
-in tc.
-
-Now that we have divided the downstream bandwidth fairly, we need to do
-the same for the upstream. For brevity's sake, all in one go:
-
-<tscreen><verb>
-# tc qdisc add dev eth1 root handle 20: cbq bandwidth 10Mbit avpkt 1000
-
-# tc class add dev eth1 parent 20:0 classid 20:1 cbq bandwidth 10Mbit rate \
-  10Mbit allot 1514 weight 1Mbit prio 8 maxburst 20 avpkt 1000
-
-# tc class add dev eth1 parent 20:1 classid 20:100 cbq bandwidth 10Mbit rate \
-  8Mbit allot 1514 weight 800Kbit prio 5 maxburst 20 avpkt 1000 \
-  bounded
-
-# tc class add dev eth1 parent 20:1 classid 20:200 cbq bandwidth 10Mbit rate \
-  2Mbit allot 1514 weight 200Kbit prio 5 maxburst 20 avpkt 1000 \
-  bounded
-
-# tc qdisc add dev eth1 parent 20:100 sfq quantum 1514b perturb 15
-# tc qdisc add dev eth1 parent 20:200 sfq quantum 1514b perturb 15
-
-# tc filter add dev eth1 parent 20:0 protocol ip prio 25 u32 match ip src \
-  150.151.23.24 flowid 20:200
-
-# tc filter add dev eth1 parent 20:0 protocol ip prio 100 u32 match ip src \
-  150.151.0.0/16 flowid 20:100
-</verb></tscreen>
-<sect1>What to do with excess bandwidth
+<sect2>Some simple filtering examples
 <p>
-In our hypothetical case, we will find that even when the ISP customers
-are mostly offline (say, at 8AM), our office still gets only 2Mbit, which is
-rather wasteful.
+As explained in the Classifier chapter, you can match on literally anything,
+using a very complicated syntax. To start, we will show how to do the
+obvious things, which luckily are quite easy.
 
-By removing the 'bounded' statements, classes will be able to borrow
-bandwidth from each other.
+Let's say we have a PRIO qdisc called '10:' which contains three classes, and
+we want to assign all traffic from and to port 22 to the highest priority
+band, the filters would be:
 
-Some classes may not wish to borrow their bandwidth to other classes. Two
-rival ISPs on a single link may not want to offer each other freebees. In
-such a case, you can add the keyword 'isolated' at the end of your 'tc class
-add' lines.
-
-<sect1>Class subdivisions
-<p>
-FIXME: completely untested suppositions! Try this!
-
-We can go further than this. Should the employees at the office decide to all
-fire up their 'napster' clients, it is still possible that our database runs
-out of bandwidth. Therefore, we create two subclasses, 'Human' and 'Database'.
-
-Our database always needs 500Kbit, so we have 1.5Mbit left for Human
-consumption.
-
-We now need to create two new classes, within our Office class:
 <tscreen><verb>
-# tc class add dev eth0 parent 10:200 classid 10:250 cbq bandwidth 10Mbit rate \
-  500Kbit allot 1514 weight 50Kbit prio 5 maxburst 20 avpkt 1000 \
-  bounded
-
-# tc class add dev eth0 parent 10:200 classid 10:251 cbq bandwidth 10Mbit rate \
-  1500Kbit allot 1514 weight 150Kbit prio 5 maxburst 20 avpkt 1000 \
-  bounded
+# tc filter add dev eth0 protocol ip parent 10: prio 1 u32 match \ 
+  ip dport 22 0xffff flowid 10:1
+# tc filter add dev eth0 protocol ip parent 10: prio 1 u32 match \
+  ip sport 80 0xffff flowid 10:1
+# tc filter add dev eth0 protocol ip parent 10: prio 2 flowid 10:2
 </verb></tscreen>
 
-FIXME: Finish this example!
+What does this say? It says: attach to eth0, node 10: a  priority 1 u32
+filter that matches on IP destination port 22 *exactly* and send it to band
+10:1. And it then repeats the same for source port 80. The last command says
+that anything unmatched so far should go to band 10:2, the next-highest
+priority.
 
-<sect1>Loadsharing over multiple interfaces
+You need to add 'eth0', or whatever your interface is called, because each
+interface has a unique namespace of handles.
+
+To select on an IP address, use this:
+<tscreen><verb>
+# tc filter add dev eth0 parent 10:0 protocol ip prio 1 u32 \ 
+  match ip dst 4.3.2.1/32 flowid 10:1
+# tc filter add dev eth0 parent 10:0 protocol ip prio 1 u32 \
+  match ip src 1.2.3.4/32 flowid 10:1
+# tc filter add dev eth0 protocol ip parent 10: prio 2      \
+  flowid 10:2
+</verb></tscreen>
+
+This assigns traffic to 4.3.2.1 and traffic from 1.2.3.4 to the highest
+priority queue, and the rest to the next-highest one.
+
+To can concatenate matches, to match on traffic from 1.2.3.4 and from port
+80, do this:
+<tscreen><verb>
+# tc filter add dev eth0 parent 10:0 protocol ip prio 1 u32 match ip src 4.3.2.1/32
+  match ip sport 80 flowid 10:1
+</verb></tscreen>
+
+For far more information, see the 'Using filters to classify packets to
+qdiscs' chapter.
+<sect1>Commandlines to configure qdiscs, classes and filters
+<p>
+By now the concepts should be pretty clear. If not, reread the previous
+sections until you are at least nearly there. Perhaps the following
+commandlines will complete your understanding then.
+
+<sect2>CBQ
+<p>
+This configuration limits webserver traffic to 5mbit and smtp traffic to 3
+mbit, and limits the sum to 5mbit:
+<verb>
+# tc qdisc add dev eth0 root handle 1:0 cbq bandwidth 100Mbit         \ 
+  avpkt 1000 cell 8
+# tc class add dev eth0 parent 1:0 classid 1:1 cbq bandwidth 100Mbit  \
+  rate 5Mbit weight 0.5Mbit prio 8 allot 1514 cell 8 maxburst 20      \
+  avpkt 1000
+</verb>
+This part installs the root and the customary 1:0 sub-root. While it is
+possible to remove the first line, and attach the second line directly to
+the root, there are some subtleties involved which are avoided if adding
+this extra layer.
+
+As said before, CBQ requires a *lot* of knobs. All parameters are explained
+above, however. The corresponding HTB configuration is lots simpler.
+
+<verb>
+# tc class add dev eth0 parent 1:1 classid 10: cbq bandwidth 100Mbit  \
+  rate 5Mbit weight 0.5Mbit prio 5 allot 1514 cell 8 maxburst 20      \
+  avpkt 1000 bounded                                                    
+# tc class add dev eth0 parent 1:1 classid 20: cbq bandwidth 100Mbit  \
+  rate 3Mbit weight 0.3Mbit prio 5 allot 1514 cell 8 maxburst 20      \
+  avpkt 1000 bounded
+</verb>
+
+These are our two classes. Note how we scale the weight with the configured
+rate. Also note that both classes are bounded and won't therefore try to
+borrow traffic.
+
+<verb>
+# tc qdisc add dev eth0 parent 10: tbf rate 5Mbit buffer 10Kb/8 limit \
+  15Kb mtu 1500
+# tc qdisc add dev eth0 parent 20: tbf rate 3Mbit buffer 10Kb/8 limit \
+  15Kb mtu 1500
+</verb>
+
+Here we install token bucket filters in the two configured subclasses. The
+/8 corresponds to the cell size we mentioned earlier for CBQ. We create a
+bucket of 10kbytes of tokens, a maximum 'pre-bucket' backlog of 15kbyte.
+
+<verb>
+# tc filter add dev eth0 parent 1:0 protocol ip prio 1 u32 match ip \
+  sport 80 0xffff flowid 10:0
+# tc filter add dev eth0 parent 1:0 protocol ip prio 1 u32 match ip \
+  sport 25 0xffff flowid 20:0
+</verb>
+
+These commands, attached directly to the root, send traffic to the right
+qdiscs.
+
+Note that we use 'tc class add' to CREATE classes within a qdisc, but that
+we use 'tc qdisc add' to actually configure these classes.
+
+You may wonder what happens to traffic that is not classified by any of the
+two rules. It appears that in this case, data will then be processed within
+1:0, and be unlimited. This can be configured in a variety of ways, which I
+do not understand. Use HTB :-)
+
+If smtp+web together try to exceed the set limit of 5mbit/s, bandwidth will
+be divided according to the weight parameter, giving 5/8 of traffic to  the
+webserver and 3/8 to the mailserver.
+<sect2>HTB
+<p>
+The functionally almost identical, but *better*, HTB configuraton is:
+
+<tscreen><verb>
+# tc qdisc add dev eth0 root handle 1: htb default 30:
+
+# tc class add dev eth0 parent 1: classid 1:1 htb rate 5mbit burst 15k
+
+# tc class add dev eth0 parent 1:1 classid 10: htb rate 5mbit burst 15k
+# tc class add dev eth0 parent 1:1 classid 20: htb rate 3mbit ceil 5mbit burst 15k
+# tc class add dev eth0 parent 1:1 classid 30: htb rate 1kbit ceil 5mbit burst 15k
+</verb></tscreen>
+
+The author then recommends SFQ for beneath these classes:
+<tscreen><verb>
+# tc qdisc add dev eth0 parent 10: sfq perturb 10
+# tc qdisc add dev eth0 parent 20: sfq perturb 10
+# tc qdisc add dev eth0 parent 30: sfq perturb 10
+</verb></tscreen> 
+
+Add the filters which direct traffic to the right classes:
+<tscreen><verb>
+# U32="tc filter add dev eth0 protocol ip parent 1:0 prio 1 u32"
+# $U32 match ip dport 80 0xffff flowid 10:0
+# $U32 match ip sport 25 0xffff flowid 20:0
+</verb></tscreen>
+And that's it - no unsightly unexplained numbers, no undocumented
+parameters. 
+
+HTB certainly looks wonderful - if 10: and 20: both have their guaranteed
+bandwidth, and more is left to divide, they borrow in a 5:3 ratio, just as
+you would expect.
+
+Unclassified traffic gets routed to 30:, which has little bandwidth of its
+own but can borrow everything that is left over. Because we chose SFQ
+internally, we get fairness thrown in for free!
+
+<sect>Loadsharing over multiple interfaces
 <p>
 There are several ways of doing this. One of the easiest and straightforward
 ways is 'TEQL' - "True" (or "trivial") link equalizer. Like most things
@@ -1632,7 +1852,7 @@ If this works, Router A should make 10.0.0.5 its route for reaching network
 the special case where network 1 is your network at home, and network 2 is
 the internet, Router A should make 10.0.0.5 its default gateway.
 
-<sect2>Caveats
+<sect1>Caveats
 <p>
 Nothing is as easy as it seems. eth1 and eth2 on both router A and B need to
 have return path filtering turned off, because they will otherwise drop
@@ -1655,55 +1875,8 @@ shaken by some simple reordering.
 
 However, for lots of applications, link loadbalancing is a great idea.
 
-
-
-<sect1>Hierarchical Token Bucket (HTB) queueing CBQ alternative
-<p>
-As explained on the <url url="http://luxik.cdi.cz/~devik/qos/htb/"
- name="(site)">
-
-Martin Devera (&lt;devik&gt;) rightly realised that CBQ is complex and does
-not seem optimized for many typical situations. His Hierarchical approach is
-well suited for setups where you have a fixed amount of bandwidth, which you
-want to divide for different purposes, giving each purpose a guaranteed
-bandwidth, and possibly a bandwidth ceiling.
-
-A simple setup with three classes, one of which is the default class that
-gets all unfiltered traffic looks like this:
-<tscreen><verb>
-# tc qdisc add dev eth0 root handle 1: htb default 12
-
-# tc class add dev eth0 parent 1: classid 1:1 htb rate 100kbps ceil 100kbps burst 2k
-# tc class add dev eth0 parent 1:1 classid 1:10 htb rate 30kbps ceil 100kbps burst 2k
-# tc class add dev eth0 parent 1:1 classid 1:11 htb rate 10kbps ceil 100kbps burst 2k
-# tc class add dev eth0 parent 1:1 classid 1:12 htb rate 60kbps ceil 100kbps burst 2k
-</verb></tscreen>
-
-The author then recommends SFQ for beneath these classes:
-<tscreen><verb>
-# tc qdisc add dev eth0 parent 1:10 handle 20: sfq perturb 10
-# tc qdisc add dev eth0 parent 1:11 handle 30: sfq perturb 10
-# tc qdisc add dev eth0 parent 1:12 handle 40: sfq perturb 10
-</verb></tscreen> 
-
-Add the filters which direct traffic to the right classes:
-<tscreen><verb>
-# U32="tc filter add dev eth0 protocol ip parent 1:0 prio 1 u32"
-# $U32 match ip dport 80 0xffff flowid 1:10
-# $U32 match ip sport 25 0xffff flowid 1:11
-</verb></tscreen>
-Note that there is no filter for 1:12 - it is already the default.
-
-And that's it - no unsightly unexplained numbers, no undocumented
-parameters. 
-
-HTB certainly looks wonderful - if 1:10 and 1:11 both have their guaranteed
-bandwidth, and more is left to divide, they borrow in a 30:10 ratio, just as
-you would expect.
-
-As your HTB configuration gets more complex, your configuration scales
-well. With CBQ it is already complex even in simple cases! HTB is not yet a
-part of the standard kernel, but it should soon be!
+<sect>Special Queues
+<sect1>DSMARK
 <p>
 Esteve Camps Chust &lt;marvin@grn.es&gt;&nl;
 This text is an extract from my thesis on "QoS Support in Linux", September 2000.&nl;
@@ -1715,8 +1888,6 @@ Source documents:&nl;
 <item><url url="http://www.qosforum.com/white-papers/qosprot_v3.pdf" name="White Paper-QoS protocols and architectures"> and
 <url url="http://www.qosforum.com/docs/faq" name="IP QoS Frequently Asked Questions"> both by <em>Quality of Service Forum</em>.
 </itemize>
-<sect>Special Queues
-<sect1>DSMARK
 <p>
 This chapter was written by Esteve Camps &lt;esteve@hades.udg.es&gt;.
 <sect2>Introduction
@@ -2069,13 +2240,13 @@ IP: advanced router (CONFIG_IP_ADVANCED_ROUTER) [Y/n/?]
 
 See also <ref id="SQUID" name="Transparent web-caching using netfilter, iproute2, ipchains and squid">
 in the Cookbook.
-<sect>More classifiers
+<sect>Using filters to classify packets to qdiscs
 <p>
+As explained in the section on classful queueing disciplines, filters are
+needed to classify packets into any of the sub-queues. These filters are
+called from within the classful qdisc.
 
-Classifiers are the way by which the kernel decides which queue a packet
-should be placed into. There are various different classifiers, each of
-which can be used for different purposes.
-
+Here is an incomplete list of classifiers available:
 <descrip>
   <tag>fw</tag>
        Bases the decision on how the firewall has marked the packet.
@@ -2186,7 +2357,6 @@ to.
 The options decribed apply to all filters, not only U32.
 
 <sect2>U32 selector
-
 <p>
 The U32 selector contains definition of the pattern, that will be matched
 to the currently processed packet. Precisely, it defines which bits are
@@ -2302,6 +2472,7 @@ FIXME: it's also still in Polish :-(
 FIXME: must be sgml'ized
 
 Some examples:
+
 
 <tscreen><verb>
 # tc filter add dev ppp0 parent 1:0 prio 10 u32 \
@@ -3816,53 +3987,6 @@ This is a 'live' failover:
 Not *one* ping packet was lost! Just after packet 4, I disconnected my P200
 from the network, and my 486 took over, which you can see from the higher
 latency.
-
-<tag>HTB queueing CBQ alternative <url url="http://luxik.cdi.cz/~devik/qos/htb/"
- name="(site)"></tag>
-The main problem with HTB is that I don't know what the acronym stands for.
-Martin Devera (&lt;devik&gt;) rightly realised that CBQ is complex and does
-not seem optimized for many typical situations. His Hierarchial approach (I
-bet the 'H' stands for Hierarchy!) is well suited for setups where you have
-a fixed amount of bandwidth, which you want to divide for different
-purposes, giving each purpose a guaranteed bandwidth, and possibly a
-bandwidth ceiling.
-
-A simple setup with three classes, one of which is the default class that
-gets all unfiltered traffic looks like this:
-<tscreen><verb>
-# tc qdisc add dev eth0 root handle 1: htb default 12
-
-# tc class add dev eth0 parent 1: classid 1:1 htb rate 100kbps ceil 100kbps burst 2k
-# tc class add dev eth0 parent 1:1 classid 1:10 htb rate 30kbps ceil 100kbps burst 2k
-# tc class add dev eth0 parent 1:1 classid 1:11 htb rate 10kbps ceil 100kbps burst 2k
-# tc class add dev eth0 parent 1:1 classid 1:12 htb rate 60kbps ceil 100kbps burst 2k
-</verb></tscreen>
-
-The author then recommends SFQ for beneath these classes:
-<tscreen><verb>
-# tc qdisc add dev eth0 parent 1:10 handle 20: sfq perturb 10
-# tc qdisc add dev eth0 parent 1:11 handle 30: sfq perturb 10
-# tc qdisc add dev eth0 parent 1:12 handle 40: sfq perturb 10
-</verb></tscreen> 
-
-Add the filters which direct traffic to the right classes:
-<tscreen><verb>
-# U32="tc filter add dev eth0 protocol ip parent 1:0 prio 1 u32"
-# $U32 match ip dport 80 0xffff flowid 1:10
-# $U32 match ip sport 25 0xffff flowid 1:11
-</verb></tscreen>
-Note that there is no filter for 1:12 - it is already the default.
-
-And that's it - no unsightly unexplained numbers, no undocumented
-parameters. 
-
-HTB certainly looks wonderful - if 1:10 and 1:11 both have their guaranteed
-bandwidth, and more is left to divide, they borrow in a 30:10 ratio, just as
-you would expect.
-
-As your HTB configuration gets more complex, your configurations scales
-well. With CBQ it is already complex even in simple cases! HTB is not yet a
-part of the standard kernel, but it should soon be!
 </descrip>
 <sect>Further reading
 <p>
@@ -3936,6 +4060,7 @@ helping.
 <item>Nadeem Hasan &lt;nhasan@usa.net&gt;
 <item>Vik Heyndrickx &lt;vik.heyndrickx@edchq.com&gt;
 <item>Koos van den Hout &lt;koos@kzdoos.xs4all.nl&gt;
+<item>Martin Josefsson &lt;gandalf%wlug.westbo.se&gt;
 <item>Pawel Krawczyk &lt;kravietz%alfa.ceti.pl&gt;
 <item>Philippe Latu &lt;philippe.latu%linux-france.org&gt;
 <item>Jason Lunz &lt;j@cc.gatech.edu&gt;

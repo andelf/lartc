@@ -36,7 +36,7 @@ HOWTO.
 
 <h2>News</H2>
 <table border=1>
-<tr><td valign=top>2002-11-28</td><td>Lecture was given to a pretty full
+<tr><td valign=top>2001-11-28</td><td>Lecture was given to a pretty full
 room, read more about it <a
 href=http://ds9a.nl/cbq-presentation>here</a>.</td>
 <tr><td valign=top>2001-11-22</td><td>Mailinglist has been back for a while
