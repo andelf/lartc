@@ -4,12 +4,6 @@
 
 <table width=100%><tr><td>
 <H1>Linux Advanced Routing &amp; Traffic Control</H1>
-<?
-if(!ereg("^\/lartc\/",$SCRIPT_NAME))
-	print("<font color=#ff0000>You are not using the canonical URL: <a
-href=http://ds9a.nl/lartc>http://ds9a.nl/lartc</a> -
-not all links may work!</font>");
-?>
 </td><td valign=top align=right><a href=http://www.powerdns.com><img
 src=http://ds9a.nl/pub/pdns88x33c.gif></a><p></td>
 <tr><td><a href="http://ds9a.nl/">bert hubert</a> (<a
