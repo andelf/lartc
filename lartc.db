@@ -336,8 +336,11 @@ U 2.4routing/lartc.db
 </Screen>
 
 <Para>
-If you spot an error, or want to add something, just fix it locally, and run
-<userinput>cvs diff -u</userinput>, and send the result off to us.
+If you made changes and want to contribute them, run <userinput>
+cvs -z3 diff -uBb</userinput>,
+and mail the output to <email>howto@ds9a.nl</email>, we
+can then integrate it easily. Thanks! Please make sure that you edit the
+.db file, by the way, the other files are generated from that one. 
 </Para>
 
 <Para>
@@ -8715,7 +8718,7 @@ helping.
   <ListItem>
    <Para>
    <author><firstname>?ukasz</firstname><surname>Bromirski</surname></author>
-   <address><email>L.Bromirski@prosys.com.pl</email></address>
+   <address><email>l.bromirski@mr0vka.eu.org</email></address>
    </Para>
   </ListItem>
   <ListItem>

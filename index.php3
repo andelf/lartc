@@ -39,7 +39,7 @@ href=http://www.linux-france.org/prj/inetdoc/guides/Advanced-routing-Howto/>
 	[ Korean ]</a>
 <br>
 <a
-href=http://mr0vka.eu.org/tlumaczenia/2.4routing.html>
+href=http://mr0vka.eu.org/docs/tlumaczenia/2.4routing/index.html>
 	[ Polish ]
 </a>
 <p>
@@ -208,14 +208,14 @@ $ cvs login
 CVS password: [enter 'cvs' (without 's)]
 $ cvs co 2.4routing
 cvs server: Updating 2.4routing
-U 2.4routing/2.4routing.sgml
+U 2.4routing/lartc.db
 ...
 </pre>
 
 If you made changes and want to contribute them, run 'cvs -z3 diff -uBb',
 and mail the output to <a href=mailto:howto@ds9a.nl>howto@ds9a.nl</a>, we
 can then integrate it easily. Thanks! Please make sure that you edit the
-.sgml, by the way, the other files are generated from that one.
+.db file, by the way, the other files are generated from that one. 
 
 The idea is that this HOWTO will be a cooperative effort, much like the
 Linux kernel itself. 
