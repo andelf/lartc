@@ -1655,6 +1655,13 @@ web interface. Search for "ipv6 tunnel broker" on your favourite search engine.
 	up and running and explaining the basic principles.
       </para>
       <para>
+	<note>
+	  <para>
+	    Many iptables configurations drop IPSEC packets! To pass IPSEC, use: 'iptables -A xxx -p 50' and 'iptables -A xxx -p 51'
+	  </para>
+	</note>
+      </para>
+      <para>
 	IPSEC offers a secure version of the Internet Protocol. Security in this context means two different things: encryption and authentication. 
 	A naive vision of security offers only encryption but it can easily be shown that is insufficient - you may be communicating encyphered,
 	but no guarantee is offered that the remote party is the one you expect it to be.
@@ -1700,7 +1707,7 @@ spdadd 10.0.0.216 10.0.0.11 any -P out ipsec
 	</screen>
 	If entered on host 10.0.0.216, this means that all traffic going out to 10.0.0.11 must be encrypted 
 	and be wrapped in an AH authenticating header. Note that this does not descibe which SA is to be used,
-	that is left as an excercise for the kernel to determine.
+	that is left as an exercise for the kernel to determine.
       </para>
       <para>
 	Outgoing packets are however labelled with the SAs SPI ids the kernel used for encryption and authentication 
@@ -1843,7 +1850,54 @@ spdadd 10.0.0.216 10.0.0.11 any -P in ipsec
 	This is called 'tunnel mode'.
       </para>
       <para>
-	FIXME: write more
+	Setting this up is a breeze. To tunnel all traffic to 130.161.0.0/16 from 10.0.0.216 via 10.0.0.11, we issue the following on
+	10.0.0.216:
+<screen>
+#!/sbin/setkey -f
+flush;
+spdflush;
+
+add 10.0.0.216 10.0.0.11 esp 34501
+	-m tunnel
+	-E 3des-cbc "123456789012123456789012";
+
+spdadd 10.0.0.0/24 130.161.0.0/16 any -P out ipsec
+           esp/tunnel/10.0.0.216-10.0.0.11/require;
+</screen>
+	Note the '-m tunnel', it is vitally important! This first configures an ESP encryption SA between our tunnel endpoints,
+	10.0.0.216 and 10.0.0.11. 
+      </para>
+      <para>
+	Next the actual tunnel is configured. It instructs the kernel to encrypt all traffic it has to route from 10.0.0.0/24 to
+	130.161.0.0. Furthermore, this traffic then has to be shipped to 10.0.0.11.
+      </para>
+      <para>
+	10.0.0.11 also needs some configuration:
+<screen>
+#!/sbin/setkey -f
+flush;
+spdflush;
+
+add 10.0.0.216 10.0.0.11 esp 34501
+	-m tunnel
+	-E 3des-cbc "123456789012123456789012";
+
+spdadd 10.0.0.0/24 130.161.0.0/16 any -P in ipsec
+           esp/tunnel/10.0.0.216-10.0.0.11/require;
+</screen>
+	Note that this is exactly identical, except for the change from '-P out' to '-P in'. As with earlier examples,
+	we've now only configured traffic going one way. Completing the other half of the tunnel is left as an
+	exercise for the reader.
+      </para>
+      <para>
+	Another name for this setup is 'proxy ESP', which is somewhat clearer.
+      </para>
+      <para>
+	<note>
+	  <para>
+	    The IPSEC tunnel needs to have IP Forwarding enabled in the kernel!
+	  </para>
+	</note>
       </para>
     </sect1>
   </chapter>
