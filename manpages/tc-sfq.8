@@ -43,7 +43,7 @@ get hashed to the same bucket, the hashing algorithm is perturbed at configurabl
 intervals so that the unfairness lasts only for a short while. Perturbation may 
 however cause some inadvertent packet reordering to occur.
 
-When dequeueing, each hasbucket with data is queried in a round robin fashion.
+When dequeuing, each hashbucket with data is queried in a round robin fashion.
 
 The compile time maximum length of the SFQ is 128 packets, which can be spread over
 at most 128 buckets of 1024 available. In case of overflow, tail-drop is performed
@@ -71,7 +71,7 @@ if it owns the queue.
 This is the case when the link speed equals the actually available bandwidth. This holds 
 for regular phone modems, ISDN connections and direct non-switched ethernet links. 
 .P
-Most often, cablemodems and DSL devices do not fall into this category. The same holds 
+Most often, cable modems and DSL devices do not fall into this category. The same holds 
 for when connected to a switch  and trying to send data to a congested segment also 
 connected to the switch.
 .P

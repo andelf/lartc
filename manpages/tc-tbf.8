@@ -60,7 +60,7 @@ with a very small bucket, so that it doesn't burst.
 To achieve perfection, the second bucket may contain only a single packet, which leads to 
 the earlier mentioned 1mbit/s limit. 
 
-This limit is caused by the fact that the kernel can only throttle for at mininum 1 'jiffy', which depends
+This limit is caused by the fact that the kernel can only throttle for at minimum 1 'jiffy', which depends
 on HZ as 1/HZ. For perfect shaping, only a single packet can get sent per jiffy - for HZ=100, this means 100 
 packets of on average 1000 bytes each, which roughly corresponds to 1mbit/s.
 
@@ -98,7 +98,7 @@ A zero-sized packet does not use zero bandwidth. For ethernet, no packet uses le
 determines the minimal token usage (specified in bytes) for a packet. Defaults to zero.
 .TP
 rate
-The speedknob. See remarks above about limits! See 
+The speed knob. See remarks above about limits! See 
 .BR tc (8)
 for units.
 .PP
@@ -121,7 +121,7 @@ size.
 .SH EXAMPLE & USAGE
 
 To attach a TBF with a sustained maximum rate of 0.5mbit/s, a peakrate of 1.0mbit/s,
-a 5kilobyte buffer, with a pre-bucket queuesize limit calculted so the TBF causes
+a 5kilobyte buffer, with a pre-bucket queue size limit calculated so the TBF causes
 at most 70ms of latency, with perfect peakrate behaviour, issue:
 .P
 # tc qdisc add dev eth0 root tbf rate 0.5mbit \\

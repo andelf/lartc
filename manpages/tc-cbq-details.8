@@ -71,7 +71,7 @@ When shaping a 10mbit/s connection to 1mbit/s, the link will
 be idle 90% of the time. If it isn't, it needs to be throttled so that it
 IS idle 90% of the time.
 
-From the kernel's perspecive, this is hard to measure, so CBQ instead 
+From the kernel's perspective, this is hard to measure, so CBQ instead 
 derives the idle time from the number of microseconds (in fact, jiffies) 
 that elapse between  requests from the device driver for more data. Combined 
 with the  knowledge of packet sizes, this is used to approximate how full or 
@@ -91,10 +91,10 @@ to userspace - which not defined.
 
 During operations, the effective idletime is measured using an
 exponential weighted moving average (EWMA), which considers recent
-packets to be exponentially more important than past ones. The unix
+packets to be exponentially more important than past ones. The Unix
 loadaverage is calculated in the same way.
 
-The calculated idle time is substracted from the EWMA measured one,
+The calculated idle time is subtracted from the EWMA measured one,
 the resulting number is called 'avgidle'. A perfectly loaded link has
 an avgidle of zero: packets arrive exactly at the calculated
 interval.
@@ -210,14 +210,14 @@ Consult the map for a class for the
 priority. If found, choose it, and terminate.
 .TP
 (iii)
-Choose the class at which breakout to the fallback algorithm occured. Terminate.
+Choose the class at which break out to the fallback algorithm occured. Terminate.
 .P
 The packet is enqueued to the class which was chosen when either algorithm 
 terminated. It is therefore possible for a packet to be enqueued *not* at a
 leaf node, but in the middle of the hierarchy.
 
 .SH LINK SHARING ALGORITHM
-When dequeueing for sending to the network device, CBQ decides which of its 
+When dequeuing for sending to the network device, CBQ decides which of its 
 classes will be allowed to send. It does so with a Weighted Round Robin process
 in which each class with packets gets a chance to send in turn. The WRR process
 starts by asking the highest priority classes (lowest numerically - 
@@ -294,7 +294,7 @@ major number of the qdisc to which it belongs. Optional, but needed if this
 class is going to have children.
 .TP 
 weight weight
-When dequeueing to the interface, classes are tried for traffic in a 
+When dequeuing to the interface, classes are tried for traffic in a 
 round-robin fashion. Classes with a higher configured qdisc will generally
 have more traffic to offer during each round, so it makes sense to allow
 it to dequeue more traffic. All weights under a class are normalized, so
@@ -401,7 +401,7 @@ IEEE/ACM Transactions on Networking, Vol.3, No.4, 1995
 
 .TP 
 o
-Sally Floyd, "Notes on CBQ and Guaranted Service", 1995
+Sally Floyd, "Notes on CBQ and Guarantee Service", 1995
 
 .TP
 o
