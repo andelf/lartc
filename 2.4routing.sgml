@@ -3261,10 +3261,27 @@ FIXME: fill this in
 Besides the queues mentioned earlier, the kernel contains some other more
 specialized queues which are mentioned here, should you find that you have
 needs not addressed by the other queues.
+<sect1>bfifo/pfifo
+<p>
+These classless queues are even simpler than pfifo_fast in that they lack
+the internal bands - all traffic is really equal. They have one important
+benefit though, they have some statistics. So even if you don't need shaping
+or prioritizing, you can use this qdisc to determine the backlog on your
+interface.
+
+pfifo has a length measured in packets, bfifo in bytes. 
+<sect2>Parameters &amp; usage
+<p>
+<descrip>
+<tag>limit</tag>
+Specifies the length of the queue. Measured in bytes for bfifo, in packets
+for pfifo. Defaults to the interface txqueuelen (see pfifo_fast chapter)
+packets long or txqueuelen*mtu bytes for bfifo.
+</descrip>
 <sect1>Random Early Drop
-,p>
+<p>
 This section is meant as an introduction to backbone routing, which often
-involves >100 megabit bandwidths, which requires a different approach than
+involves &lt;100 megabit bandwidths, which requires a different approach than
 your ADSL modem at home.
 
 <sect2>Router queues
@@ -3331,8 +3348,6 @@ name="the paper on RED queueing"> by Sally Floyd and Van Jacobson for technical
 information.
 
 FIXME: more needed. This means *you* greg :-) - ahu
-
-
 <sect>Cookbook
 <p>
 This section contains 'cookbook' entries which may help you solve problems.
