@@ -2365,13 +2365,22 @@ spdadd 10.0.0.0/24 130.161.0.0/16 any -P in ipsec
     </sect1>
     <sect1 id="lartc.ipsec.other"><title>Other IPSEC software</title>
       <para>
-	Thomas Walpuski reports that there is a patch to make OpenBSD isakpmd work with Linus 2.5 IPSEC.
+	Thomas Walpuski reports that he wrote a patch to make OpenBSD isakpmd work with Linux 2.5 IPSEC.
 	It can be found <ulink url="http://bender.thinknerd.de/~thomas/IPsec/isakmpd-linux-2.5.diff">on his page</ulink>.
 	He notes that isakpmd on Linux depends only on <filename>libkeynote</filename>. According to Thomas, it works quite well
-	with Linus 2.5.59.
+	with Linux 2.5.59. 
       </para>
       <para>
-	isakpmd is quite different from racoon mentioned above but many people like it.
+
+	isakpmd is quite different from racoon mentioned above but many
+	people like it. It can be found <ulink
+url="http://www.openbsd.org/cgi-bin/cvsweb/src/sbin/isakmpd/">here</ulink>.
+Read more about OpenBSD CVS <ulink
+url="http://www.openbsd.org/anoncvs.html">here</ulink>. Thomas also made a
+<ulink
+url="http://bender.thinknerd.de/~thomas/IPsec/isakmpd.tgz">tarball</ulink>
+available for those uncomfortable with CVS or patch.
+
       </para>
     </sect1>
     <sect1 id="lartc.ipsec.interop"><title>IPSEC interoperation with other systems</title>
@@ -3176,7 +3185,7 @@ A kind word may also help with getting your bandwidth to be divided right!
 
 <Para>
 To properly understand more complicated configurations it is necessary to
-explain a few concepts first. Because of the complexity and he relative
+explain a few concepts first. Because of the complexity and the relative
 youth of the subject, a lot of different words are used when people in fact
 mean the same thing.
 </Para>
@@ -3196,11 +3205,18 @@ Read it for the strict definitions of the terms used.
 <VariableList>
 
 <VarListEntry>
-<Term>Queueing Discipline</Term>
+<Term>Queueing Discipline (qdisc)</Term>
 <ListItem>
 <Para>
 An algorithm that manages the queue of a device, either incoming (ingress)
 or outgoing (egress).
+</Para></ListItem>
+</VarListEntry>
+<VarListEntry>
+<Term>root qdisc</Term>
+<ListItem>
+<Para>
+The root qdisc is the qdisc attached to the device.
 </Para></ListItem>
 </VarListEntry>
 <VarListEntry>
@@ -3214,7 +3230,7 @@ A qdisc with no configurable internal subdivisions.
 <Term>Classful qdisc</Term>
 <ListItem>
 <Para>
-A classful qdisc contains multiple classes. Each of these classes contains a
+A classful qdisc contains multiple classes. Some of these classes contains a
 further qdisc, which may again be classful, but need not be. According to
 the strict definition, pfifo_fast *is* classful, because it contains three
 bands which are, in fact, classes. However, from the user's configuration
@@ -3227,7 +3243,16 @@ tool.
 <ListItem>
 <Para>
 A classful qdisc may have many classes, which each are internal to the
-qdisc. Each of these classes may contain a real qdisc.
+qdisc.  A class, in turn, may have several classes added to it.  So a class
+can have a qdisc as parent or an other class.
+
+A leaf class is a class with no child classes.  This class has 1 qdisc attached
+to it.  This qdisc is responsible to send the data from that class.  When
+you create a class, a fifo qdisc is attached to it.  When you add a child class,
+this qdisc is removed.
+For a leaf class, this fifo qdisc can be replaced with
+an other more suitable qdisc.  You can even replace this fifo qdisc with a
+classful qdisc so you can add extra classes.
 </Para></ListItem>
 </VarListEntry>
 <VarListEntry>
@@ -3376,8 +3401,8 @@ Each network adaptor has both ingress and egress hooks.
 
 <Para>
 Classful qdiscs are very useful if you have different kinds of traffic which
-should have differing treatment. One of the classful qdiscs is called 'CBQ'
-, 'Class Based Queueing' and it is so widely mentioned that people identify
+should have differing treatment. One of the classful qdiscs is called 'CBQ',
+'Class Based Queueing' and it is so widely mentioned that people identify
 queueing with classes solely with CBQ, but this is not the case.
 </Para>
 
@@ -3430,20 +3455,22 @@ your actual link speed. There is no queue to schedule then.
 
 <Para>
 Each interface has one egress 'root qdisc', by default the earlier mentioned
-classless pfifo_fast queueing discipline. Each qdisc can be assigned a
+classless pfifo_fast queueing discipline. Each qdisc and class is assigned a
 handle, which can be used by later configuration statements to refer to that
-qdisc. Besides an egress qdisc, an interface may also have an ingress, which
-polices traffic coming in.
+qdisc. Besides an egress qdisc, an interface may also have an ingress qdisc ,
+which polices traffic coming in.
 </Para>
 
 <Para>
 The handles of these qdiscs consist of two parts, a major number and a minor
-number. It is habitual to name the root qdisc '1:', which is equal to '1:0'.
-The minor number of a qdisc is always 0. 
+number : &lt;major&gt;:&lt;minor&gt;. It is customary to name the root qdisc '1:', which
+is equal to '1:0'.  The minor number of a qdisc is always 0. 
 </Para>
 
 <Para>
-Classes need to have the same major number as their parent. 
+Classes need to have the same major number as their parent.  This major number
+must be unique within a egress or ingress setup.  The minor number must be
+unique within a qdisc and his classes.
 </Para>
 
 <Sect3>
@@ -3453,15 +3480,20 @@ Classes need to have the same major number as their parent.
 Recapping, a typical hierarchy might look like this:
 
 <Screen>
-                    root 1:
+                     1:   root qdisc
                       |
-                    _1:1_
+                     1:1    chils class
                    /  |  \
                   /   |   \
                  /    |    \
-               10:   11:   12:
+                 /    |    \
+              1:10  1:11  1:12   child classes
+               |      |     | 
+               |     11:    |    leaf class
+               |            | 
+               10:         12:   qdisc
               /   \       /   \
-           10:1  10:2   12:1  12:2
+           10:1  10:2   12:1  12:2   leaf classes
 </Screen>
 
 </Para>
@@ -3478,7 +3510,7 @@ A packet might get classified in a chain like this:
 </Para>
 
 <Para>
-1: -&#62; 1:1 -&#62; 12: -&#62; 12:2
+1: -&#62; 1:1 -&#62; 1:12 -&#62; 12: -&#62; 12:2
 </Para>
 
 <Para>
@@ -3550,8 +3582,8 @@ classes are only used if lower bands all did not give up a packet.
 <Para>
 This qdisc is very useful in case you want to prioritize certain kinds of
 traffic without using only TOS-flags but using all the power of the tc
-filters. It can also contain more all qdiscs, whereas pfifo_fast is limited
-to simple fifo qdiscs.
+filters. You can also add an other qdisc to the 3 predefined classes,
+whereas pfifo_fast is limited to simple fifo qdiscs.
 </Para>
 
 <Para>
@@ -3612,11 +3644,13 @@ Reiterating, band 0 goes to minor number 1! Band 1 to minor number 2, etc.
 We will create this tree:
 
 <Screen>
-     root 1: prio
+          1:   root qdisc
+         / | \ 
        /   |   \
-     1:1  1:2  1:3
+       /   |   \
+     1:1  1:2  1:3    classes
       |    |    |
-     10:  20:  30:
+     10:  20:  30:    qdiscs    qdiscs
      sfq  tbf  sfq
 band  0    1    2
 </Screen>
@@ -3921,7 +3955,7 @@ priority ones.
 <Para>
 Each time a packet is requested by the hardware layer to be sent out to the
 network, a weighted round robin process ('WRR') starts, beginning with the
-lower priority classes.
+lower-numbered priority classes.
 </Para>
 
 <Para>
@@ -3949,7 +3983,7 @@ the 'weight' parameter for more information.
 <Term>prio</Term>
 <ListItem>
 <Para>
-The CBQ can also act like the PRIO device. Inner classes with lower priority
+The CBQ can also act like the PRIO device. Inner classes with higher priority
 are tried first and as long as they have traffic, other classes are not
 polled for traffic.
 </Para></ListItem>
@@ -4032,6 +4066,18 @@ to swap bandwidth.
 
 <Sect3>
 <Title>Sample configuration</Title>
+<Screen>
+
+               1:           root qdisc
+               |
+              1:1           child class
+             /   \
+            /     \
+          1:3     1:4       leaf classes
+           |       |
+          30:     40:       qdiscs
+         (sfq)   (sfq)
+</Screen>
 
 <Para>
 This configuration limits webserver traffic to 5mbit and SMTP traffic to 3
@@ -4046,7 +4092,7 @@ the classes may borrow bandwidth from each other.
   avpkt 1000 bounded
 </Screen>
 
-This part installs the root and the customary 1:0 class. The 1:1 class is
+This part installs the root and the customary 1:1 class. The 1:1 class is
 bounded, so the total bandwidth can't exceed 6mbit.
 </Para>
 
@@ -4069,11 +4115,11 @@ above, however. The corresponding HTB configuration is lots simpler.
 </Para>
 
 <Para>
-These are our two classes. Note how we scale the weight with the configured
+These are our two leaf classes. Note how we scale the weight with the configured
 rate. Both classes are not bounded, but they are connected to class 1:1
 which is bounded.  So the sum of bandwith of the 2 classes will never be
 more than 6mbit. The classids need to be within the same major number as
-the parent CBQ, by the way!
+the parent qdisc, by the way!
 </Para>
 
 <Para>
@@ -4545,10 +4591,12 @@ protocol 1 0xff'.
 <Term>On fwmark</Term>
 <ListItem>
 <Para>
-You can mark packets with either ipchains and have that mark survive routing
-across interfaces. This is really useful to for example only shape traffic on
-eth1 that came in on eth0. Syntax: 
-&num; tc filter add dev eth1 protocol ip parent 1:0 prio 1 handle 6 fw flowid 1:1
+You can mark packets with either ipchains or iptables and have that mark
+survive routing across interfaces. This is really useful to for example only
+shape traffic on eth1 that came in on eth0. Syntax:
+<screen>
+# tc filter add dev eth1 protocol ip parent 1:0 prio 1 handle 6 fw flowid 1:1
+</screen>
 Note that this is not a u32 match!
 </Para>
 

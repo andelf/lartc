@@ -1,4 +1,5 @@
 all:    tc.txt tc.dvi tc.pdf tc.ps tc.ps.gz tc.html \
+	ip.txt ip.dvi ip.pdf ip.ps ip.ps.gz  \
         tc-sfq.txt tc-sfq.dvi tc-sfq.pdf tc-sfq.ps tc-sfq.ps.gz tc-sfq.html \
         tc-tbf.txt tc-tbf.dvi tc-tbf.pdf tc-tbf.ps tc-tbf.ps.gz tc-tbf.html \
         tc-prio.txt tc-prio.dvi tc-prio.pdf tc-prio.ps tc-prio.ps.gz tc-prio.html \

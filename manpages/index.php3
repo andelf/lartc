@@ -54,6 +54,7 @@ function manpage($name,$desc="",$there=0)
 	print("</tr>");
 }
 manpage("tc","The main command",1);
+manpage("ip","The main command",1);
 manpage("tc-bfifo","Byte limited First In First Out (redirect to pbfifo)",0);
 manpage("tc-filter","tc filters in depth",0);
 manpage("tc-cbq","The Class Based Queueing qdisc",1);

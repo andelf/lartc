@@ -20,7 +20,9 @@ href=mailto:greg@linuxpower.cx></a>,
 href=http://www.virtu.nl>Virtu Secure Webservices</a>) <br>
 Martijn van Oosterhout,
 Paul B Schroeder,
-<a href="http://jsp.ds9a.nl/">Jasper Spaans</a></td></table>
+<a href="http://jsp.ds9a.nl/">Jasper Spaans</a>,
+Pedro Larroy
+</td></table>
 <br>
 <a href="mailto:send-mail-to-the-mailinglist-not-to-the-HOWTO-authors-unless-you-have-a-complaint-or-patch-about-the-HOWTO!@ds9a.nl">HOWTO@ds9a.nl</a> <small>(HOWTO related only, do
 <strong>not</strong> send questions)</small> <br>
@@ -35,6 +37,7 @@ href=dejairc.php>archives</a>)</td><td valign=bottom align=right>
 </td>
 <td valign=top>Translations:
 <br>
+<a href=LARTC-zh_CN.GB2312.pdf>[ Chinese (zh_CN.GB2312) ] </a> <br>
 <a
 href=http://www.linux-france.org/prj/inetdoc/guides/Advanced-routing-Howto/>
 
