@@ -1279,30 +1279,6 @@ that 128 packets can wait in this queue. There are 1024 hashbuckets
 available for accounting, of which 128 can be active at a time (no more
 packets fit in the queue!) Once every 10 seconds, the hashes are
 reconfigured.
-<sect2>Ingress policer qdisc
-<p> 
-The Ingress qdisc comes in handy if you need to ratelimit a host without
-help from routers or other Linux boxes. You can police incoming bandwidth
-and drop packets when this bandwidth exceeds your desired rate. This can
-save your host from a SYN flood, for example, and also works to slow down
-TCP/IP, which responds to dropped packets by reducing speed.
-
-FIXME: shaping by dropping packets seems less desirable than using, for
-example, a token bucket filter. Not sure though, Cisco CAR works this
-way, and people appear to be happy with it.
-
-See the reference to <ref id="CAR" name="IOS Committed Access Rate"> at the
-end of this document.
-
-In short: you can use this to limit how fast your computer downloads files,
-thus leaving more of the available bandwidth for others.
-
-The ingress policer is not a regular qdisc, although it looks like one. It
-is in fact hooked to the interface via the Netfilter infrastructure.
-Configuration is achieved using 'tc filter police' commands.
-
-See the section on 'Protecting your host from SYN floods' for an example on
-how this works.
 
 <sect1>Advice for when to use which queue
 <p>
@@ -1774,6 +1750,70 @@ to their assigened rate, and also won't allow each other to borrow.
 
 Within such an agency class, there might be other classes which are allowed
 to swap bandwidth.
+<sect3>Sample configuration
+<p>
+This configuration limits webserver traffic to 5mbit and smtp traffic to 3
+mbit, and limits the sum to 5mbit:
+<verb>
+# tc qdisc add dev eth0 root handle 1:0 cbq bandwidth 100Mbit         \ 
+  avpkt 1000 cell 8
+# tc class add dev eth0 parent 1:0 classid 1:1 cbq bandwidth 100Mbit  \
+  rate 5Mbit weight 0.5Mbit prio 8 allot 1514 cell 8 maxburst 20      \
+  avpkt 1000
+</verb>
+This part installs the root and the customary 1:0 sub-root. While it is
+possible to remove the first line, and attach the second line directly to
+the root, there are some subtleties involved which are avoided if adding
+this extra layer.
+
+As said before, CBQ requires a *lot* of knobs. All parameters are explained
+above, however. The corresponding HTB configuration is lots simpler.
+
+<verb>
+# tc class add dev eth0 parent 1:1 classid 10: cbq bandwidth 100Mbit  \
+  rate 5Mbit weight 0.5Mbit prio 5 allot 1514 cell 8 maxburst 20      \
+  avpkt 1000 bounded                                                    
+# tc class add dev eth0 parent 1:1 classid 20: cbq bandwidth 100Mbit  \
+  rate 3Mbit weight 0.3Mbit prio 5 allot 1514 cell 8 maxburst 20      \
+  avpkt 1000 bounded
+</verb>
+
+These are our two classes. Note how we scale the weight with the configured
+rate. Also note that both classes are bounded and won't therefore try to
+borrow traffic.
+
+<verb>
+# tc qdisc add dev eth0 parent 10: tbf rate 5Mbit buffer 10Kb/8 limit \
+  15Kb mtu 1500
+# tc qdisc add dev eth0 parent 20: tbf rate 3Mbit buffer 10Kb/8 limit \
+  15Kb mtu 1500
+</verb>
+
+Here we install token bucket filters in the two configured subclasses. The
+/8 corresponds to the cell size we mentioned earlier for CBQ. We create a
+bucket of 10kbytes of tokens, a maximum 'pre-bucket' backlog of 15kbyte.
+
+<verb>
+# tc filter add dev eth0 parent 1:0 protocol ip prio 1 u32 match ip \
+  sport 80 0xffff flowid 10:0
+# tc filter add dev eth0 parent 1:0 protocol ip prio 1 u32 match ip \
+  sport 25 0xffff flowid 20:0
+</verb>
+
+These commands, attached directly to the root, send traffic to the right
+qdiscs.
+
+Note that we use 'tc class add' to CREATE classes within a qdisc, but that
+we use 'tc qdisc add' to actually configure these classes.
+
+You may wonder what happens to traffic that is not classified by any of the
+two rules. It appears that in this case, data will then be processed within
+1:0, and be unlimited. This can be configured in a variety of ways, which I
+do not understand. Use HTB :-)
+
+If smtp+web together try to exceed the set limit of 5mbit/s, bandwidth will
+be divided according to the weight parameter, giving 5/8 of traffic to  the
+webserver and 3/8 to the mailserver.
 
 <sect3>Other CBQ parameters: split &amp; defmap
 <p>
@@ -1899,6 +1939,44 @@ part of the standard kernel, but it should soon be!
 
 If you are in a position to patch your kernel, by all means use HTB instead
 of CBQ.
+<sect3>Sample configuration
+<p>
+Functionally almost identical to the CBQ sample configuration above:
+
+<tscreen><verb>
+# tc qdisc add dev eth0 root handle 1: htb default 30
+
+# tc class add dev eth0 parent 1: classid 1:1 htb rate 5mbit burst 15k
+
+# tc class add dev eth0 parent 1:1 classid 1:10 htb rate 5mbit burst 15k
+# tc class add dev eth0 parent 1:1 classid 1:20 htb rate 3mbit ceil 5mbit burst 15k
+# tc class add dev eth0 parent 1:1 classid 1:30 htb rate 1kbit ceil 5mbit burst 15k
+</verb></tscreen>
+
+The author then recommends SFQ for beneath these classes:
+<tscreen><verb>
+# tc qdisc add dev eth0 parent 1:10 handle 10: sfq perturb 10
+# tc qdisc add dev eth0 parent 1:20 handle 20: sfq perturb 10
+# tc qdisc add dev eth0 parent 1:30 handle 30: sfq perturb 10
+</verb></tscreen> 
+
+Add the filters which direct traffic to the right classes:
+<tscreen><verb>
+# U32="tc filter add dev eth0 protocol ip parent 1:0 prio 1 u32"
+# $U32 match ip dport 80 0xffff flowid 1:10
+# $U32 match ip sport 25 0xffff flowid 1:20
+</verb></tscreen>
+And that's it - no unsightly unexplained numbers, no undocumented
+parameters. 
+
+HTB certainly looks wonderful - if 10: and 20: both have their guaranteed
+bandwidth, and more is left to divide, they borrow in a 5:3 ratio, just as
+you would expect.
+
+Unclassified traffic gets routed to 30:, which has little bandwidth of its
+own but can borrow everything that is left over. Because we chose SFQ
+internally, we get fairness thrown in for free!
+
 <sect1>Classifying packets with filters
 <p>
 To determine which class shall process a packet, the so-called 'classifier
@@ -1925,7 +2003,8 @@ directs a packet to 12: and a filter on 12: that sends the packet to 12:2.
 You might also attach this latter rule to 1:1, but you can make efficiency
 gains by having more specific tests lower in the chain.
 
-You can't filter a packet 'upwards', by the way.
+You can't filter a packet 'upwards', by the way. Also, with HTB, you should
+attach all filters to the root!
 
 And again - packets are only enqueued downwards! When they are dequeued,
 they go up again, where the interface lives. They do NOT fall off the end of
@@ -1975,119 +2054,44 @@ You can concatenate matches, to match on traffic from 1.2.3.4 and from port
 80, do this:
 <tscreen><verb>
 # tc filter add dev eth0 parent 10:0 protocol ip prio 1 u32 match ip src 4.3.2.1/32
-  match ip sport 80 flowid 10:1
+  match ip sport 80 0xffff flowid 10:1
 </verb></tscreen>
 
-For far more information, see the 'Using filters to classify packets to
-qdiscs' chapter.
-<sect1>Commandlines to configure qdiscs, classes and filters
+<sect2>All the filtering commands you will normally need
 <p>
-By now the concepts should be pretty clear. If not, reread the previous
-sections until you are at least nearly there. Perhaps the following
-commandlines will complete your understanding then.
-
-<sect2>CBQ
-<p>
-This configuration limits webserver traffic to 5mbit and smtp traffic to 3
-mbit, and limits the sum to 5mbit:
+Most shaping commands presented here start with this preamble:
 <verb>
-# tc qdisc add dev eth0 root handle 1:0 cbq bandwidth 100Mbit         \ 
-  avpkt 1000 cell 8
-# tc class add dev eth0 parent 1:0 classid 1:1 cbq bandwidth 100Mbit  \
-  rate 5Mbit weight 0.5Mbit prio 8 allot 1514 cell 8 maxburst 20      \
-  avpkt 1000
+# tc filter add dev eth0 parent 1:0 protocol ip prio 1 u32 ..
 </verb>
-This part installs the root and the customary 1:0 sub-root. While it is
-possible to remove the first line, and attach the second line directly to
-the root, there are some subtleties involved which are avoided if adding
-this extra layer.
+These are the so called 'u32' matches, which can match on ANY part of a
+packet.
+<descrip>
+<tag>On source/destination address</tag>
+Source mask 'match ip src 1.2.3.0/24', destination mask 'match ip dst
+4.3.2.0/24'. To match a single host, use /32, or omit the mask.
+<tag>On source/destination port, all IP protocols</tag>
+Source: 'match ip sport 80 0xffff', 'match ip dport 0xffff'
+<tag>On ip protocol (tcp, udp, icmp, gre, ipsec)</tag>
+Use the numbers from /etc/protocols, for example, icmp is 1: 'match ip
+protocol 1 0xff'. 
+<tag>On fwmark</tag>
+You can mark packets with either ipchains and have that mark survive routing
+across interfaces. This is really useful to for example only shape traffic on
+eth1 that came in on eth0. Syntax: 
+# tc filter add dev eth1 protocol ip parent 1:0 prio 1 handle 6 fw classid 1:1
+Note that this is not a u32 match!
 
-As said before, CBQ requires a *lot* of knobs. All parameters are explained
-above, however. The corresponding HTB configuration is lots simpler.
-
+You can place a mark like this:
 <verb>
-# tc class add dev eth0 parent 1:1 classid 10: cbq bandwidth 100Mbit  \
-  rate 5Mbit weight 0.5Mbit prio 5 allot 1514 cell 8 maxburst 20      \
-  avpkt 1000 bounded                                                    
-# tc class add dev eth0 parent 1:1 classid 20: cbq bandwidth 100Mbit  \
-  rate 3Mbit weight 0.3Mbit prio 5 allot 1514 cell 8 maxburst 20      \
-  avpkt 1000 bounded
+# iptables -A FORWARD -t mangle -i eth0 -j MARK --set-mark 6
 </verb>
+The number 6 is arbitrary.
 
-These are our two classes. Note how we scale the weight with the configured
-rate. Also note that both classes are bounded and won't therefore try to
-borrow traffic.
+If you don't want to understand the full tc filter syntax, just use
+iptables, and only learn to select on fwmark.
+</descrip>
 
-<verb>
-# tc qdisc add dev eth0 parent 10: tbf rate 5Mbit buffer 10Kb/8 limit \
-  15Kb mtu 1500
-# tc qdisc add dev eth0 parent 20: tbf rate 3Mbit buffer 10Kb/8 limit \
-  15Kb mtu 1500
-</verb>
-
-Here we install token bucket filters in the two configured subclasses. The
-/8 corresponds to the cell size we mentioned earlier for CBQ. We create a
-bucket of 10kbytes of tokens, a maximum 'pre-bucket' backlog of 15kbyte.
-
-<verb>
-# tc filter add dev eth0 parent 1:0 protocol ip prio 1 u32 match ip \
-  sport 80 0xffff flowid 10:0
-# tc filter add dev eth0 parent 1:0 protocol ip prio 1 u32 match ip \
-  sport 25 0xffff flowid 20:0
-</verb>
-
-These commands, attached directly to the root, send traffic to the right
-qdiscs.
-
-Note that we use 'tc class add' to CREATE classes within a qdisc, but that
-we use 'tc qdisc add' to actually configure these classes.
-
-You may wonder what happens to traffic that is not classified by any of the
-two rules. It appears that in this case, data will then be processed within
-1:0, and be unlimited. This can be configured in a variety of ways, which I
-do not understand. Use HTB :-)
-
-If smtp+web together try to exceed the set limit of 5mbit/s, bandwidth will
-be divided according to the weight parameter, giving 5/8 of traffic to  the
-webserver and 3/8 to the mailserver.
-<sect2>HTB
-<p>
-The functionally almost identical, but *better*, HTB configuraton is:
-
-<tscreen><verb>
-# tc qdisc add dev eth0 root handle 1: htb default 30
-
-# tc class add dev eth0 parent 1: classid 1:1 htb rate 5mbit burst 15k
-
-# tc class add dev eth0 parent 1:1 classid 1:10 htb rate 5mbit burst 15k
-# tc class add dev eth0 parent 1:1 classid 1:20 htb rate 3mbit ceil 5mbit burst 15k
-# tc class add dev eth0 parent 1:1 classid 1:30 htb rate 1kbit ceil 5mbit burst 15k
-</verb></tscreen>
-
-The author then recommends SFQ for beneath these classes:
-<tscreen><verb>
-# tc qdisc add dev eth0 parent 1:10 handle 10: sfq perturb 10
-# tc qdisc add dev eth0 parent 1:20 handle 20: sfq perturb 10
-# tc qdisc add dev eth0 parent 1:30 handle 30: sfq perturb 10
-</verb></tscreen> 
-
-Add the filters which direct traffic to the right classes:
-<tscreen><verb>
-# U32="tc filter add dev eth0 protocol ip parent 1:0 prio 1 u32"
-# $U32 match ip dport 80 0xffff flowid 1:10
-# $U32 match ip sport 25 0xffff flowid 1:20
-</verb></tscreen>
-And that's it - no unsightly unexplained numbers, no undocumented
-parameters. 
-
-HTB certainly looks wonderful - if 10: and 20: both have their guaranteed
-bandwidth, and more is left to divide, they borrow in a 5:3 ratio, just as
-you would expect.
-
-Unclassified traffic gets routed to 30:, which has little bandwidth of its
-own but can borrow everything that is left over. Because we chose SFQ
-internally, we get fairness thrown in for free!
-
+For more filtering commands, see the Advanced Filters chapter.
 <sect>Loadsharing over multiple interfaces
 <p>
 There are several ways of doing this. One of the easiest and straightforward
@@ -2254,7 +2258,7 @@ IP: advanced router (CONFIG_IP_ADVANCED_ROUTER) [Y/n/?]
 
 See also <ref id="SQUID" name="Transparent web-caching using netfilter, iproute2, ipchains and squid">
 in the Cookbook.
-<sect>Using filters to classify packets to qdiscs
+<sect>Advanced filters for (re-)classifying packets
 <p>
 As explained in the section on classful queueing disciplines, filters are
 needed to classify packets into any of the sub-queues. These filters are
@@ -2262,27 +2266,32 @@ called from within the classful qdisc.
 
 Here is an incomplete list of classifiers available:
 <descrip>
-  <tag>fw</tag>
-       Bases the decision on how the firewall has marked the packet.
+<tag>fw</tag>
+Bases the decision on how the firewall has marked the packet. This can be
+the easy way out if you don't want to learn tc filter syntax. See the
+Queueing chapter for details.
        
-  <tag>u32</tag>
-       Bases the decision on fields within the packet (i.e. source IP address, etc)
+<tag>u32</tag>
+Bases the decision on fields within the packet (i.e. source IP address, etc)
        
-  <tag>route</tag>
-       Bases the decision on which route the packet will be routed by.
+<tag>route</tag>
+Bases the decision on which route the packet will be routed by
        
-  <tag>rsvp, rsvp6</tag>
-       Bases the decision on the target (destination,protocol) and optionally the source as well. (I think)
+<tag>rsvp, rsvp6</tag>
+Routes packets based on <url
+url="http://www.isi.edu/div7/rsvp/overview.html" name="RSVP ">. Only useful
+on networks you control - the internet does not respect RSVP.
        
-  <tag>tcindex</tag>
-       FIXME: Fill me in
+<tag>tcindex</tag>
+Used in the DSMARK qdisc, see the relevant section.
 </descrip>
 
 Note that in general there are many ways in which you can classify packet
 and that it generally comes down to preference as to which system you wish
 to use.
 
-Classifiers in general accept a few arguments in common. They are listed here for convenience:
+Classifiers in general accept a few arguments in common. They are listed
+here for convenience:
 
 <descrip>
   <tag>protocol</tag>
@@ -2299,7 +2308,6 @@ Classifiers in general accept a few arguments in common. They are listed here fo
   <tag>handle</tag>
       This handle means different things to different filters.
 
-      FIXME: Add more
 </descrip>
 
 All the following sections will assume you are trying to shape the traffic
@@ -2307,33 +2315,6 @@ going to <tt>HostA</tt>. They will assume that the root class has been
 configured on 1: and that the class you want to send the selected traffic to
 is 1:1.
 
-<sect1>The "fw" classifier
-<p>  The "fw" classifier relies on the firewall tagging the packets to be shaped. So,
-  first we will setup the firewall to tag them:
-
-<tscreen><verb>
-# iptables -I PREROUTING -t mangle -p tcp -d HostA \
- -j MARK --set-mark 1
-</verb></tscreen>
-
-  Now all packets to that machine are tagged with the mark 1. Now we build
-  the packet shaping rules to actually shape the packets.  Now we just need
-  to indicate that we want the packets that are tagged with the mark 1 to go
-  to class 1:1. This is accomplished with the command:
-
-<tscreen><verb>
-# tc filter add dev eth1 protocol ip parent 1:0 prio 1 handle 1 fw classid 1:1
-</verb></tscreen>
-
-  This should be fairly self-explanatory. Attach to the 1:0 class a filter
-  with priority 1 to filter all packet marked with 1 in the firewall to
-  class 1:1. Note how the handle here is used to indicate what the mark
-  should be.
-
-  That's all there is to it! This is the (IMHO) easy way, the other ways are
-  harder to understand, I think. Note that you can apply the full power of
-  the firewalling code with this classifier, including matching MAC
-  addresses, user IDs and anything else the firewall can match.
 
 <sect1>The "u32" classifier
 <p>
@@ -2368,9 +2349,9 @@ lower priority (higher preference number) will be processed. The <tt>parent</tt>
 field defines the CBQ tree top (e.g. 1:0), the filter should be attached
 to.
 
-The options decribed apply to all filters, not only U32.
+The options decribed above apply to all filters, not only U32.
 
-<sect2>U32 selector
+<sect2>U32 selector 
 <p>
 The U32 selector contains definition of the pattern, that will be matched
 to the currently processed packet. Precisely, it defines which bits are
@@ -2379,8 +2360,8 @@ method is very powerful. Let's take a look at the following examples,
 taken directly from a pretty complex, real-world filter:
 
 <tscreen><verb>
-# filter parent 1: protocol ip pref 10 u32 fh 800::800 order 2048 key ht 800 bkt 0 flowid 1:3 \
-  match 00100000/00ff0000 at 0
+# tc filter add dev eth0 protocol ip parent 1:0 pref 10 u32 \
+  match u32 00100000 00ff0000 at 0 flowid 1:10
 </verb></tscreen>
 
 <p>
@@ -2396,8 +2377,8 @@ that to human language, the packet will match if its Type of Service
 field will have `low delay' bits set. Let's analyze another rule:
 
 <tscreen><verb>
-# filter parent 1: protocol ip pref 10 u32 fh 800::803 order 2051 key ht 800 bkt 0 flowid 1:3 \
-  match 00000016/0000ffff at nexthdr+0
+# tc filter add dev eth0 protocol ip parent 1:0 pref 10 u32 \
+  match u32 00000016 0000ffff at nexthdr+0 flowid 1:10
 </verb></tscreen>
 
 <p>
@@ -2412,7 +2393,7 @@ is ambigous without a context, and we will discuss this later.
 
 <p>
 Having understood all the above, we will find the following selector
-quite easy to read: <tt>match c0a80100/ffffff00 at 16</tt>. What we
+quite easy to read: <tt>match c0a80100 ffffff00 at 16</tt>. What we
 got here is a three byte match at 17-th byte, counting from the IP
 header start. This will match for packets with destination address
 anywhere in 192.168.1/24 network. After analyzing the examples, we
@@ -2586,19 +2567,109 @@ police
   Here the filter specifies that packets from the subnetwork 192.168.2.0
   (realm 2) will match class id 1:2.
 
-<sect1>The "rsvp" classifier
-<p>FIXME: Fill me in
-
-
-<sect1>The "tcindex" classifier
-<p>FIXME: Fill me in
-
-<sect>Kernel network parameters
+<sect1>Policing filters
 <p>
-The kernel has lots of parameters which can be tuned for different
-circumstances. While, as usual, the default parameters serve 99% of
-installations very well, we don't call this the Advanced HOWTO for the fun
-of it!
+FIXME: write about policing filters
+
+<sect1>Hashing filters for very fast massive filtering
+<p>
+If you have a need for thousands of rules, for example if you have a lot of
+clients or computers, all with different QoS specifications, you may find
+that the kernel spends a lot of time matching all those rules.
+
+By default, all filters reside in one big chain which is matched in
+descending order of priority. If you have 1000 rules, 1000 checks may be
+needed to determine what to do with a packet.
+
+Matching would go much quicker if you would have 256 chains with each four
+rules - if you could divide packets over those 256 chains, so that the right
+rule will be there.
+
+Hashing makes this possible. Let's say you have 1024 cablemodem customers in
+your network, with IP addresses ranging from 1.2.0.0 to 1.2.3.255, and each
+has to go in another bin, for example 'lite', 'regular' and 'premium'. You
+would then have 1024 rules like this:
+
+<verb>
+# tc filter add dev eth1 parent 1:0 protocol ip prio 100 match ip src \
+  1.2.0.0 classid 1:1
+# tc filter add dev eth1 parent 1:0 protocol ip prio 100 match ip src \
+  1.2.0.1 classid 1:1
+...
+# tc filter add dev eth1 parent 1:0 protocol ip prio 100 match ip src \
+  1.2.3.254 classid 1:3
+# tc filter add dev eth1 parent 1:0 protocol ip prio 100 match ip src \
+  1.2.3.255 classid 1:2
+</verb>
+
+To speed this up, we can use the last part of the IP address as a 'hash
+key'. We then get 256 tables, the first of which looks like this:
+<verb>
+# tc filter add dev eth1 parent 1:0 protocol ip prio 100 match ip src \
+  1.2.0.0 classid 1:1
+# tc filter add dev eth1 parent 1:0 protocol ip prio 100 match ip src \
+  1.2.1.0 classid 1:1
+# tc filter add dev eth1 parent 1:0 protocol ip prio 100 match ip src \
+  1.2.2.0 classid 1:3
+# tc filter add dev eth1 parent 1:0 protocol ip prio 100 match ip src \
+  1.2.3.0 classid 1:2
+</verb>
+
+The next one starts like this:
+<verb>
+# tc filter add dev eth1 parent 1:0 protocol ip prio 100 match ip src \
+  1.2.0.1 classid 1:1
+...
+</verb>
+
+This way, only four checks are needed at most, two on average. 
+
+Configuration is pretty complicated, but very worth it by the time you have
+this many rules. First we make a filter root, then we create a table with
+256 entries:
+<verb>
+# tc filter add dev eth1 parent 1:0 prio 5 protocol ip u32
+# tc filter add dev eth1 parent 1:0 prio 5 handle 2: u32 divisor 256
+</verb>
+
+Now we add some rules to entries in the created table:
+
+<verb>
+# tc filter add dev eth1 protocol ip parent 1:0 prio 5 u32 ht 2:7b: \
+        match ip src 1.2.0.123 flowid 1:1
+# tc filter add dev eth1 protocol ip parent 1:0 prio 5 u32 ht 2:7b: \
+        match ip src 1.2.1.123 flowid 1:2
+# tc filter add dev eth1 protocol ip parent 1:0 prio 5 u32 ht 2:7b: \
+        match ip src 1.2.3.123 flowid 1:3
+# tc filter add dev eth1 protocol ip parent 1:0 prio 5 u32 ht 2:7b: \
+        match ip src 1.2.4.123 flowid 1:2
+</verb>
+This is entry 123, which contains matches for 1.2.0.123, 1.2.1.123,
+1.2.2.123, 1.2.3.123, and sends them to 1:1, 1:2, 1:3 and 1:2 respectively.
+Note that we need to specify our hash bucket in hex, 0x7b is 123.
+
+Next create a 'hashing filter' that directs traffic to the right entry in
+the hashing table:
+<verb>
+# tc filter add dev eth1 protocol ip parent 1:0 prio 5 u32 ht 800:: \
+        match ip src 1.2.0.0/16 \
+        hashkey mask 0x000000ff at 12 \
+        link 2:
+</verb>
+Ok, some numbers need explaining. The default hash table is called 800:: and
+all filtering starts there. Then we select the source address, which lives
+as position 12, 13, 14 and 15 in the IP header, and indicate that we are
+only interested in the last part. This we send to hash table 1:, which we
+created earlier.
+
+It is quite complicated, but it does work in practice and performance will
+be staggering.
+<sect>Kernel network parameters 
+<p> 
+The kernel has lots of parameters which
+can be tuned for different circumstances. While, as usual, the default
+parameters serve 99% of installations very well, we don't call this the
+Advanced HOWTO for the fun of it!
 
 The interesting bits are in /proc/sys/net, take a look there. Not everything
 will be documented here initially, but we're working on it.
@@ -3654,8 +3725,8 @@ Now, this only works for data going from your telnet foreign host to your
 local computer. The other way around appears to be done for you, ie, telnet,
 ssh & friends all set the TOS field on outgoing packets automatically.
 
-Should you have a client that does not do this, you can always do it with
-netfilter. On your local box:
+Should you have an application that does not do this, you can always do it 
+with netfilter. On your local box:
 
 <tscreen><verb>
 # iptables -A OUTPUT -t mangle -p tcp --dport telnet \
@@ -3686,9 +3757,9 @@ and 4th one is being introduced here.
 If you can tell your gateway router to 
 match packets that has outgoing destination port
 of 80 to be sent to the IP address of squid server.
-<p>
+
      BUT
-<p>
+
 This would put additional load on the router and
 some commercial routers might not even support this.
 <tag>Using a Layer 4 switch.</tag>
