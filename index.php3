@@ -55,7 +55,7 @@ href=http://mr0vka.eu.org/tlumaczenia/2.4routing.html>
 <td><a href="#mailinglist">Mailinglist</a> </td>
 <td><strong><a href="#download">Download</a></strong></td>
 <td><a href=manpages/>Manpages</a></td>
-<td><strong><a href=HOWTO//cvs/2.4routing/output/2.4routing.html><font color=#ff0000>Dive
+<td><strong><a href=HOWTO//cvs/2.4routing/html/index.html><font color=#ff0000>Dive
 in!</font></a></strong>
 <td><a href="#jobs">Jobs</a> </td>
 <td><a href="#bazaar">Bazaar</a></td>
@@ -76,13 +76,21 @@ This site attempts to document how to configure and use these features.
 <a name="news"></a>
 <h2>News</H2>
 <table border=1>
+<tr><td valign=top>2002-05-15</td><td>Finally replaced the malfunctioning
+server. Thanks to <a href=http://www.puddingonline.com/~dave>Dave
+Aaldering</a> of <a href=http://www.hubris.nl>Hubris</a> we quickly found a
+<a
+href=http://commerce.www.ibm.com/cgi-bin/ncommerce/CategoryDisplay?cgrfnbr=2072547&smrfnbr=2072488&cntrfnbr=1&cgmenbr=1&cntry=840&lang=en_US&scrfnbr=73>
+new</a> <a href=http://outpost.ds9a.nl>one</a>. We are very confident that we will now be up &gt;99%.</td>
+<tr><td valign=top>2002-04-15</td><td><a href=wondershaper/>Wondershaper
+1.1</a> released</td>
 <tr><td valign=top>2002-04-11</td><td>Thanks to <a
 href=http://www.student.kun.nl/a.vanleeuwen/index-en.html>Arthur van
 Leeuwen</a> we finally have <a
-href=http://lartc.org/HOWTO//cvs/2.4routing/output/2.4routing-4.html#ss4.2>
+href=http://lartc.org/HOWTO//cvs/2.4routing/html/x247.html>
 a good section on how to combine multiple
-internet links succesfully. Today is also <font color=#ff0000>FLAG
-DAY!</font>. I've shifted to DocBook and all 'deep links' are now dead. 
+internet links succesfully</a>. Today is also <font color=#ff0000>FLAG
+DAY!</font> I've shifted to DocBook and all 'deep links' are now dead. 
 The good news is that DocBook has features to make deep links more robust, 
 so expect some nice URLs soon.</a></td>
 <tr><td valign=top>2002-03-15</td><td>Psssst! Sneak preview of what I've
@@ -94,45 +102,9 @@ year's supply of tea.</td>
 the <a href=lartc.pdf>PDF</a> looks a lot better. The <a
 href=docbook-html>HTML</a> isn't bad either. <a href=lartc.txt>Text</a> needs
 some work though. Let <a href=mailto:ahu@ds9a.nl>me</a> know what you think!</td>
-<tr><td valign=top>2002-02-23</td><td>Moved to <a
-href=http://lartc.org>lartc.org</a>!</td>
-<tr><td valign=top>2002-02-19</td><td>Spam. Due to a broken IPv6 patch, our
-postfix has been an open relay somewhere in January. It was fixed promptly,
-but we're still trying to get out of a lot of spamlists.
-Relays.osirusoft.com keeps on listing us, we hope they will get round to
-removing us soon. This may be the cause of mail not arriving. I'm trying to
-move postfix to another local interface, stay tuned. <font
-color=#ff0000>Update: </font>We are now no longer listed as an open relay,
-but as a 'testblocker' now, which is weird, but mail should be arriving
-again!</td>
-<tr><td valign=top>2002-02-07</td><td>Back from holiday. Bought lartc.org, 
-will bring it in service soon. New <a
-href=http://mr0vka.eu.org/tlumaczenia/2.4routing.html>Polish
-translation!</a></td>
-<tr><td valign=top>2002-01-13</td><td>Downtime. I returned home yesterday
-evening in what might be described as a 'highly entertained' state and
-accidentally shut down <a href=http://outpost.powerdns.com>outpost</a>
-instead of my laptop. Also, I'm on holiday from beginning this week until
-early February. So expect some silence.</td>
-<tr><td valign=top>2002-01-04</td><td>We now have a favicon! Stolen from <a
-href=http://www.kernel.org>www.kernel.org</a>. In other news, I've been
-painting the <a href=http://ds9a.nl>house</a> and I'm busy at <a
-href=http://www.powerdns.com>work</a> so it has been a bit quiet. But I'm
-still there, don't worry.</td>
-<tr><td valign=top>2001-12-10</td><td>Added <a
-href=http://ds9a.nl/lartc/HOWTO//cvs/2.4routing/output/2.4routing-15.html#ss15.8>The Wonder
-Shaper</a>, which allows you to retain very low latency while doing very
-fast up- and downloads. You can even do both at the same time, but then
-latency suffers. Added <a href=dejairc.php>logs
-for the irc channel</a> which is already seeing some traffic.</td>
-<tr><td valign=top>2001-12-10</td><td>The <a
-href=manpages/>manpages</a> now include a huge CBQ page. Read it and weep.</td>
-<tr><td valign=top>2001-12-09</td><td>We now have an IRC channel, #lartc on
-<a href=http://www.openprojects.net>irc.openprojects.net</a>. Join #lartc
-to chat about Linux &amp; Routing &amp; Shaping!</td>
 
 
-<tr><td>2000/2001</td><td><a href=oldnews.html>Older news</a></td>
+<tr><td>200[012]</td><td><a href=oldnews.html>Older news</a></td>
 </table>
 <a name="mailinglist"></a>
 <H2>LARTC Mailinglist</H2>
@@ -159,7 +131,7 @@ mail, you can indicate this on the Mailman mailinglist management page.
 <a name="download"></a>
 <H2>Linux Advanced Routing &amp; Traffic Control HOWTO</H2>
 <p>
-Current version is 0.9.0 Files were last updated at 
+Current version is 1.0.0 Files were last updated at 
 <?
 	if(!($st=stat("HOWTO/cvs/2.4routing/lartc.db")))
 		$st=stat("lartc.db");
@@ -190,12 +162,11 @@ Polish translation is <a
 href=http://mr0vka.eu.org/tlumaczenia/2.4routing.html>here</a>.
 <ul>
 <li><a href="HOWTO/cvs/2.4routing/cvs.log">CVS Changelog</a>
-<li><a href="HOWTO/cvs/2.4routing/lartc.db">SGML</A>
+<li><a href="HOWTO/cvs/2.4routing/lartc.db">DocBook SGML</A>
 <li><a href="HOWTO//cvs/2.4routing/lartc.txt">ASCII</A>, .txt
 <li><a href="HOWTO//cvs/2.4routing/html/index.html">HTML</A>, <a
 href="HOWTO//cvs/2.4routing/lartc.html">One-big-page
-HTML</A>, <a href="HOWTO//cvs/2.4routing/lartc.tar.gz">HTML tarfile</A>
-<li><a href="HOWTO//cvs/2.4routing/lartc.dvi">dvi</A>
+HTML</A>, <a href="html.tar.gz">HTML tarfile</A>
 <li><a href="HOWTO//cvs/2.4routing/lartc.ps">ps</A>, <a href="HOWTO//cvs/2.4routing/lartc.ps.gz">ps.gz</A>
 <li><a href="HOWTO//cvs/2.4routing/lartc.pdf">pdf</A>, <a
 href="HOWTO//cvs/2.4routing/lartc.pdf.gz">pdf.gz</A>

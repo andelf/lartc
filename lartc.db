@@ -162,7 +162,7 @@ your most esteemed customers - it's never our fault. Sorry.
 
 <Para>
 Copyright (c) 2001 by bert hubert, Gregory Maxwell, Martijn van
-Oosterhout, Remco can Mook, Paul B. Schroeder and others. This material may
+Oosterhout, Remco van Mook, Paul B. Schroeder and others. This material may
 be distributed only subject to the terms and conditions set forth in the
 Open Publication License, v1.0 or later (the latest version is presently
 available at http://www.opencontent.org/openpub/).
@@ -2127,6 +2127,14 @@ Each arriving token collects one incoming data packet from the data queue
 and is then deleted from the bucket. Associating this algorithm
 with the two flows -- token and data, gives us three possible scenarios:
 </Para>
+
+<para>
+
+To use the TBF, make sure that you have compiled TBF support (under
+networking options -> QoS &amp; fair queueing -> TBF queue) in the linux
+kernel, to make the token bucket filter work.
+
+</para>
 
 <Para>
 
@@ -5039,7 +5047,7 @@ interfaces.
 
 <Screen>
 # for i in /proc/sys/net/ipv4/conf/*/rp_filter ; do
-&gt;  echo 2 &#62; $i 
+&gt;  echo 1 &#62; $i 
 &gt; done
 </Screen>
 
@@ -8597,6 +8605,13 @@ helping.
 <Para>
 
 <ItemizedList>
+<listitem>
+<para>
+Dave Aaldering &lt;dave%puddingonline.com&gt;
+</para>
+</ListItem>
+
+
 <ListItem>
 
 <Para>
@@ -8947,6 +8962,13 @@ Nick Silberstein &lt;nhsilber&percnt;yahoo.com&gt;
 <ListItem>
 
 <Para>
+Dragan Simic &lt;dsimic%oracle.urc.bl.ac.yu&gt;
+</Para>
+</ListItem>
+<ListItem>
+
+
+<Para>
 Konrads Smelkov &lt;konrads@interbaltika.com&gt;
 </Para>
 </ListItem>
@@ -8956,8 +8978,15 @@ Konrads Smelkov &lt;konrads@interbaltika.com&gt;
 Andreas Steinmetz &lt;ast&percnt;domdv.de&gt;
 </Para>
 </ListItem>
-<ListItem>
 
+
+<listitem>
+<para>
+Olli Suihkonen &lt;olli.suihkonen%micsom.com&gt;
+</para>
+</ListItem>
+
+<ListItem>
 <Para>
 Jason Tackaberry &lt;tack@linux.com&gt;
 </Para>
@@ -8985,7 +9014,15 @@ Tea Sponsor: Eric Veldhuyzen &lt;eric&percnt;terra.nu&gt;
 <Para>
 Song Wang &lt;wsong@ece.uci.edu&gt;
 </Para>
+</listitem>
+
+<listitem>
+<para>
+Tijs Zwinkels &lt;tijszwinkels%home.nl&gt;
+</para>
 </ListItem>
+
+
 
 </ItemizedList>
 

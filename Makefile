@@ -1,6 +1,9 @@
 # $Id$ 
 
-all: lartc.txt lartc.pdf html/index.html html.tar.gz lartc.dvi lartc.pdf.gz lartc.ps lartc.ps lartc.ps.gz lartc.html
+all: lartc.txt lartc.pdf html/index.html html.tar.gz lartc.dvi lartc.pdf.gz lartc.ps lartc.ps lartc.ps.gz lartc.html contriblist
+
+contriblist: lartc.txt
+	./mkcontriblist > contriblist
 
 clean:
 	rm -rf *.dvi *.pdf *.tex *.toc *.aux *.txt *.ps *.bak *.tmp *~ *.log html *.pdf.gz *.ps.gz html.tar.gz lartc.html
