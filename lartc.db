@@ -3101,6 +3101,15 @@ turn. Defaults to 1 maximum sized packet (MTU-sized). Do not set below the
 MTU!
 </Para></ListItem>
 </VarListEntry>
+<VarListEntry>
+ <Term>limit</Term>
+ <ListItem>
+   <Para>
+   The total number of packets that will be queued by this SFQ (after that it
+   starts dropping them).
+   </Para>
+ </ListItem>
+</VarListEntry>
 </VariableList>
 </Para>
 
@@ -10562,80 +10571,98 @@ Gareth John &lt;gdjohn%zepler.org&gt;
 Martin Josefsson &lt;gandalf%wlug.westbo.se&gt;
 </Para>
 </ListItem>
-<ListItem>
 
+<ListItem>
 <Para>
 Andi Kleen &lt;ak%suse.de&gt;
 </Para>
 </ListItem>
-<ListItem>
 
+<ListItem>
 <Para>
 Andreas J. Koenig &lt;andreas.koenig%anima.de&gt;
 </Para>
 </ListItem>
-<ListItem>
 
+<ListItem>
 <Para>
 Pawel Krawczyk &lt;kravietz%alfa.ceti.pl&gt;
 </Para>
 </ListItem>
-<ListItem>
 
+<ListItem>
 <Para>
 Amit Kucheria &lt;amitk@ittc.ku.edu&gt;
 </Para>
 </ListItem>
+  
 <ListItem>
+<Para>
+<author><firstname>Pedro</firstname><surname>Larroy</surname></author>
+<address><email>piotr%member.fsf.org</email></address>
+<ItemizedList>
+<ListItem>
+<para>
+Chapter 15, section 10: Example of a full nat solution with QoS
+</para>
+</ListItem>
 
+<ListItem>
+<para>
+Chapter 17, section 1: Setting up OSPF with Zebra
+</para>
+</ListItem>
+</ItemizedList>
+</Para>
+</ListItem>
+
+<ListItem>
 <Para>
 Edmund Lau &lt;edlau%ucf.ics.uci.edu&gt;
 </Para>
 </ListItem>
-<ListItem>
 
+<ListItem>
 <Para>
 Philippe Latu &lt;philippe.latu%linux-france.org&gt;
 </Para>
 </ListItem>
-<ListItem>
 
+<ListItem>
 <Para>
 Arthur van Leeuwen &lt;arthurvl%sci.kun.nl&gt;
 </Para>
 </ListItem>
-  <ListItem>
-   <Para>
-   <author><firstname>Jose Luis Domingo</firstname><surname>Lopez</surname>
-     </author>
-   <address><email>jdomingo@24x7linux.com</email></address>
-  </Para>
-  </ListItem>
-
-
-  <ListItem>
-   <Para>
-   <author><firstname>Robert</firstname><surname>Lowe</surname>
-     </author>
-   <address><email>robert.h.lowe@lawrence.edu</email></address>
-  </Para>
-  </ListItem>
-
 
 <ListItem>
+<Para>
+<author><firstname>Jose Luis Domingo</firstname><surname>Lopez</surname>
+ </author>
+<address><email>jdomingo@24x7linux.com</email></address>
+</Para>
+</ListItem>
 
+<ListItem>
+<Para>
+<author><firstname>Robert</firstname><surname>Lowe</surname>
+ </author>
+<address><email>robert.h.lowe@lawrence.edu</email></address>
+</Para>
+</ListItem>
+
+<ListItem>
 <Para>
 Jason Lunz &lt;j@cc.gatech.edu&gt;
 </Para>
 </ListItem>
-<ListItem>
 
+<ListItem>
 <Para>
 Stuart Lynne &lt;sl@fireplug.net&gt;
 </Para>
 </ListItem>
-<ListItem>
 
+<ListItem>
 <Para>
 Alexey Mahotkin &lt;alexm@formulabez.ru&gt;
 </Para>
@@ -10867,6 +10894,13 @@ Song Wang &lt;wsong@ece.uci.edu&gt;
 </Para>
 </ListItem>
 
+<ListItem>
+<Para>
+Frank v Waveren &lt;fvw@var.cx&gt;
+</Para>
+</ListItem>
+
+
   <ListItem>
    <Para>
    <author><firstname>Chris</firstname><surname>Wilson</surname></author>
@@ -10878,26 +10912,6 @@ Song Wang &lt;wsong@ece.uci.edu&gt;
    <Para>
    <author><firstname>Lazar</firstname><surname>Yanackiev</surname></author>
    <address><email>Lyanackiev%gmx.net</email></address>
-   </Para>
-  </ListItem>
-  
-  <ListItem>
-   <Para>
-   <author><firstname>Pedro</firstname><surname>Larroy</surname></author>
-   <address><email>piotr%member.fsf.org</email></address>
-   <ItemizedList>
-	<ListItem>
-	<para>
-	Chapter 15, section 10: Example of a full nat solution with QoS
-	</para>
-	</ListItem>
-
-	<ListItem>
-	<para>
-	Chapter 17, section 1: Setting up OSPF with Zebra
-	</para>
-	</ListItem>
-   </ItemizedList>
    </Para>
   </ListItem>
 
