@@ -1,152 +1,147 @@
-<!DOCTYPE book PUBLIC "-//Davenport//DTD DocBook V3.0//EN">
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+<!-- $Id$ -->
+<Book id="lartc">
 
-<Book>
-
-<bookinfo>
-<Title>Linux Advanced Routing &amp; Traffic Control HOWTO</Title>
+  <bookinfo>
+    <Title>Linux Advanced Routing &amp; Traffic Control HOWTO</Title>
     <authorgroup>
-      <AUTHOR>
-	<FirstName>bert</FirstName><Surname>hubert</Surname>
-	<affiliation>
-	  <orgname>
-	    Netherlabs BV
-	  </orgname>
-	  <address><email>bert.hubert@netherlabs.nl</email></address>
-	</affiliation>
-      </author>
       <author>
-	<firstname>Gregory</FirstName>
-	<Surname>Maxwell</Surname>
-	<affiliation>
-	  <address><email>greg@linuxpower.cx</email></address>
-	</affiliation>
-      </author>
-
-      <author>
-	<firstname>Remco</FirstName>
-	<Surname>van Mook</Surname>
-	<affiliation>
-	  <address><email>remco@virtu.nl</email></address>
-	</affiliation>
-      </author>
-
-      <author>
-	<firstname>Martijn</FirstName>
-	<Surname>van Oosterhout</Surname>
-	<affiliation>
-	  <address><email>kleptog@cupid.suninternet.com</email></address>
-	</affiliation>
-      </author>
-
-      <author>
-	<firstname>Paul</FirstName>
-	<othername>B</othername>
-	<Surname>Schroeder</Surname>
-	<affiliation>
-	  <address><email>paulsch@us.ibm.com</email></address>
-	</affiliation>
-      </author>
-
-      <author>
-	<firstname>Jasper</FirstName>
-	<Surname>Spaans</Surname>
-	<affiliation>
-	  <address><email>jasper@spaans.ds9a.nl</email></address>
-	</affiliation>
-      </author>
-    </authorgroup>
-
-<Abstract>
-
-<Para>
-A very hands-on approach to iproute2, traffic shaping and a bit of
-netfilter.
-</para>
-<para>
- Verison v1.0.0 $Date$
-</Para>
-
-</Abstract>
-
+	<FirstName>Bert</FirstName><Surname>Hubert</Surname>
+        <affiliation>
+	  <orgname>Netherlabs BV</orgname>
+          <address><email>bert.hubert@netherlabs.nl</email></address>
+        </affiliation>
+        </author>
+ 
+     <collab>
+       <collabname>Gregory Maxwell</collabname>
+        <affiliation>
+          <address><email>greg@linuxpower.cx</email></address>
+        </affiliation>
+     </collab>
+  
+     <collab>
+       <collabname>Remco van Mook</collabname>
+        <affiliation>
+          <address><email>remco@virtu.nl</email></address>
+        </affiliation>
+     </collab>
+  
+     <collab>
+       <collabname>Martijn van Oosterhout</collabname>
+        <affiliation>
+          <address><email>kleptog@cupid.suninternet.com</email></address>
+        </affiliation>
+     </collab>
+  
+     <collab>
+       <collabname>Paul B Schroeder</collabname>
+        <affiliation>
+          <address><email>paulsch@us.ibm.com</email></address>
+        </affiliation>
+     </collab>
+  
+     <collab>
+       <collabname>Jasper Spaans</collabname>
+        <affiliation>
+          <address><email>jasper@spaans.ds9a.nl</email></address>
+        </affiliation>
+     </collab>
+      </authorgroup>
+  
+   <revhistory>
+     <revision>
+       <revnumber role="rcs">$Revision$</revnumber>
+       <date role="rcs">$Date$</date>
+       <revremark>DocBook Edition</revremark>
+     </revision>
+   </revhistory>
+                                   
+   <Abstract>
+     <Para>A very hands-on approach to <application>iproute2</application>,
+     traffic shaping and a bit of <application>netfilter</application>.
+     </para>
+   </Abstract>
+  
 </bookinfo>
 <toc></toc>
-<chapter>
-<Title>Dedication</Title>
+<chapter id="lartc.dedication">
+    <Title>Dedication</Title>
 
-<Para>
-This document is dedicated to lots of people, and is my attempt to do
-something back. To list but a few:
-</Para>
+    <Para>
+      This document is dedicated to lots of people, and is my attempt to do
+      something back. To list but a few:
+    </Para>
 
-<Para>
+    <Para>
 
-<ItemizedList>
-<ListItem>
+      <ItemizedList>
+	<ListItem>
+	  <Para>
+	    Rusty Russell
+	  </Para>
+	</ListItem>
+	<ListItem>
 
-<Para>
-Rusty Russell
-</Para>
-</ListItem>
-<ListItem>
+	  <Para>
+	    Alexey N. Kuznetsov
+	  </Para>
+	</ListItem>
+	<ListItem>
+	  
+	  <Para>
+	    The good folks from Google
+	  </Para>
+	</ListItem>
+	<ListItem>
+	  
+	  <Para>
+	    The staff of Casema Internet
+	  </Para>
+	</ListItem>
 
-<Para>
-Alexey N. Kuznetsov
-</Para>
-</ListItem>
-<ListItem>
-
-<Para>
-The good folks from Google
-</Para>
-</ListItem>
-<ListItem>
-
-<Para>
-The staff of Casema Internet
-</Para>
-</ListItem>
-
-</ItemizedList>
+      </ItemizedList>
 	
-</Para>
+    </Para>
 
-</chapter>
+  </chapter>
 
-<chapter>
-<Title>Introduction</Title>
+  <chapter id="lartc.intro">
+    <Title>Introduction</Title>
 
 <Para>
 Welcome, gentle reader.
 </Para>
 
 <Para>
-This document hopes to enlighten you on how to do more with Linux 2.2/2.4
-routing. Unbeknownst to most users, you already run tools which allow you to
-do spectacular things. Commands like 'route' and 'ifconfig' are actually
-very thin wrappers for the very powerful iproute2 infrastructure.
+      This document hopes to enlighten you on how to do more with Linux 2.2/2.4
+      routing. Unbeknownst to most users, you already run tools which allow you to
+      do spectacular things. Commands like <command>route</command> and 
+      <command>ifconfig</command> are actually
+      very thin wrappers for the very powerful iproute2 infrastructure.
 </Para>
 
-<Para>
-I hope that this HOWTO will become as readable as the ones by Rusty Russell
-of (amongst other things) netfilter fame.
-</Para>
+    <Para>
+      I hope that this HOWTO will become as readable as the ones by Rusty Russell
+      of (amongst other things) netfilter fame.
+    </Para>
 
-<Para>
-You can always reach us by writing to the <ULink
-URL="mailto:HOWTO@ds9a.nl"
->HOWTO team</ULink
->. However, please consider posting to the mailing
-list (see the relevant section) if you have questions which are not directly
-related to this HOWTO.
+    <Para>
+      You can always reach us by writing to the <ULink
+	URL="mailto:HOWTO@ds9a.nl"
+	>HOWTO team</ULink
+	>. However, please consider posting to the mailing
+      list (see the relevant section) if you have questions which are not directly
+      related to this HOWTO. We are no free helpdesk, but we often will answer questions
+      asked on the list.
 </Para>
 
 <Para>
 Before losing your way in this HOWTO, if all you want to do is simple
-traffic shaping, skip everything and head to the 'Other possibilties'
-chapter, and read about CBQ.init.
+traffic shaping, skip everything and head to the <citetitle><xref linkend="lartc.other"></citetitle> chapter, and read about CBQ.init.
 </Para>
 
-<Sect1>
+<Sect1 id="lartc.intro.disclaimer">
 <Title>Disclaimer &amp; License</Title>
 
 <Para>
@@ -161,7 +156,7 @@ your most esteemed customers - it's never our fault. Sorry.
 </Para>
 
 <Para>
-Copyright (c) 2001 by bert hubert, Gregory Maxwell, Martijn van
+Copyright (c) 2002 by bert hubert, Gregory Maxwell, Martijn van
 Oosterhout, Remco van Mook, Paul B. Schroeder and others. This material may
 be distributed only subject to the terms and conditions set forth in the
 Open Publication License, v1.0 or later (the latest version is presently
@@ -176,123 +171,96 @@ document maintainer.
 
 <Para>
 It is also requested that if you publish this HOWTO in hardcopy that you
-send the authors some samples for 'review purposes' :-) 
+send the authors some samples for <quote>review purposes</quote> :-) 
 </Para>
 
 </Sect1>
 
-<Sect1>
-<Title>Prior knowledge</Title>
+<Sect1 id="lartc.intro.prior">
+  <Title>Prior knowledge</Title>
 
 <Para>
-As the title implies, this is the 'Advanced' HOWTO. While by no means rocket
-science, some prior knowledge is assumed. 
+As the title implies, this is the <quote>Advanced</quote> HOWTO.
+While by no means rocket science, some prior knowledge is assumed. 
 </Para>
 
 <Para>
 Here are some other references which might help teach you more:
 <VariableList>
-
 <VarListEntry>
-<Term><ULink
-URL="http://netfilter.samba.org/unreliable-guides/networking-concepts-HOWTO/index.html"
->Rusty Russell's networking-concepts-HOWTO</ULink
-></Term>
-<ListItem>
-<Para>
-Very nice introduction, explaining what a network is, and how it is
-connected to other networks
-</Para>
+  <Term>
+    <ULink URL="http://netfilter.samba.org/unreliable-guides/networking-concepts-HOWTO/index.html">
+      Rusty Russell's networking-concepts-HOWTO</ULink>
+  </Term>
+  <ListItem>
+    <Para>Very nice introduction, explaining what a network is, and how it is
+    connected to other networks.
+    </Para>
+  </ListItem>
 </VarListEntry>
 <VarListEntry>
-<Term>Linux Networking-HOWTO (Previously the Net-3 HOWTO)</Term>
-<ListItem>
-<Para>
-Great stuff, although very verbose. It teaches you a lot of stuff that's
-already configured if you are able to connect to the Internet. 
-Should be located in /usr/doc/HOWTO/NET3-4-HOWTO.txt
+  <Term>Linux Networking-HOWTO (Previously the Net-3 HOWTO)</Term>
+  <ListItem>
+    <Para>Great stuff, although very verbose. It teaches you a lot of stuff 
+    that's already configured if you are able to connect to the Internet. 
+    Should be located in <filename>/usr/doc/HOWTO/NET3-4-HOWTO.txt</filename>
  but can be also be found 
-<ULink
-URL="http://www.linuxports.com/howto/networking"
->online</ULink
->
-</Para>
+    <ULink URL="http://www.linuxports.com/howto/networking">online</ULink>.
+    </Para>
+  </ListItem>
 </VarListEntry>
 </VariableList>
 </Para>
 
 </Sect1>
 
-<Sect1>
-<Title>What Linux can do for you</Title>
+<Sect1 id="lartc.intro.linux">
+  <Title>What Linux can do for you</Title>
 
 <Para>
 A small list of things that are possible:
 </Para>
 
-<Para>
-
 <ItemizedList>
 <ListItem>
-
-<Para>
-Throttle bandwidth for certain computers
-</Para>
+  <Para>Throttle bandwidth for certain computers
+  </Para>
 </ListItem>
 <ListItem>
-
-<Para>
-Throttle bandwidth TO certain computers
-</Para>
+  <Para>Throttle bandwidth TO certain computers
+  </Para>
 </ListItem>
 <ListItem>
-
-<Para>
-Help you to fairly share your bandwidth
-</Para>
+  <Para>Help you to fairly share your bandwidth
+  </Para>
 </ListItem>
 <ListItem>
-
-<Para>
-Protect your network from DoS attacks
-</Para>
+  <Para>Protect your network from DoS attacks
+  </Para>
 </ListItem>
 <ListItem>
-
-<Para>
-Protect the Internet from your customers
-</Para>
+  <Para>Protect the Internet from your customers
+  </Para>
 </ListItem>
 <ListItem>
-
-<Para>
-Multiplex several servers as one, for load balancing or
-enhanced availability
-</Para>
+  <Para>Multiplex several servers as one, for load balancing or
+  enhanced availability
+  </Para>
 </ListItem>
 <ListItem>
-
-<Para>
-Restrict access to your computers
-</Para>
+  <Para>Restrict access to your computers
+  </Para>
 </ListItem>
 <ListItem>
-
-<Para>
-Limit access of your users to other hosts
-</Para>
+  <Para>Limit access of your users to other hosts
+  </Para>
 </ListItem>
 <ListItem>
-
-<Para>
-Do routing based on user id (yes!), MAC address, source IP
-address, port, type of service, time of day or content
-</Para>
+  <Para>Do routing based on user id (yes!), MAC address, source IP
+  address, port, type of service, time of day or content
+  </Para>
 </ListItem>
-
 </ItemizedList>
-
-</Para>
 
 <Para>
 Currently, not many people are using these advanced features. This is for
@@ -302,8 +270,8 @@ hands-on. Traffic control is almost undocumented.
 
 </Sect1>
 
-<Sect1>
-<Title>Housekeeping notes</Title>
+<Sect1 id="lartc.intro.houskeeping">
+  <Title>Housekeeping notes</Title>
 
 <Para>
 There are several things which should be noted about this document. While I
@@ -337,14 +305,12 @@ are not very common.
 
 </Sect1>
 
-<Sect1>
-<Title>Access, CVS &amp; submitting updates</Title>
+<Sect1 id="lartc.intro.cvs">
+  <Title>Access, CVS &amp; submitting updates</Title>
 
 <Para>
-The canonical location for the HOWTO is <ULink
-URL="http://www.ds9a.nl/lartc"
->here</ULink
->.
+The canonical location for the HOWTO is 
+<ULink URL="http://www.ds9a.nl/lartc">here</ULink>.
 </Para>
 
 <Para>
@@ -358,9 +324,7 @@ Furthermore, it allows the authors to work on the source independently,
 which is good too.
 </Para>
 
-<Para>
-
-<Screen>
+<Screen width="80">
 $ export CVSROOT=:pserver:anon@outpost.ds9a.nl:/var/cvsroot
 $ cvs login
 CVS password: [enter 'cvs' (without 's)]
@@ -369,34 +333,30 @@ cvs server: Updating 2.4routing
 U 2.4routing/2.4routing.sgml
 </Screen>
 
-</Para>
-
 <Para>
 If you spot an error, or want to add something, just fix it locally, and run
-cvs diff -u, and send the result off to us.
+<userinput>cvs diff -u</userinput>, and send the result off to us.
 </Para>
 
 <Para>
 A Makefile is supplied which should help you create postscript, dvi, pdf,
-html and plain text. You may need to install sgml-tools, ghostscript and
-tetex to get all formats.
+html and plain text. You may need to install 
+<application>docbook</application>, <application>docbook-utils</application>,
+<application>ghostscript</application> and <application>tetex</application> 
+to get all formats.
 </Para>
 
 </Sect1>
 
-<Sect1>
-<Title>Mailing list</Title>
+<Sect1 id="lartc.intro.mlist">
+  <Title>Mailing list</Title>
 
 <Para>
-<Anchor id="MLIST">
 The authors receive an increasing amount of mail about this HOWTO. Because
 of the clear interest of the community, it has been decided to start a
 mailinglist where people can talk to each other about Advanced Routing and
 Traffic Control. You can subscribe to the list
-<ULink
-URL="http://mailman.ds9a.nl/mailman/listinfo/lartc"
->here</ULink
->.
+<ULink URL="http://mailman.ds9a.nl/mailman/listinfo/lartc">here</ULink>.
 </Para>
 
 <Para>
@@ -408,8 +368,8 @@ the archive, and then post to the mailinglist.
 
 </Sect1>
 
-<Sect1>
-<Title>Layout of this document</Title>
+<Sect1 id="lartc.intro.layout">
+  <Title>Layout of this document</Title>
 
 <Para>
 We will be doing interesting stuff almost immediately, which also means that
@@ -422,48 +382,41 @@ Routing and filtering are two distinct things. Filtering is documented very
 well by Rusty's HOWTOs, available here:
 </Para>
 
-<Para>
-
 <ItemizedList>
 <ListItem>
-
-<Para>
-<ULink
-URL="http://netfilter.samba.org/unreliable-guides/"
->Rusty's Remarkably Unreliable Guides</ULink
->
-</Para>
+  <Para><ULink URL="http://netfilter.samba.org/unreliable-guides/">
+    Rusty's Remarkably Unreliable Guides</ULink>
+  </Para>
 </ListItem>
-
 </ItemizedList>
 
-</Para>
-
-<Para>
-We will be focusing mostly on what is possible by combining netfilter and
-iproute2.
+<Para>We will be focusing mostly on what is possible by combining netfilter
+and iproute2.
 </Para>
 
 </Sect1>
 
 </chapter>
 
-<chapter>
-<Title>Introduction to iproute2</Title>
+<chapter id="lartc.iproute2">
+  <Title>Introduction to iproute2</Title>
 
-<Sect1>
-<Title>Why iproute2?</Title>
+<Sect1 id="lartc.iproute2.why">
+  <Title>Why iproute2?</Title>
 
 <Para>
 Most Linux distributions, and most UNIX's, currently use the 
-venerable 'arp', 'ifconfig' and 'route' commands. While these tools work,
-they show some unexpected behaviour under Linux 2.2 and up. For example, GRE
-tunnels are an integral part of routing these days, but require completely
-different tools.
+venerable <command>arp</command>, <command>ifconfig</command> and 
+<command>route</command> commands.
+While these tools work, they show some unexpected behaviour under Linux 2.2 
+and up.
+For example, GRE tunnels are an integral part of routing these days, but 
+require completely different tools.
 </Para>
 
 <Para>
-With iproute2, tunnels are an integral part of the tool set.
+With <application>iproute2</application>, tunnels are an integral part of 
+the tool set.
 </Para>
 
 <Para>
@@ -490,8 +443,8 @@ previously beyond Linux's reach.
 
 </Sect1>
 
-<Sect1>
-<Title>iproute2 tour</Title>
+<Sect1 id="lartc.iproute2.tour">
+  <Title>iproute2 tour</Title>
 
 <Para>
 Linux has a sophisticated system for bandwidth provisioning called Traffic
@@ -505,20 +458,18 @@ We'll start off with a tiny tour of iproute2 possibilities.
 
 </Sect1>
 
-<Sect1>
-<Title>Prerequisites</Title>
+<Sect1 id="lartc.iproute2.package">
+  <Title>Prerequisites</Title>
 
 <Para>
 You should make sure that you have the userland tools installed. This
 package is called 'iproute' on both RedHat and Debian, and may otherwise be
-found at <Literal remap="tt">ftp://ftp.inr.ac.ru/ip-routing/iproute2-2.2.4-now-ss??????.tar.gz"</Literal>. 
+found at <filename>ftp://ftp.inr.ac.ru/ip-routing/iproute2-2.2.4-now-ss??????.tar.gz"</filename>. 
 </Para>
 
 <Para>
-You can also try <ULink
-URL="ftp://ftp.inr.ac.ru/ip-routing/iproute2-current.tar.gz"
->here</ULink
-> 
+You can also try 
+<ULink URL="ftp://ftp.inr.ac.ru/ip-routing/iproute2-current.tar.gz">here</ULink> 
 for the latest version.
 </Para>
 
@@ -539,26 +490,24 @@ own kernel. Iproute2 needs it.
 
 </Sect1>
 
-<Sect1>
-<Title>Exploring your current configuration</Title>
+<Sect1 id="lartc.iproute2.explore">
+  <Title>Exploring your current configuration</Title>
 
 <Para>
 This may come as a surprise, but iproute2 is already configured! The current
-commands <Literal remap="tt">ifconfig</Literal> and <Literal remap="tt">route</Literal> are already using the advanced
+commands <command>ifconfig</command> and <command>route</command> are already using the advanced
 syscalls, but mostly with very default (ie. boring) settings.
 </Para>
 
 <Para>
-The <Literal remap="tt">ip</Literal> tool is central, and we'll ask it to display our interfaces
+The <command>ip</command> tool is central, and we'll ask it to display our interfaces
 for us.
 </Para>
 
 <Sect2>
-<Title><Literal remap="tt">ip</Literal> shows us our links</Title>
+<Title><command>ip</command> shows us our links</Title>
 
-<Para>
-
-<Screen>
+<Screen width="80">
 [ahu@home ahu]$ ip link list
 1: lo: &#60;LOOPBACK,UP&#62; mtu 3924 qdisc noqueue 
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
@@ -572,8 +521,6 @@ for us.
     link/ppp 
 
 </Screen>
-
-</Para>
 
 <Para>
 Your mileage may vary, but this is what it shows on my NAT router at
@@ -609,11 +556,9 @@ ethernet interfaces.
 </Sect2>
 
 <Sect2>
-<Title><Literal remap="tt">ip</Literal> shows us our IP addresses</Title>
+  <Title><command>ip</command> shows us our IP addresses</Title>
 
-<Para>
-
-<Screen>
+<Screen width="80">
 [ahu@home ahu]$ ip address show        
 1: lo: &#60;LOOPBACK,UP&#62; mtu 3924 qdisc noqueue 
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
@@ -629,8 +574,6 @@ ethernet interfaces.
     link/ppp 
     inet 212.64.94.251 peer 212.64.94.1/32 scope global ppp0
 </Screen>
-
-</Para>
 
 <Para>
 This contains more information. It shows all our addresses, and to which
@@ -673,7 +616,7 @@ become vital later on.
 </Sect2>
 
 <Sect2>
-<Title><Literal remap="tt">ip</Literal> shows us our routes</Title>
+  <Title><command>ip</command> shows us our routes</Title>
 
 <Para>
 Well, we now know how to find 10.x.y.z addresses, and we are able to reach
@@ -683,9 +626,7 @@ appears that 212.64.94.1 is willing to spread our packets around the
 world, and deliver results back to us.
 </Para>
 
-<Para>
-
-<Screen>
+<Screen width="80">
 [ahu@home ahu]$ ip route show
 212.64.94.1 dev ppp0  proto kernel  scope link  src 212.64.94.251 
 10.0.0.0/8 dev eth0  proto kernel  scope link  src 10.0.0.1 
@@ -693,11 +634,9 @@ world, and deliver results back to us.
 default via 212.64.94.1 dev ppp0 
 </Screen>
 
-</Para>
-
 <Para>
 This is pretty much self explanatory. The first 4 lines of output explicitly
-state what was already implied by <Literal remap="tt">ip address show</Literal>, the last line
+state what was already implied by <command>ip address show</command>, the last line
 tells us that the rest of the world can be found via 212.64.94.1, our
 default gateway. We can see that it is a gateway because of the word
 via, which tells us that we need to send packets to 212.64.94.1, and that it
@@ -705,9 +644,10 @@ will take care of things.
 </Para>
 
 <Para>
-For reference, this is what the old 'route' utility shows us:
+For reference, this is what the old <command>route</command> utility shows us:
+</Para>
 
-<Screen>
+<Screen width="80">
 [ahu@home ahu]$ route -n
 Kernel IP routing table
 Destination     Gateway         Genmask         Flags Metric Ref    Use
@@ -718,21 +658,16 @@ Iface
 0.0.0.0         212.64.94.1     0.0.0.0         UG    0      0        0 ppp0
 </Screen>
 
-</Para>
-
 </Sect2>
 
 </Sect1>
 
-<Sect1>
-<Title>ARP</Title>
+<Sect1 id="lartc.iproute2.arp">
+  <Title>ARP</Title>
 
 <Para>
 ARP is the Address Resolution Protocol as described in
-<ULink
-URL="http://www.faqs.org/rfcs/rfc826.html"
->RFC 826</ULink
->.
+<ULink URL="http://www.faqs.org/rfcs/rfc826.html">RFC 826</ULink>.
 ARP is used by a networked machine to resolve the hardware location/address of
 another machine on the same
 local network.  Machines on the Internet are generally known by their names
@@ -764,14 +699,13 @@ with bar until he (his arp cache) forgets where bar is (typically after
 <Para>
 Now let's see how this works.
 You can view your machines current arp/neighbor cache/table like so:
+</Para>
 
-<Screen>
+<Screen width="80">
 [root@espa041 /home/src/iputils]# ip neigh show
 9.3.76.42 dev eth0 lladdr 00:60:08:3f:e9:f9 nud reachable
 9.3.76.1 dev eth0 lladdr 00:06:29:21:73:c8 nud reachable
 </Screen>
-
-</Para>
 
 <Para>
 As you can see my machine espa041 (9.3.76.41) knows where to find espa042 
@@ -779,9 +713,7 @@ As you can see my machine espa041 (9.3.76.41) knows where to find espa042
 espagate (9.3.76.1).  Now let's add another machine to the arp cache.
 </Para>
 
-<Para>
-
-<Screen>
+<Screen width="80">
 [root@espa041 /home/paulsch/.gnome-desktop]# ping -c 1 espa043
 PING espa043.austin.ibm.com (9.3.76.43) from 9.3.76.41 : 56(84) bytes of data.
 64 bytes from 9.3.76.43: icmp_seq=0 ttl=255 time=0.9 ms
@@ -796,8 +728,6 @@ round-trip min/avg/max = 0.9/0.9/0.9 ms
 9.3.76.1 dev eth0 lladdr 00:06:29:21:73:c8 nud reachable
 </Screen>
 
-</Para>
-
 <Para>
 As a result of espa041 trying to contact espa043, espa043's hardware
 address/location has now been added to the arp/neighbor cache.
@@ -810,17 +740,13 @@ knows where to find espa043 and has no need to send an ARP request.
 Now let's delete espa043 from our arp cache:
 </Para>
 
-<Para>
-
-<Screen>
+<Screen width="80">
 [root@espa041 /home/src/iputils]# ip neigh delete 9.3.76.43 dev eth0
 [root@espa041 /home/src/iputils]# ip neigh show
 9.3.76.43 dev eth0  nud failed
 9.3.76.42 dev eth0 lladdr 00:60:08:3f:e9:f9 nud reachable
 9.3.76.1 dev eth0 lladdr 00:06:29:21:73:c8 nud stale
 </Screen>
-
-</Para>
 
 <Para>
 Now espa041 has again forgotten where to find espa043 and will need to send
@@ -835,8 +761,8 @@ machine.
 
 </chapter>
 
-<chapter>
-<Title>Rules - routing policy database</Title>
+<chapter id="lartc.rpdb">
+  <Title>Rules - routing policy database</Title>
 
 <Para>
 If you have a large router, you may well cater for the needs of different
@@ -855,22 +781,20 @@ needs to be consulted. By default, there are three tables. The old 'route'
 tool modifies the main and local tables, as does the ip tool (by default).
 </Para>
 
-<Para>
-The default rules:
+<Para>The default rules:
+</Para>
 
-<Screen>
+<Screen width="80">
 [ahu@home ahu]$ ip rule list
 0:	from all lookup local 
 32766:	from all lookup main 
 32767:	from all lookup default
 </Screen>
 
-</Para>
-
 <Para>
 This lists the priority of all rules. We see that all rules apply to all
 packets ('from all'). We've seen the 'main' table before, it is output by
-<Literal remap="tt">ip route ls</Literal>, but the 'local' and 'default' table are new.
+<userinput>ip route ls</userinput>, but the 'local' and 'default' table are new.
 </Para>
 
 <Para>
@@ -883,8 +807,8 @@ For the exact semantics on what the kernel does when there are more matching
 rules, see Alexey's ip-cref documentation. 
 </Para>
 
-<Sect1>
-<Title>Simple source policy routing</Title>
+<Sect1 id="lartc.rpdb.simple">
+  <Title>Simple source policy routing</Title>
 
 <Para>
 Let's take a real example once again, I have 2 (actually 3, about time I
@@ -900,10 +824,10 @@ The 'fast' cable modem is known as 212.64.94.251 and is a PPP link to
 212.64.78.148 in this example and is a link to 195.96.98.253.
 </Para>
 
-<Para>
-The local table:
+<Para>The local table:
+</Para>
 
-<Screen>
+<Screen width="80">
 [ahu@home ahu]$ ip route list table local
 broadcast 127.255.255.255 dev lo  proto kernel  scope link  src 127.0.0.1 
 local 10.0.0.1 dev eth0  proto kernel  scope host  src 10.0.0.1 
@@ -916,17 +840,15 @@ local 127.0.0.1 dev lo  proto kernel  scope host  src 127.0.0.1
 local 127.0.0.0/8 dev lo  proto kernel  scope host  src 127.0.0.1 
 </Screen>
 
-</Para>
-
 <Para>
 Lots of obvious things, but things that need to be specified somewhere.
 Well, here they are. The default table is empty.
 </Para>
 
-<Para>
-Let's view the 'main' table:
+<Para>Let's view the 'main' table:
+</Para>
 
-<Screen>
+<Screen width="80">
 [ahu@home ahu]$ ip route list table main 
 195.96.98.253 dev ppp2  proto kernel  scope link  src 212.64.78.148 
 212.64.94.1 dev ppp0  proto kernel  scope link  src 212.64.94.251 
@@ -935,17 +857,13 @@ Let's view the 'main' table:
 default via 212.64.94.1 dev ppp0 
 </Screen>
 
-</Para>
-
 <Para>
 We now generate a new rule which we call 'John', for our hypothetical
 house mate. Although we can work with pure numbers, it's far easier if we add
 our tables to /etc/iproute2/rt_tables.
 </Para>
 
-<Para>
-
-<Screen>
+<Screen width="80">
 # echo 200 John &#62;&#62; /etc/iproute2/rt_tables
 # ip rule add from 10.0.0.10 table John
 # ip rule ls
@@ -955,17 +873,14 @@ our tables to /etc/iproute2/rt_tables.
 32767:	from all lookup default
 </Screen>
 
-</Para>
-
 <Para>
 Now all that is left is to generate John's table, and flush the route cache:
+</Para>
 
-<Screen>
+<Screen width="80">
 # ip route add default via 195.96.98.253 dev ppp2 table John
 # ip route flush cache
 </Screen>
-
-</Para>
 
 <Para>
 And we are done. It is left as an exercise for the reader to implement this
@@ -973,7 +888,9 @@ in ip-up.
 </Para>
 
 </Sect1>
-<sect1><title>Routing for multiple uplinks/providers</title>
+
+<sect1 id="lartc.rpdb.multiple-links">
+  <title>Routing for multiple uplinks/providers</title>
 <para>
 A common configuration is the following, in which there are two providers
 that connect a local network (or even a single machine) to the big Internet.
@@ -1105,21 +1022,21 @@ There are usually two questions given this setup.
     </sect1>
   </chapter>
 
-<chapter>
-<Title>GRE and other tunnels</Title>
+<chapter id="lartc.tunnel">
+   <Title>GRE and other tunnels</Title>
 
 <Para>
 There are 3 kinds of tunnels in Linux. There's IP in IP tunneling, GRE tunneling and tunnels that live outside the kernel (like, for example PPTP). 
 </Para>
 
-<Sect1>
-<Title>A few general remarks about tunnels:</Title>
+<Sect1 id="lartc.tunnel.remarks">
+  <Title>A few general remarks about tunnels:</Title>
 
 <Para>
 Tunnels can be used to do some very unusual and very cool stuff. They can
 also make things go horribly wrong when you don't configure them right.
 Don't point your default route to a tunnel device unless you know
-<Emphasis remap="bf">exactly</Emphasis> what you are doing :-). Furthermore, tunneling increases
+<Emphasis>EXACTLY</Emphasis> what you are doing :-). Furthermore, tunneling increases
 overhead, because it needs an extra set of IP headers. Typically this is 20
 bytes per packet, so if the normal packet size (MTU) on a network is 1500
 bytes, a packet that is sent through a tunnel can only be 1480 bytes big.
@@ -1131,8 +1048,8 @@ both sides.
 
 </Sect1>
 
-<Sect1>
-<Title>IP in IP tunneling</Title>
+<Sect1 id="lartc.tunnel.ip-ip">
+  <Title>IP in IP tunneling</Title>
 
 <Para>
 This kind of tunneling has been available in Linux for a long time. It requires 2 kernel modules,
@@ -1144,27 +1061,25 @@ Let's say you have 3 networks: Internal networks A and B, and intermediate netwo
 So we have network A:
 </Para>
 
-<Para>
-
-<Screen>
+<Screen width="80">
 network 10.0.1.0
 netmask 255.255.255.0
 router  10.0.1.1
 </Screen>
 
-The router has address 172.16.17.18 on network C.
+<Para>The router has address 172.16.17.18 on network C.
 </Para>
 
-<Para>
-and network B:
+<Para>and network B:
+</Para>
 
-<Screen>
+<Screen width="80">
 network 10.0.2.0
 netmask 255.255.255.0
 router  10.0.2.1
 </Screen>
 
-The router has address 172.19.20.21 on network C.
+<Para>The router has address 172.19.20.21 on network C.
 </Para>
 
 <Para>
@@ -1172,49 +1087,48 @@ As far as network C is concerned, we assume that it will pass any packet sent
 from A to B and vice versa. You might even use the Internet for this.
 </Para>
 
-<Para>
-Here's what you do:
+<Para>Here's what you do:
 </Para>
 
-<Para>
-First, make sure the modules are installed:
+<Para>First, make sure the modules are installed:
 </Para>
 
-<Para>
-
-<Screen>
+<Screen width="80">
 insmod ipip.o
 insmod new_tunnel.o
 </Screen>
 
-Then, on the router of network A, you do the following:
+<Para>Then, on the router of network A, you do the following:
+</Para>
 
-<Screen>
+<Screen width="80">
 ifconfig tunl0 10.0.1.1 pointopoint 172.19.20.21
 route add -net 10.0.2.0 netmask 255.255.255.0 dev tunl0
 </Screen>
 
-And on the router of network B:
+<Para>And on the router of network B:
+</Para>
 
-<Screen>
+<Screen width="80">
 ifconfig tunl0 10.0.2.1 pointopoint 172.16.17.18
 route add -net 10.0.1.0 netmask 255.255.255.0 dev tunl0
 </Screen>
 
-And if you're finished with your tunnel:
+<Para>And if you're finished with your tunnel:
+</Para>
 
-<Screen>
+<Screen width="80">
 ifconfig tunl0 down
 </Screen>
 
-Presto, you're done. You can't forward broadcast or IPv6 traffic through
+<Para>Presto, you're done. You can't forward broadcast or IPv6 traffic through
 an IP-in-IP tunnel, though. You just connect 2 IPv4 networks that normally wouldn't be able to talk to each other, that's all. As far as compatibility goes, this code has been around a long time, so it's compatible all the way back to 1.3 kernels. Linux IP-in-IP tunneling doesn't work with other Operating Systems or routers, as far as I know. It's simple, it works. Use it if you have to, otherwise use GRE.
 </Para>
 
 </Sect1>
 
-<Sect1>
-<Title>GRE tunneling</Title>
+<Sect1 id="lartc.tunnel.gre">
+  <Title>GRE tunneling</Title>
 
 <Para>
 GRE is a tunneling protocol that was originally developed by Cisco, and it
@@ -1240,7 +1154,7 @@ Let's say you have 3 networks: Internal networks A and B, and intermediate netwo
 <Para>
 So we have network A:
 
-<Screen>
+<Screen width="80">
 network 10.0.1.0
 netmask 255.255.255.0
 router  10.0.1.1
@@ -1253,7 +1167,7 @@ Let's call this network neta (ok, hardly original)
 <Para>
 and network B:
 
-<Screen>
+<Screen width="80">
 network 10.0.2.0
 netmask 255.255.255.0
 router  10.0.2.1
@@ -1268,17 +1182,15 @@ As far as network C is concerned, we assume that it will pass any packet sent
 from A to B and vice versa. How and why, we do not care.
 </Para>
 
-<Para>
-On the router of network A, you do the following:
+<Para>On the router of network A, you do the following:
+</Para>
 
-<Screen>
+<Screen width="80">
 ip tunnel add netb mode gre remote 172.19.20.21 local 172.16.17.18 ttl 255
 ip link set netb up
 ip addr add 10.0.1.1 dev netb
 ip route add 10.0.2.0/24 dev netb
 </Screen>
-
-</Para>
 
 <Para>
 Let's discuss this for a bit. In line 1, we added a tunnel device, and
@@ -1376,8 +1288,8 @@ GRE tunnels are currently the preferred type of tunneling. It's a standard that 
 
 </Sect1>
 
-<Sect1>
-<Title>Userland tunnels</Title>
+<Sect1 id="lartc.tunnel.userland">
+  <Title>Userland tunnels</Title>
 
 <Para>
 There are literally dozens of implementations of tunneling outside the kernel. Best known are of course PPP and PPTP, but there are lots more (some proprietary, some secure, some that don't even use IP) and that is really beyond the scope of this HOWTO.
@@ -1387,7 +1299,7 @@ There are literally dozens of implementations of tunneling outside the kernel. B
 
 </chapter>
 
-<chapter>
+<chapter id="lartc.ipv6-tunnel">
 <Title>IPv6 tunneling with Cisco and/or 6bone</Title>
 
 <Para>
@@ -1405,8 +1317,8 @@ GRE tunneling. You could tunnel IPv6 over IPv4 by means of GRE tunnel devices
 IPv6 over IPv4 and is therefore something different.
 </Para>
 
-<Sect1>
-<Title>IPv6 Tunneling</Title>
+<Sect1 id="lartc.tunnel-ipv6.addressing">
+  <Title>IPv6 Tunneling</Title>
 
 <Para>
 This is another application of the tunneling capabilities of Linux. It is
@@ -1595,15 +1507,14 @@ subnet notation works just like with regular IP adresses.
 <Para>
 Your IPv4 address is 145.100.24.181 and the 6bone router has IPv4 address
 145.100.1.5
+</Para>
 
-<Screen>
+<Screen width="80">
 # ip tunnel add sixbone mode sit remote 145.100.1.5 [local 145.100.24.181 ttl 255]
 # ip link set sixbone up
 # ip addr add 3FFE:604:6:7::2/126 dev sixbone
 # ip route add 3ffe::0/16 dev sixbone
 </Screen>
-
-</Para>
 
 <Para>
 Let's discuss this. In the first line, we created a tunnel device called
@@ -1619,33 +1530,29 @@ through the tunnel. If the particular machine you run this on is your IPv6
 gateway, then consider adding the following lines:
 </Para>
 
-<Para>
-
-<Screen>
+<Screen width="80">
 # echo 1 &#62;/proc/sys/net/ipv6/conf/all/forwarding
 # /usr/local/sbin/radvd
 </Screen>
 
+<Para>
 The latter, radvd is -like zebra- a router advertisement daemon, to
 support IPv6's autoconfiguration features. Search for it with your favourite
 search-engine if you like.
 You can check things like this:
 </Para>
 
-<Para>
-
-<Screen>
+<Screen width="80">
 # /sbin/ip -f inet6 addr
 </Screen>
-
-</Para>
 
 <Para>
 If you happen to have radvd running on your IPv6 gateway and boot your
 IPv6 capable Linux on a machine on your local LAN, you would be able to
 enjoy the benefits of IPv6 autoconfiguration:
+</Para>
 
-<Screen>
+<Screen width="80">
 # /sbin/ip -f inet6 addr
 1: lo: &lt;LOOPBACK,UP&gt; mtu 3924 qdisc noqueue inet6 ::1/128 scope host
 
@@ -1654,8 +1561,6 @@ inet6 3ffe:604:6:8:5054:4cff:fe01:e3d6/64 scope global dynamic
 valid_lft forever preferred_lft 604646sec inet6 fe80::5054:4cff:fe01:e3d6/10 
 scope link
 </Screen>
-
-</Para>
 
 <Para>
 You could go ahead and configure your bind for IPv6 addresses. The A
@@ -1698,15 +1603,14 @@ web interface. Search for "ipv6 tunnel broker" on your favourite search engine.
 
 </chapter>
 
-<chapter>
+<chapter id="lartc.ipsec">
 <Title>IPsec: secure IP over the Internet</Title>
 
 <Para>
 FIXME: editor vacancy.
-In the meantime, see: <ULink
-URL="http://www.freeswan.org/"
->The FreeS/WAN project</ULink
->. Another IPSec implementation for Linux is Cerberus,
+In the meantime, see: <ULink URL="http://www.freeswan.org/">
+  The FreeS/WAN project</ULink>.
+Another IPSec implementation for Linux is Cerberus,
 by NIST. However, their web pages have not been updated in over a year,
 and their version tended to trail well behind the current Linux kernel.
 USAGI, an alternative IPv6 implementation for Linux, also includes an
@@ -1715,7 +1619,7 @@ IPSec implementation, but that might only be for IPv6.
 
 </chapter>
 
-<chapter>
+<chapter id="lartc.multicast">
 <Title>Multicast routing</Title>
 
 <Para>
@@ -1814,7 +1718,7 @@ that you have two networks to route between.
 
 </chapter>
 
-<chapter>
+<chapter id="lartc.qdisc">
 <Title>Queueing Disciplines for Bandwidth Management</Title>
 
 <Para>
@@ -1827,36 +1731,32 @@ dedicated bandwidth management systems.
 Linux even goes far beyond what Frame and ATM provide. 
 </Para>
 
-<Para>
-Just to prevent confusion, tc uses the following rules for bandwith
-specification:
-
-<Screen>
+<Para>Just to prevent confusion, <command>tc</command> uses the following 
+rules for bandwith specification:
  
+<literallayout class='monospaced'>
 mbps = 1024 kbps = 1024 * 1024 bps =&#62; byte/s
 mbit = 1024 kbit =&#62; kilo bit/s.
 mb = 1024 kb = 1024 * 1024 b =&#62; byte
 mbit = 1024 kbit =&#62; kilo bit.
-</Screen>
+</literallayout>
 
 Internally, the number is stored in bps and b.
 </Para>
 
-<Para>
-But when tc prints the rate, it uses following :
-
-<Screen>
-1Mbit = 1024 Kbit = 1024 * 1024 bps =&#62; bit/s
-</Screen>
-
+<Para>But when <command>tc</command> prints the rate, it uses following :
 </Para>
 
-<Sect1>
-<Title>Queues and Queueing Disciplines explained</Title>
+<literallayout class='monospaced'>
+1Mbit = 1024 Kbit = 1024 * 1024 bps =&#62; bit/s
+</literallayout>
+
+<Sect1 id="lartc.qdisc.explain">
+  <Title>Queues and Queueing Disciplines explained</Title>
 
 <Para>
-With queueing we determine the way in which data is <Emphasis>sent</Emphasis>. It is
-important to realise that we can only shape data that we transmit.
+With queueing we determine the way in which data is <Emphasis>SENT</Emphasis>.
+It is important to realise that we can only shape data that we transmit.
 </Para>
 
 <Para>
@@ -1898,8 +1798,8 @@ be the slowest link in the chain. Luckily this is easily possible.
 
 </Sect1>
 
-<Sect1>
-<Title>Simple, classless Queueing Disciplines</Title>
+<Sect1 id="lartc.qdisc.classless">
+  <Title>Simple, classless Queueing Disciplines</Title>
 
 <Para>
 As said, with queueing disciplines, we change the way data is sent.
@@ -2127,14 +2027,6 @@ Each arriving token collects one incoming data packet from the data queue
 and is then deleted from the bucket. Associating this algorithm
 with the two flows -- token and data, gives us three possible scenarios:
 </Para>
-
-<para>
-
-To use the TBF, make sure that you have compiled TBF support (under
-networking options -> QoS &amp; fair queueing -> TBF queue) in the linux
-kernel, to make the token bucket filter work.
-
-</para>
 
 <Para>
 
@@ -2440,8 +2332,8 @@ reconfigured.
 
 </Sect1>
 
-<Sect1>
-<Title>Advice for when to use which queue</Title>
+<Sect1 id="lartc.qdisc.advice">
+  <Title>Advice for when to use which queue</Title>
 
 <Para>
 Summarizing, these are the simple queues that actually manage traffic by
@@ -2450,14 +2342,12 @@ reordering, slowing or dropping packets.
 
 <Para>
 The following tips may help in chosing which queue to use. It mentions some
-qdiscs described in the 'Advanced &amp; less common queueing disciplines'.
+qdiscs described in the
+<citetitle><xref linkend="lartc.adv-qdisc"></citetitle> chapter.
 </Para>
-
-<Para>
 
 <ItemizedList>
 <ListItem>
-
 <Para>
 To purely slow down outgoing traffic, use the Token Bucket Filter. Works up
 to huge bandwidths, if you scale the bucket.
@@ -2502,23 +2392,19 @@ internal bands but does account the size of its backlog.
 </Para>
 </ListItem>
 <ListItem>
-
 <Para>
-Finally - you can also do 'social shaping'. You may not always be able to
-use technology to achieve what you want. Users experience technical
-constraints as hostile. A kind word may also help with getting your
-bandwidth to be divided right!
+Finally - you can also do <quote>social shaping</quote>.
+You may not always be able to use technology to achieve what you want.
+Users experience technical constraints as hostile.
+A kind word may also help with getting your bandwidth to be divided right!
 </Para>
 </ListItem>
-
 </ItemizedList>
-
-</Para>
 
 </Sect1>
 
-<Sect1>
-<Title>Terminology </Title>
+<Sect1 id="lartc.qdisc.terminology">
+  <Title>Terminology</Title>
 
 <Para>
 To properly understand more complicated configurations it is necessary to
@@ -2528,9 +2414,13 @@ mean the same thing.
 </Para>
 
 <Para>
-The following is loosely based on draft-ietf-diffserv-model-06.txt, 'An
-Informal Management Model for Diffserv Routers'. It can currently be found
-at http://www.ietf.org/internet-drafts/draft-ietf-diffserv-model-06.txt.
+The following is loosely based on 
+<filename>draft-ietf-diffserv-model-06.txt</filename>,
+<citetitle>An Informal Management Model for Diffserv Routers</citetitle>.
+It can currently be found at 
+<ulink url="http://www.ietf.org/internet-drafts/draft-ietf-diffserv-model-06.txt">
+  http://www.ietf.org/internet-drafts/draft-ietf-diffserv-model-06.txt
+</ulink>.
 </Para>
 
 <Para>
@@ -2645,7 +2535,7 @@ are.
 
 <Para>
 
-<Screen>
+<Screen width="80">
                 Userspace programs
                      ^
                      |
@@ -2713,8 +2603,8 @@ Each network adaptor has both ingress and egress hooks.
 
 </Sect1>
 
-<Sect1>
-<Title>Classful Queueing Disciplines</Title>
+<Sect1 id="lartc.qdisc.classful">
+  <Title>Classful Queueing Disciplines</Title>
 
 <Para>
 Classful qdiscs are very useful if you have different kinds of traffic which
@@ -3721,8 +3611,8 @@ internally, we get fairness thrown in for free!
 
 </Sect1>
 
-<Sect1>
-<Title>Classifying packets with filters</Title>
+<Sect1 id="lartc.qdisc.filters">
+  <Title>Classifying packets with filters</Title>
 
 <Para>
 To determine which class shall process a packet, the so-called 'classifier
@@ -3730,10 +3620,10 @@ chain' is called each time a choice needs to be made. This chain consists of
 all filters attached to the classful qdisc that needs to decide.
 </Para>
 
-<Para>
-To reiterate the tree, which is not a tree:
+<Para>To reiterate the tree, which is not a tree:
+</Para>
 
-<Screen>
+<Screen width="80">
                     root 1:
                       |
                     _1:1_
@@ -3744,8 +3634,6 @@ To reiterate the tree, which is not a tree:
               /   \       /   \
            10:1  10:2   12:1  12:2
 </Screen>
-
-</Para>
 
 <Para>
 When enqueueing a packet, at each branch the filter chain is consulted for a
@@ -3929,7 +3817,7 @@ For more filtering commands, see the Advanced Filters chapter.
 </Sect2>
 
 </Sect1>
-<Sect1>
+<Sect1 id="lartc.imq">
 <Title>The Intermediate queueing device (IMQ)</Title>
 
 <Para>
@@ -4053,7 +3941,7 @@ URL="http://luxik.cdi.cz/~patrick/imq/"
 
 </chapter>
 
-<chapter>
+<chapter id="lartc.loadshare">
 <Title>Loadsharing over multiple interfaces</Title>
 
 <Para>
@@ -4161,8 +4049,8 @@ the special case where network 1 is your network at home, and network 2 is
 the Internet, Router A should make 10.0.0.5 its default gateway.
 </Para>
 
-<Sect1>
-<Title>Caveats</Title>
+<Sect1 id="lartc.loadshare.caveats">
+  <Title>Caveats</Title>
 
 <Para>
 Nothing is as easy as it seems. eth1 and eth2 on both router A and B need to
@@ -4199,7 +4087,7 @@ However, for lots of applications, link loadbalancing is a great idea.
 
 </chapter>
 
-<chapter>
+<chapter id="lartc.netfilter">
 <Title>Netfilter &amp; iproute - marking packets</Title>
 
 <Para>
@@ -4306,20 +4194,22 @@ kernel:
 
 <Screen>
 IP: advanced router (CONFIG_IP_ADVANCED_ROUTER) [Y/n/?]
- IP: policy routing (CONFIG_IP_MULTIPLE_TABLES) [Y/n/?]
-  IP: use netfilter MARK value as routing key (CONFIG_IP_ROUTE_FWMARK) [Y/n/?]
+IP: policy routing (CONFIG_IP_MULTIPLE_TABLES) [Y/n/?]
+IP: use netfilter MARK value as routing key (CONFIG_IP_ROUTE_FWMARK) [Y/n/?]
 </Screen>
 
 </Para>
 
 <Para>
-See also the Squid bit in the Cookbook.
+See also the <xref linkend="lartc.cookbook.squid"> in the
+<citetitle><xref linkend="lartc.cookbook"></citetitle>.
 </Para>
 
 </chapter>
 
-<chapter>
-<Title>Advanced filters for (re-)classifying packets</Title>
+<chapter id="lartc.adv-filter"
+  xreflabel="Advanced filters for (re-)classifying packets">
+  <Title>Advanced filters for (re-)classifying packets</Title>
 
 <Para>
 As explained in the section on classful queueing disciplines, filters are
@@ -4429,8 +4319,8 @@ configured on 1: and that the class you want to send the selected traffic to
 is 1:1.
 </Para>
 
-<Sect1>
-<Title>The "u32" classifier</Title>
+<Sect1 id="lartc.adv-filter.u32">
+  <Title>The <option>u32</option> classifier</Title>
 
 <Para>
 The U32 filter is the most advanced filter available in the current
@@ -4712,8 +4602,8 @@ the protocol and end up with the following rule:
 
 </Sect1>
 
-<Sect1>
-<Title>The "route" classifier</Title>
+<Sect1 id="lartc.adv-filter.route">
+  <Title>The <option>route</option> classifier</Title>
 
 <Para>
 This classifier filters based on the results of the routing tables. When a
@@ -4805,8 +4695,8 @@ Here the filter specifies that packets from the subnetwork 192.168.2.0
 
 </Sect1>
 
-<Sect1>
-<Title>Policing filters</Title>
+<Sect1 id="lartc.adv-filter.policing">
+  <Title>Policing filters</Title>
 
 <Para>
 To make even more complicated setups possible, you can have filters that
@@ -4976,7 +4866,7 @@ FIXME: if you have used this, please share your experience with us
 
 </Sect1>
 
-<Sect1>
+<Sect1 id="lartc.adv-filter.hashing">
 <Title>Hashing filters for very fast massive filtering</Title>
 
 <Para>
@@ -5114,7 +5004,7 @@ where each chain contains 1 filter!
 
 </chapter>
 
-<chapter>
+<chapter id="lartc.kernel">
 <Title>Kernel network parameters </Title>
 
 <Para>
@@ -5140,8 +5030,9 @@ features are explained there.
 (FIXME)
 </Para>
 
-<Sect1>
-<Title>Reverse Path Filtering</Title>
+<Sect1 id="lartc.kernel.rpf"
+  xreflabel="Reverse Path Filtering">
+  <Title>Reverse Path Filtering</Title>
 
 <Para>
 By default, routers route everything, even packets which 'obviously' don't
@@ -5168,7 +5059,7 @@ interfaces.
 
 <Screen>
 # for i in /proc/sys/net/ipv4/conf/*/rp_filter ; do
-&gt;  echo 1 &#62; $i 
+&gt;  echo 2 &#62; $i 
 &gt; done
 </Screen>
 
@@ -5212,8 +5103,8 @@ FIXME: is setting the conf/&lcub;default,all&rcub;/* files enough? - martijn
 
 </Sect1>
 
-<Sect1>
-<Title>Obscure settings</Title>
+<Sect1 id="lartc.kernel.obscure">
+  <Title>Obscure settings</Title>
 
 <Para>
 Ok, there are a lot of parameters which can be modified. We try to list them
@@ -5410,7 +5301,8 @@ default, 1024 to 4999.
 <Para>
 Set this if you want to disable Path MTU discovery - a technique to
 determine the largest Maximum Transfer Unit possible on your path. See also
-the section on Path MTU discovery in the cookbook chapter.
+the section on Path MTU discovery in the 
+<citetitle><xref linkend="lartc.cookbook"></citetitle> chapter.
 </Para>
 </VarListEntry>
 <VarListEntry>
@@ -5716,7 +5608,8 @@ Enable or disable IP forwarding on this interface.
 <Term>/proc/sys/net/ipv4/conf/DEV/log_martians</Term>
 <ListItem>
 <Para>
-See the section on reverse path filters.
+See the section on 
+<citetitle><xref linkend="lartc.kernel.rpf"></citetitle>.
 </Para>
 </VarListEntry>
 <VarListEntry>
@@ -5741,7 +5634,8 @@ operates on ARP queries!
 <Term>/proc/sys/net/ipv4/conf/DEV/rp_filter</Term>
 <ListItem>
 <Para>
-See the section on reverse path filters.
+See the section on 
+<citetitle><xref linkend="lartc.kernel.rpf"></citetitle>.
 </Para>
 </VarListEntry>
 <VarListEntry>
@@ -6055,16 +5949,16 @@ this has been stopped, because the load or number limit has been reached.
 
 </chapter>
 
-<chapter>
-<Title>Advanced &amp; less common queueing disciplines</Title>
+<chapter id="lartc.adv-qdisc">
+  <Title>Advanced &amp; less common queueing disciplines</Title>
 
 <Para>
 Should you find that you have needs not addressed by the queues mentioned
 earlier, the kernel contains some other more specialized queues mentioned here.
 </Para>
 
-<Sect1>
-<Title>bfifo/pfifo</Title>
+<Sect1 id="lartc.adv-qdisc.bfifo-pfifo">
+  <Title><literal>bfifo</literal>/<literal>pfifo</literal></Title>
 
 <Para>
 These classless queues are even simpler than pfifo_fast in that they lack
@@ -6100,18 +5994,19 @@ packets long or txqueuelen*mtu bytes for bfifo.
 
 </Sect1>
 
-<Sect1>
-<Title>Clark-Shenker-Zhang algorithm (CSZ)</Title>
+<Sect1 id="lartc.adv-qdisc.csz">
+  <Title>Clark-Shenker-Zhang algorithm (CSZ)</Title>
 
 <Para>
 This is so theoretical that not even Alexey (the main CBQ author) claims to
 understand it. From his source:
 </Para>
 
+<blockquote>
 <Para>
-"David D. Clark, Scott Shenker and Lixia Zhang
-Supporting Real-Time Applications in an Integrated Services Packet
-Network: Architecture and Mechanism.
+David D. Clark, Scott Shenker and Lixia Zhang
+<citetitle>Supporting Real-Time Applications in an Integrated Services Packet
+Network: Architecture and Mechanism</citetitle>.
 </Para>
 
 <Para>
@@ -6140,56 +6035,47 @@ randomize jitter."
 Does not currently seem like a good canidate to use, unless you've read and
 understand the article mentioned.
 </Para>
+</blockquote>
 
 </Sect1>
 
-<Sect1>
-<Title>DSMARK</Title>
+<Sect1 id="lartc.adv-qdisc.dsmark"
+  xreflabel="DSMARK">
+  <Title>DSMARK</Title>
 
-<Para>
-Esteve Camps Chust &lt;marvin@grn.es&gt;
+  <abstract>
+    <Para>
+      <author><firstname>Esteve</firstname><surname>Camps</surname></author>
+      <address><email>marvin@grn.es</email></address>
+      This text is an extract from my thesis on
+      <citetitle>QoS Support in Linux</citetitle>, September 2000.
+    </Para>
+  </abstract>
 
-This text is an extract from my thesis on "QoS Support in Linux", September 2000.
-
-</Para>
-
-<Para>
-Source documents:
-
+<Para>Source documents:
+</para>
 
 <ItemizedList>
 <ListItem>
-
-<Para>
-<ULink
-URL="http://ica1www.epfl.ch/~almesber"
->Draft-almesberger-wajhak-diffserv-linux-01.txt</ULink
->.
-</Para>
+  <Para>
+    <ULink URL="ftp://icaftp.epfl.ch/pub/linux/diffserv/misc/dsid-01.txt.gz">
+      Draft-almesberger-wajhak-diffserv-linux-01.txt</ULink>.
+  </Para>
 </ListItem>
 <ListItem>
-
-<Para>
-Examples in iproute2 distribution.
-</Para>
+  <Para>Examples in iproute2 distribution.
+  </Para>
 </ListItem>
 <ListItem>
-
-<Para>
-<ULink
-URL="http://www.qosforum.com/white-papers/qosprot_v3.pdf"
->White Paper-QoS protocols and architectures</ULink
-> and
-<ULink
-URL="http://www.qosforum.com/docs/faq"
->IP QoS Frequently Asked Questions</ULink
-> both by <Emphasis>Quality of Service Forum</Emphasis>.
-</Para>
+  <Para>
+    <ULink URL="http://www.qosforum.com/white-papers/qosprot_v3.pdf">
+      White Paper-QoS protocols and architectures</ULink> and
+    <ULink URL="http://www.qosforum.com/docs/faq">
+      IP QoS Frequently Asked Questions</ULink> both by 
+    <citetitle>Quality of Service Forum</citetitle>.
+  </Para>
 </ListItem>
-
 </ItemizedList>
-
-</Para>
 
 <Para>
 This chapter was written by Esteve Camps &lt;esteve@hades.udg.es&gt;.
@@ -6200,13 +6086,11 @@ This chapter was written by Esteve Camps &lt;esteve@hades.udg.es&gt;.
 
 <Para>
 First of all, first of all, it would be a great idea for you to read RFCs
-written about this (RFC2474, RFC2475, RFC2597 and RFC2598) at <ULink
-URL="http://www.ietf.org/html.charters/diffserv-charter.html"
->IETF DiffServ working Group web site</ULink
-> and <ULink
-URL="http://ica1www.epfl.ch/~almesber"
->Werner Almesberger web site</ULink
->
+written about this (RFC2474, RFC2475, RFC2597 and RFC2598) at 
+<ULink URL="http://www.ietf.org/html.charters/diffserv-charter.html">
+  IETF DiffServ working Group web site</ULink> and
+<ULink URL="http://diffserv.sf.net/">
+  Werner Almesberger web site</ULink>
 (he wrote the code to support Differentiated Services on Linux).
 </Para>
 
@@ -6566,11 +6450,10 @@ I would thank you tell me if I'm wrong in any point.
 
 </Sect1>
 
-<Sect1>
-<Title>Ingress qdisc</Title>
+<Sect1 id="lartc.adv-qdisc.ingress">
+  <Title>Ingress qdisc</Title>
 
 <Para>
- 
 All qdiscs discussed so far are egress qdiscs. Each interface however can
 also have an ingress qdisc which is not used to send packets
 out to the network adaptor. Instead, it allows you to apply tc filters to
@@ -6610,8 +6493,8 @@ Cookbook.
 
 </Sect1>
 
-<Sect1>
-<Title>Random Early Detection (RED)</Title>
+<Sect1 id="lartc.adv-qdisc.red">
+  <Title>Random Early Detection (RED)</Title>
 
 <Para>
 This section is meant as an introduction to backbone routing, which often
@@ -6709,18 +6592,16 @@ information.
 
 </Sect1>
 
-<Sect1>
+<Sect1 id="lartc.adv-qdisc.gred">
 <Title>Generic Random Early Detection</Title>
 
 <Para>
 Not a lot is known about GRED. It looks like GRED with several internal
 queues, whereby the internal queue is chosen based on the Diffserv tcindex
-field. According to a slide found <ULink
-URL="http://www.davin.ottawa.on.ca/ols/img22.htm"
->here</ULink
->, it contains
-the capabilities of Cisco's 'Distributed Weighted RED', as well as Dave
-Clark's RIO.
+field. According to a slide found
+<ULink URL="http://www.davin.ottawa.on.ca/ols/img22.htm">here</ULink>,
+it contains the capabilities of Cisco's 'Distributed Weighted RED', as well 
+as Dave Clark's RIO.
 </Para>
 
 <Para>
@@ -6733,8 +6614,8 @@ FIXME: get Jamal or Werner to tell us more
 
 </Sect1>
 
-<Sect1>
-<Title>VC/ATM emulation</Title>
+<Sect1 id="lartc.adv-qdisc.vc-atm">
+  <Title>VC/ATM emulation</Title>
 
 <Para>
 This is quite a major effort by Werner Almesberger to allow you to build
@@ -6751,8 +6632,8 @@ URL="http://linux-atm.sourceforge.net/"
 
 </Sect1>
 
-<Sect1>
-<Title>Weighted Round Robin (WRR)</Title>
+<Sect1 id="lartc.adv-qdisc.wrr">
+  <Title>Weighted Round Robin (WRR)</Title>
 
 <Para>
 This qdisc is not included in the standard kernels but can be downloaded from 
@@ -6791,8 +6672,9 @@ relevant behavior for such a site is a central part of the WRR distribution.
 
 </chapter>
 
-<chapter>
-<Title>Cookbook</Title>
+<chapter id="lartc.cookbook"
+  xreflabel="Cookbook">
+  <Title>Cookbook</Title>
 
 <Para>
 This section contains 'cookbook' entries which may help you solve problems.
@@ -6800,7 +6682,7 @@ A cookbook is no replacement for understanding however, so try and comprehend
 what is going on. 
 </Para>
 
-<Sect1>
+<Sect1 id="lartc.cookbook.sla">
 <Title>Running multiple sites with different SLAs</Title>
 
 <Para>
@@ -6887,8 +6769,9 @@ somewhere?
 
 </Sect1>
 
-<Sect1>
-<Title>Protecting your host from SYN floods </Title>
+<Sect1 id="lartc.cookbook.synflood-protect"
+  xreflabel="Protecting your host from SYN floods">
+  <Title>Protecting your host from SYN floods</Title>
 
 <Para>
 From Alexey's iproute documentation, adapted to netfilter and with more
@@ -6964,8 +6847,8 @@ $TC filter ls dev $INDEV parent ffff:
 
 </Sect1>
 
-<Sect1>
-<Title>Ratelimit ICMP to prevent dDoS</Title>
+<Sect1 id="lartc.cookbook.icmp-ratelimit">
+  <Title>Ratelimit ICMP to prevent dDoS</Title>
 
 <Para>
 Recently, distributed denial of service attacks have become a major nuisance
@@ -7041,7 +6924,7 @@ class:
 
 </Sect1>
 
-<Sect1>
+<Sect1 id="lartc.cookbook.interactive-prio">
 <Title>Prioritizing interactive traffic</Title>
 
 <Para>
@@ -7133,11 +7016,12 @@ with netfilter. On your local box:
 
 </Sect1>
 
-<Sect1>
-<Title>Transparent web-caching using netfilter, iproute2, ipchains and squid</Title>
+<Sect1 id="lartc.cookbook.squid">
+  <Title>Transparent web-caching using <application>netfilter</application>,
+  <application>iproute2</application>, <application>ipchains</application> and 
+  <application>squid</application></Title>
 
 <Para>
-<Anchor id="SQUID">
 This section was sent in by reader Ram Narula from Internet for Education
 (Thailand).
 </Para>
@@ -7429,9 +7313,7 @@ it's the line with 10.0.0.0/24)
 <Sect2>
 <Title>Traffic flow diagram after implementation</Title>
 
-<Para>
-
-<Screen>
+<Screen width="80">
 
 |-----------------------------------------|
 |Traffic flow diagram after implementation|
@@ -7452,8 +7334,6 @@ naret                                  silom       ||
 \\===================================kaosarn, RAS, etc.
 
 </Screen>
-
-</Para>
 
 <Para>
 Note that the network is asymmetric as there is one extra hop on 
@@ -7481,7 +7361,7 @@ incoming data from Internet-&#62;donmuang-&#62;kaosarn
 
 </Sect1>
 
-<Sect1>
+<Sect1 id="lartc.cookbook.mtu-discovery">
 <Title>Circumventing Path MTU Discovery issues with per route MTU settings</Title>
 
 <Para>
@@ -7538,10 +7418,7 @@ MTU discovery by setting it manually. Koos van den Hout, slightly edited,
 writes:
 </Para>
 
-<Para>
-
-<Screen>
-<msgtext>
+<blockquote>
 <Para>
 The following problem: I set the mtu/mru of my leased line running ppp to
 296 because it's only 33k6 and I cannot influence the queueing on the
@@ -7580,23 +7457,18 @@ mtu of the outside link. But I want local ethernet traffic to have the
 normal mtu (for things like nfs traffic).
 </Para>
 
-<Para>
-Solution:
+<Para>Solution:
+</Para>
 
-<Screen>
+<Screen width="80">
 ip route add default via 10.0.0.1 mtu 296
 </Screen>
-
-</Para>
 
 <Para>
 (10.0.0.1 being the default gateway, the inside address of the
 masquerading router)
 </Para>
-</msgtext>
-</Screen>
-
-</Para>
+</blockquote>
 
 <Para>
 In general, it is possible to override PMTU Discovery by setting specific
@@ -7604,21 +7476,17 @@ routes. For example, if only a certain subnet is giving problems, this
 should help:
 </Para>
 
-<Para>
-
-<Screen>
+<Screen width="80">
 ip route add 195.96.96.0/24 via 10.0.0.1 mtu 1000
 </Screen>
-
-</Para>
 
 </Sect2>
 
 </Sect1>
 
-<Sect1>
-<Title>Circumventing Path MTU Discovery issues with MSS Clamping (for ADSL,
-cable, PPPoE &amp; PPtP users)</Title>
+<Sect1 id="lartc.cookbook.mtu-mss">
+  <Title>Circumventing Path MTU Discovery issues with MSS Clamping
+  (for ADSL, cable, PPPoE &amp; PPtP users)</Title>
 
 <Para>
 As explained above, Path MTU Discovery doesn't work as well as it should
@@ -7680,7 +7548,7 @@ voice calls.
 
 </Sect1>
 
-<Sect1>
+<Sect1 id="lartc.cookbook.ultimate-tc">
 <Title>The Ultimate Traffic Conditioner: Low Latency, Fast Up &amp; Downloads</Title>
 
 <Para>
@@ -8069,8 +7937,8 @@ If the last two lines give an error, update your tc tool to a newer version!
 
 </chapter>
 
-<chapter>
-<Title>Building bridges, and pseudo-bridges with Proxy ARP</Title>
+<chapter id="lartc.bridging">
+  <Title>Building bridges, and pseudo-bridges with Proxy ARP</Title>
 
 <Para>
 Bridges are devices which can be installed in a network without any
@@ -8102,17 +7970,11 @@ change anything' is doing the right thing.
 
 <Para>
 The Linux 2.4/2.5 bridge is documented on
+<ULink URL=" http://bridge.sourceforge.net/">this page</ULink>.
 </Para>
 
-<Para>
-<ULink
-URL=" http://bridge.sourceforge.net/"
->this page</ULink
->.
-</Para>
-
-<Sect1>
-<Title>State of bridging and iptables</Title>
+<Sect1 id="lartc.bridging.iptables">
+  <Title>State of bridging and iptables</Title>
 
 <Para>
 As of Linux 2.4.14, bridging and iptables do not 'see' each other without
@@ -8131,8 +7993,8 @@ people if and how the patch can be merged, stay tuned!
 
 </Sect1>
 
-<Sect1>
-<Title>Bridging and shaping</Title>
+<Sect1 id="lartc.bridging.shaping">
+  <Title>Bridging and shaping</Title>
 
 <Para>
 This does work as advertised. Be sure to figure out which side each
@@ -8142,8 +8004,8 @@ internal interface, which won't work. Use tcpdump if needed.
 
 </Sect1>
 
-<Sect1>
-<Title>Pseudo-bridges with Proxy-ARP</Title>
+<Sect1 id="lartc.bridging.proxy-arp">
+  <Title>Pseudo-bridges with Proxy-ARP</Title>
 
 <Para>
 If you just want to implement a Pseudo-bridge, skip down a few sections 
@@ -8299,8 +8161,8 @@ is *vital* that you check your netmasks!
 
 </chapter>
 
-<chapter>
-<Title>Dynamic routing - OSPF and BGP</Title>
+<chapter id="lartc.dynamic-routing">
+  <Title>Dynamic routing - OSPF and BGP</Title>
 
 <Para>
 Once your network starts to get really big, or you start to consider 'the
@@ -8310,8 +8172,9 @@ popping up all the time.
 </Para>
 
 <Para>
-The Internet has mostly standardised on OSPF and BGP4 (rfc1771). Linux
-supports both, by way of <Literal remap="tt">gated</Literal> and <Literal remap="tt">zebra</Literal>
+The Internet has mostly standardised on OSPF and BGP4 (rfc1771).
+Linux supports both, by way of <application>gated</application> and 
+<application>zebra</application>
 </Para>
 
 <Para>
@@ -8378,8 +8241,9 @@ to the configuration language in Zebra :-)
 
 </chapter>
 
-<chapter>
-<Title>Other possibilities </Title>
+<chapter id="lartc.other"
+  xreflabel="Other possibilities">
+  <Title>Other possibilities</Title>
 
 <Para>
 This chapter is a list of projects having to do with advanced Linux routing
@@ -8599,8 +8463,8 @@ latency.
 
 </chapter>
 
-<chapter>
-<Title>Further reading</Title>
+<chapter id="lartc.further">
+  <Title>Further reading</Title>
 
 <Para>
 <VariableList>
@@ -8712,7 +8576,7 @@ well.
 
 </chapter>
 
-<chapter>
+<chapter id="lartc.ack">
 <Title>Acknowledgements </Title>
 
 <Para>
@@ -8725,155 +8589,150 @@ helping.
 
 <Para>
 
-<ItemizedList>
-<listitem>
-<para>
-Dave Aaldering &lt;dave%puddingonline.com&gt;
-</para>
-</ListItem>
-
-
+<ItemizedList spacing="compact">
 <ListItem>
 
-<Para>
-Juanjo Alins &lt;juanjo&percnt;mat.upc.es&gt;
-</Para>
-</ListItem>
-
-<ListItem>
-
-<Para>
-Joe Van Andel
-</Para>
-</ListItem>
-
-<ListItem>
-
-<Para>
-Michael T. Babcock &lt;mbabcock@fibrespeed.net&gt;
-</Para>
-</ListItem>
-<ListItem>
-
-<Para>
-Ard van Breemen &lt;ard&percnt;kwaak.net&gt;
-</Para>
-</ListItem>
-<ListItem>
-
-<Para>
-Ron Brinker &lt;service&percnt;emcis.com&gt;
-</Para>
-</ListItem>
-<ListItem>
-
-<Para>
-?ukasz Bromirski &lt;L.Bromirski@prosys.com.pl&gt;
-</Para>
-</ListItem>
-<ListItem>
-
-<Para>
-Lennert Buytenhek &lt;buytenh@gnu.org&gt;
-</Para>
-</ListItem>
-<ListItem>
-
-<Para>
-Esteve Camps &lt;esteve@hades.udg.es&gt;
-</Para>
-</ListItem>
-<ListItem>
-
-<Para>
-Stef Coene &lt;stef.coene@docum.org&gt;
-</Para>
-</ListItem>
-<ListItem>
-
-<Para>
-Don Cohen &lt;don-lartc&percnt;isis.cs3-inc.com&gt;
-</Para>
-</ListItem>
-<ListItem>
-
-<Para>
-Jonathan Corbet &lt;lwn&percnt;lwn.net&gt;
-</Para>
-</ListItem>
-<ListItem>
-
-<Para>
-Gerry Creager N5JXS &lt;gerry&percnt;cs.tamu.edu&gt;
-</Para>
-</ListItem>
-<ListItem>
-
-<Para>
-Marco Davids &lt;marco@sara.nl&gt;
-</Para>
-</ListItem>
-<ListItem>
-
-<Para>
-Jonathan Day &lt;jd9812@my-deja.com&gt;
-</Para>
-</ListItem>
-<ListItem>
-
-<Para>
-Martin Devera aka devik &lt;devik@cdi.cz&gt;
-</Para>
-</ListItem>
-<ListItem>
-
-<Para>
-Stephan "Kobold" Gehring &lt;Stephan.Gehring@bechtle.de&gt;
-</Para>
-</ListItem>
-<ListItem>
-
-<Para>
-Jacek Glinkowski &lt;jglinkow&percnt;hns.com&gt;
-</Para>
-</ListItem>
-<ListItem>
-
-<Para>
-Andrea Glorioso &lt;sama&percnt;perchetopi.org&gt;
-</Para>
-</ListItem>
-<ListItem>
-
-<Para>
-Nadeem Hasan &lt;nhasan@usa.net&gt;
-</Para>
-</ListItem>
-<ListItem>
-
-<Para>
-Erik Hensema &lt;erik&percnt;hensema.xs4all.nl&gt;
-</Para>
-</ListItem>
-<ListItem>
-
-<Para>
-Vik Heyndrickx &lt;vik.heyndrickx@edchq.com&gt;
-</Para>
-</ListItem>
-<ListItem>
-
-<Para>
-Spauldo Da Hippie &lt;spauldo&percnt;usa.net&gt;
-</Para>
-</ListItem>
-<ListItem>
-
-<Para>
-Koos van den Hout &lt;koos@kzdoos.xs4all.nl&gt;
-</Para>
-</ListItem>
-<ListItem>
+   <Para>
+   <author><firstname>Juanjo</firstname><surname>Alins</surname></author>
+   <address><email>juanjo@mat.upc.es</email></address>
+   </Para>
+  </ListItem>
+  <ListItem>
+   <Para>
+   <author><firstname>Joe</firstname><surname>Van Andel</surname></author>
+   </Para>
+  </ListItem>
+  <ListItem>
+   <Para>
+   <author><firstname>Michael</firstname><othername>T.</othername>
+     <surname>Babcock</surname></author>
+   <address><email>mbabcock@fibrespeed.net</email></address>
+   </Para>
+  </ListItem>
+  <ListItem>
+   <Para>
+   <author><firstname>Ard</firstname><surname>van Breemen</surname></author>
+   <address><email>ard&percnt;kwaak.net</email></address>
+  </Para>
+  </ListItem>
+  <ListItem>
+   <Para>
+   <author><firstname>Ron</firstname><surname>Brinker</surname></author>
+   <address><email>service&percnt;emcis.com</email></address>
+   </Para>
+  </ListItem>
+  <ListItem>
+   <Para>
+   <author><firstname>?ukasz</firstname><surname>Bromirski</surname></author>
+   <address><email>L.Bromirski@prosys.com.pl</email></address>
+   </Para>
+  </ListItem>
+  <ListItem>
+   <Para>
+   <author><firstname>Lennert</firstname><surname>Buytenhek</surname></author>
+   <address><email>buytenh@gnu.org</email></address>
+   </Para>
+  </ListItem>
+  <ListItem>
+   <Para>
+   <author><firstname>Esteve</firstname><surname>Camps</surname></author>
+   <address><email>esteve@hades.udg.es</email></address>
+   </Para>
+  </ListItem>
+  <ListItem>
+   <Para>
+   <author><firstname>Stef</firstname><surname>Coene</surname></author>
+   <address><email>stef.coene@docum.org</email></address>
+   </Para>
+  </ListItem>
+  <ListItem>
+   <Para>
+   <author><firstname>Don</firstname><surname>Cohen</surname></author>
+   <address><email>don-lartc&percnt;isis.cs3-inc.com</email></address>
+   </Para>
+  </ListItem>
+  <ListItem>
+   <Para>
+   <author><firstname>Jonathan</firstname><surname>Corbet</surname></author>
+   <address><email>lwn&percnt;lwn.net</email></address>
+   </Para>
+  </ListItem>
+  <ListItem>
+   <Para>
+   <author><firstname>Gerry</firstname><surname>Creager</surname>
+     <othername>N5JXS</othername></author>
+   <address><email>gerry&percnt;cs.tamu.edu</email></address>
+   </Para>
+  </ListItem>
+  <ListItem>
+   <Para>
+   <author><firstname>Marco</firstname><surname>Davids</surname></author>
+   <address><email>marco@sara.nl</email></address>
+   </Para>
+  </ListItem>
+  <ListItem>
+   <Para>
+   <author><firstname>Jonathan</firstname><surname>Day</surname></author>
+   <address><email>jd9812@my-deja.com</email></address>
+   </Para>
+  </ListItem>
+  <ListItem>
+   <Para>
+   <author><firstname>Martin</firstname><surname>Devera</surname>
+     <othername>aka devik</othername></author>
+   <address><email>devik@cdi.cz</email></address>
+  </Para>
+  </ListItem>
+  <ListItem>
+   <Para>
+   <author><firstname>Stephan</firstname><othername>"Kobold"</othername>
+     <surname>Gehring</surname></author>
+   <address><email>Stephan.Gehring@bechtle.de</email></address>
+  </Para>
+  </ListItem>
+  <ListItem>
+   <Para>
+   <author><firstname>Jacek</firstname><surname>Glinkowski</surname></author>
+   <address><email>jglinkow&percnt;hns.com</email></address>
+  </Para>
+  </ListItem>
+  <ListItem>
+   <Para>
+   <author><firstname>Andrea</firstname><surname>Glorioso</surname></author>
+   <address><email>sama&percnt;perchetopi.org</email></address>
+  </Para>
+  </ListItem>
+  <ListItem>
+   <Para>
+   <author><firstname>Nadeem</firstname><surname>Hasan</surname></author>
+   <address><email>nhasan@usa.net</email></address>
+   </Para>
+  </ListItem>
+  <ListItem>
+   <Para>
+   <author><firstname>Erik</firstname><surname>Hensema</surname></author>
+   <address><email>erik&percnt;hensema.xs4all.nl</email></address>
+   </Para>
+  </ListItem>
+  <ListItem>
+   <Para>
+   <author><firstname>Vik</firstname><surname>Heyndrickx</surname></author>
+   <address><email>vik.heyndrickx@edchq.com</email></address>
+   </Para>
+  </ListItem>
+  <ListItem>
+   <Para>
+   <author><firstname>Spauldo</firstname><surname>Da Hippie</surname></author>
+   <address><email>spauldo&percnt;usa.net</email></address>
+   </Para>
+  </ListItem>
+  <ListItem>
+   <Para>
+   <author><firstname>Koos</firstname><surname>van den Hout</surname></author>
+   <address><email>koos@kzdoos.xs4all.nl</email></address>
+   </Para>
+  </ListItem>
+  <ListItem>
 
 <Para>
 Stefan Huelbrock &lt;shuelbrock&percnt;datasystems.de&gt;
@@ -9090,13 +8949,6 @@ Nick Silberstein &lt;nhsilber&percnt;yahoo.com&gt;
 <ListItem>
 
 <Para>
-Dragan Simic &lt;dsimic%oracle.urc.bl.ac.yu&gt;
-</Para>
-</ListItem>
-<ListItem>
-
-
-<Para>
 Konrads Smelkov &lt;konrads@interbaltika.com&gt;
 </Para>
 </ListItem>
@@ -9106,15 +8958,8 @@ Konrads Smelkov &lt;konrads@interbaltika.com&gt;
 Andreas Steinmetz &lt;ast&percnt;domdv.de&gt;
 </Para>
 </ListItem>
-
-
-<listitem>
-<para>
-Olli Suihkonen &lt;olli.suihkonen%micsom.com&gt;
-</para>
-</ListItem>
-
 <ListItem>
+
 <Para>
 Jason Tackaberry &lt;tack@linux.com&gt;
 </Para>
@@ -9142,17 +8987,7 @@ Tea Sponsor: Eric Veldhuyzen &lt;eric&percnt;terra.nu&gt;
 <Para>
 Song Wang &lt;wsong@ece.uci.edu&gt;
 </Para>
-</listitem>
-
-<listitem>
-<para>
-Tijs Zwinkels &lt;tijszwinkels%home.nl&gt;
-</para>
 </ListItem>
-
-
-
-
 
 </ItemizedList>
 

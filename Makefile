@@ -16,7 +16,7 @@ clean:
 
 
 html/index.html: lartc.db
-	db2html -o html lartc.db
+	db2html  -V %use-id-as-filename% -o html lartc.db
 
 html.tar.gz: html/index.html
 	tar czf html.tar.gz html/
@@ -25,7 +25,7 @@ html.tar.gz: html/index.html
 	docbook2txt $<
 
 %.pdf: %.db
-	docbook2pdf $<
+	docbook2pdf -p /usr/bin/openjade $<
 
 %.ps: %.db
 	docbook2ps $<
