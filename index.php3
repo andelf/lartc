@@ -10,15 +10,15 @@
 src=http://ds9a.nl/pub/pdns88x33c.gif></a><p></td>
 
 <tr><td><a href="http://ds9a.nl/">bert hubert</a> (<a
-href=http://www.powerdns.com>PowerDNS.COM BV</a>) <a href=mailto:bert.hubert@netherlabs.nl>&lt;bert.hubert@netherlabs.nl&gt;</a>,<br>
+href=http://www.powerdns.com>PowerDNS.COM BV</a>) ,<br>
 <a href="http://linuxpower.cx/~greg/">Greg Maxwell</a> <a
-href=mailto:greg@linuxpower.cx>&lt;greg@linuxpower.cx&gt;</a> and <br>
+href=mailto:greg@linuxpower.cx></a> and <br>
 <a href=http://slashme.org>Remco van Mook</a> (<a
-href=http://www.virtu.nl>Virtu Secure Webservices</a>) &lt;remco@virtu.nl&gt; <br>
-Martijn van Oosterhout &lt;kleptog@cupid.suninternet.com&gt; <br>
-Paul B Schroeder &lt;paulsch@us.ibm.com&gt; <br>
-<a href="http://jsp.ds9a.nl/">Jasper Spaans</a> &lt;jasper@spaans.ds9a.nl&gt; <br>
-<a href="mailto:HOWTO@ds9a.nl">HOWTO@ds9a.nl</a> <small>(HOWTO related only, do
+href=http://www.virtu.nl>Virtu Secure Webservices</a>) <br>
+Martijn van Oosterhout <br>
+Paul B Schroeder <br>
+<a href="http://jsp.ds9a.nl/">Jasper Spaans</a>  <br>
+<a href="mailto:send-mail-to-the-mailinglist-not-to-the-HOWTO-authors-unless-you-have-a-complaint-or-patch-about-the-HOWTO!@ds9a.nl">HOWTO@ds9a.nl</a> <small>(HOWTO related only, do
 <strong>not</strong> send questions)</small> <br>
 <a href="#mailinglist">lartc@mailman.ds9a.nl</a>
 (<small>mailing list</a>/<a
@@ -76,6 +76,10 @@ This site attempts to document how to configure and use these features.
 <a name="news"></a>
 <h2>News</H2>
 <table border=1>
+<tr><td valign=top>2002-11-00</td><td>
+A spanish translation is appearing  <a href=http://midgard.heimy.org/~javi/asgard/lartc/>here</a>.</td></tr>
+<tr><td valign=top>2002-11-08</td><td>IPSEC IN LINUX 2.5.47! Read all about
+it <a href=http://lartc.org/howto/lartc.ipsec.html>here</a>.</td></tr>
 <tr><td valign=top>2002-07-20</td><td>Hate so called 'opt-in' spam? Visit 
 <a href=http://www.intuh.net/opt-out/>this page</a> or the <a
 href=http://ds9a.nl/mirrors/opt-out/>local mirror</a>. Even better, submit

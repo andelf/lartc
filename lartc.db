@@ -1595,7 +1595,6 @@ interface Tunnel1
 description IPv6 tunnel
 no ip address
 no ip directed-broadcast
-ipv6 enable
 ipv6 address 3FFE:604:6:7::1/126
 tunnel source Serial0
 tunnel destination 145.100.24.181
@@ -1617,7 +1616,10 @@ web interface. Search for "ipv6 tunnel broker" on your favourite search engine.
   <chapter id="lartc.ipsec">
     <Title>IPSEC: secure IP over the Internet</Title>
     <Para>
-      There are two kinds of IPSEC available for Linux these days. For 2.2 and 2.4, there is FreeS/WAN. They
+
+      There are two kinds of IPSEC available for Linux these days. For 2.2
+      and 2.4, there is FreeS/WAN, which was the first major implementation. They
+
       have <ULink URL="http://www.freeswan.org/">an official site</ulink> and <ulink url="http://www.freeswan.ca">
 	an unofficial one</ulink> that is actually maintained. FreeS/WAN has traditionally not been merged with
       the mainline kernel for a number of reasons. Most often mentioned are 'political' issues with Americans
@@ -1625,7 +1627,13 @@ web interface. Search for "ipv6 tunnel broker" on your favourite search engine.
       leading it to be a bad candidate for actual merging. 
     </para>
     <para>
-      Additionally, many parties have voiced worries about the quality of the code.
+      Additionally, <ulink
+url="http://www.edlug.ed.ac.uk/archive/Sep2002/msg00244.html">many</ulink> parties <ulink
+url="http://lists.freeswan.org/pipermail/design/2002-November/003901.html">have voiced
+worries</ulink> about the quality of the code. To setup FreeS/WAN, a lot of
+<ulink
+url="http://www.freeswan.ca/code/old/freeswan-Snapshot/doc/index.html">documentation</ulink>
+is available.
     </para>
     <para>
       As of Linux 2.5.47, there is a native IPSEC implementation in the kernel. It was written by Alexey Kuznetsov and
@@ -1637,24 +1645,42 @@ web interface. Search for "ipv6 tunnel broker" on your favourite search engine.
       that its configuration wil differ from the native IPSEC.
     </para>
     <para>
+	As of 2.5.49, IPSEC works without further patches.
+	</para>
+	<para>
       <note>
 	<para>
-	  As this is written, 2.5.47 has not even been released! A lot of what follows is likely to change. To try this with 2.5.46,
-	  fetch patches from the linux kernel mailinglist. Crude userspace utilities are <ulink url="ftp://ftp.inr.ac.ru/ip-routing/ipsec">
-	    here</ulink>. Compiling these userspace utilities requires editing the GNUMakefiles in there to point them at your
+	  I've collected patches released by Alexey or Dave Miller <ulink
+url="http://ds9a.nl/ipsec">here</ulink>. Apply all of them to 2.5.48 before
+reporting problems! (as yet, there are none for 2.5.49). Crude userspace utilities are <ulink
+url="ftp://ftp.inr.ac.ru/ip-routing/iputils-ss021109-try.tar.bz2">
+	    here</ulink> (<ulink url="http://ds9a.nl/ipsec/setkey.tar.gz">pre-compiled
+binary &amp; manpage</ulink>). Compiling these userspace utilities requires editing the Makefiles in there to point them at your
 	  2.5.x kernel. This situation is expected to improve rapidly however.
+	</para>
+	<para>
+	When compiling your kernel, be sure to turn on 'PF_KEY', 'AH', 'ESP' and
+everything in the CryptoAPI! TCP_MSS netfilter target is currently broken, 
+	you need to turn it off.
 	</para>
       </note>
       <warning>
 	<para>
-	  The author of this chapter is a complete DNSSEC nitwit! If you find the inevitable mistakes, please email
-	  bert hubert <email>ahu@ds9a.nl</email>.
+	  The author of this chapter is a complete IPSEC nitwit! If you find the inevitable mistakes, please email
+	  bert hubert <email>ahu@ds9a.nl</email>. 
 	</para>
       </warning>
     </Para>
     <para>
-      First, we'll show how to setup secure communication between two hosts. This sample can be made much
-      more complicated and powerful and we'll only do that, but only in a later section.
+      First, we'll show how to manually setup secure communication between
+      two hosts. A large part of this process can also be automated, but
+here we'll do it by hand so as to acquaint ourselves with what is going on
+'under the hood'. 
+    </para>
+    <para>
+	Feel free to skip the following section if you are only interested
+in automatic keying but be aware that some understanding of manual keying is
+useful. 
     </para>
     <sect1 id="lartc.ipsec.intro"><title>Intro with Manual Keying</title>
       <para>
@@ -1664,7 +1690,7 @@ web interface. Search for "ipv6 tunnel broker" on your favourite search engine.
       <para>
 	<note>
 	  <para>
-	    Many iptables configurations drop IPSEC packets! To pass IPSEC, use: 'iptables -A xxx -p 50' and 'iptables -A xxx -p 51'
+	    Many iptables configurations drop IPSEC packets! To pass IPSEC, use: 'iptables -A xxx -p 50 -j ACCEPT' and 'iptables -A xxx -p 51 -j ACCEPT'
 	  </para>
 	</note>
       </para>
@@ -1713,10 +1739,16 @@ spdadd 10.0.0.216 10.0.0.11 any -P out ipsec
 	and be wrapped in an AH authenticating header. Note that this does not describe which SA is to be used,
 	that is left as an exercise for the kernel to determine.
       </para>
+	<para>
+	In other words, a Security Policy specifies WHAT we want; a Security
+Association describes HOW we want it. 
+</para>
       <para>
-	Outgoing packets are however labelled with the SA SPI ids the kernel used for encryption and authentication 
-	so the remote can lookup the corresponding verification and decryption instruction.
+	Outgoing packets are labelled with the SA SPI ('the how') which the
+	kernel used for encryption and authentication so the remote can
+	lookup the corresponding verification and decryption instruction.
       </para>
+
       <para>
 	What follows is a very simple configuration for talking from host 10.0.0.216 to 10.0.0.11 using 
 	encryption and authentication. Note that the reverse path is plaintext in this first version and that
@@ -1730,8 +1762,8 @@ add 10.0.0.216 10.0.0.11 ah 24500 -A hmac-md5 "1234567890123456";
 add 10.0.0.216 10.0.0.11 esp 24501 -E 3des-cbc "123456789012123456789012";
 
 spdadd 10.0.0.216 10.0.0.11 any -P out ipsec
-   esp/transport//required
-   ah/transport//required;
+   esp/transport//require
+   ah/transport//require;
 	</screen>
       </para>
       <para>
@@ -1855,12 +1887,416 @@ spdadd 10.0.0.216 10.0.0.11 any -P in ipsec
 	transmitted using asymmetric encryption technology, according to negotiated algorithm details.
       </para>
       <para>
-	The Linux 2.5 IPSEC implementation works with the KAME 'racoon' IKE daemon. As of 8 November, the Racoon version in Alexey's kametools
-	distribution is non-functional.
+	The Linux 2.5 IPSEC implementation works with the KAME 'racoon' IKE
+	daemon. As of 9 November, the racoon version in Alexey's iptools
+	distribution can be compiled, although you may need to remove 
+#include &lt;net/route.h&gt; in two files. Alternatively, I've supplied a
+<ulink url="http://ds9a.nl/ipsec/racoon.bz2">precompiled version</ulink>.
       </para>
-      <para>
-	FIXME: write more
-      </para>
+	<para>
+	<note>
+	  <para>
+		IKE needs access to UDP port 500, be sure that iptables does
+not block it.
+	  </para>
+	</note>
+	</para>
+	<sect2 id="lartc.ipsec.keying.theory"><title>Theory</title>
+	<para>
+		As explained before, automatic keying does a lot of the work
+for us. Specifically, it creates Security Associations on the fly. It does
+not however set policy for us, which is as it should be.
+	</para>
+	<para>
+	So, to benefit from IKE, setup a policy, but do not supply any
+SAs. If the kernel discovers that there is an IPSEC policy, but no Security
+Association, it will notify the IKE daemon, which then goes to work on
+trying to negotiate one.
+	</para>
+	<para>
+	Reiterating, a Security Policy specifies WHAT we want; a Security
+Association describes HOW we want it. Using automatic keying lets us get
+away with only specifying what we want.
+	</para>
+</sect2>
+	<sect2 id="lartc.ipsec.automatic.keying.example"><title>Example</title>
+	<para>
+	Kame racoon comes with a grand host of options, most of which have
+very fine default values, so we don't need to touch them. As described
+above, the operator needs to define a Security Policy, but no Security
+Associations. We leave their negotiation to the IKE daemon.
+	</para>
+	<para>
+	In this example, 10.0.0.11 and 10.0.0.216 are once again going to
+setup secure communications, but this time with help from racoon. For
+simplicity this configuration will be using pre-shared keys, the
+dreaded 'shared secrets'. X.509 certificates are discussed in a separate
+section, see <xref linkend="lartc.ipsec.x509">.
+</para>
+<para> We're
+going to stick to almost the default configuration, identical on both hosts:
+	</para>	
+	<para>
+<screen>
+path pre_shared_key "/usr/local/etc/racoon/psk.txt";
+
+remote anonymous
+{
+ 	exchange_mode aggressive,main;
+ 	doi ipsec_doi;
+ 	situation identity_only;
+
+	my_identifier address;
+
+	lifetime time 2 min;   # sec,min,hour
+	initial_contact on;
+	proposal_check obey;	# obey, strict or claim
+
+	proposal {
+	        encryption_algorithm 3des;
+	        hash_algorithm sha1;
+	        authentication_method pre_shared_key;
+	        dh_group 2 ;
+	}
+}
+ 
+sainfo anonymous
+{
+ 	pfs_group 1;
+ 	lifetime time 2 min;
+ 	encryption_algorithm 3des ;
+ 	authentication_algorithm hmac_sha1;
+		compression_algorithm deflate ;
+}
+</screen>
+	</para>
+	<para>
+	Lots of settings - I think yet more can be removed to get closer to
+the default configuration. A few noteworthy things. We've configured two
+anonymous settings which hold for all remotes, making further configuration
+easy. There is no need for per-host stanzas here, unless we really want
+them.
+</para>
+	<para>
+	Furthermore, we've set it up such that we identify ourselves based
+on our IP address ('my_identifier address'), and declare that we can do
+3des, sha1, and that we will be using a pre-shared key, located in psk.txt.
+	</para>
+	<para>
+	In psk.txt, we now setup two entries, which do differ on both hosts.
+On 10.0.0.11:
+<screen>
+10.0.0.216	password2
+</screen>
+On 10.0.0.216:
+<screen>
+10.0.0.11	password2
+</screen>
+	Make sure these files are owned by root, and set to mode 0600,
+racoon will not trust their contents otherwise. Note that these files are
+mirrors from eachother.
+	</para>
+	<para>
+	Now we are ready to setup our desired policy, which is simple
+enough. On host 10.0.0.216:
+<screen>
+#!/sbin/setkey -f
+flush;
+spdflush;
+
+spdadd 10.0.0.216 10.0.0.11 any -P out ipsec
+	esp/transport//require;
+
+spdadd 10.0.0.11 10.0.0.216 any -P in ipsec
+	esp/transport//require;
+</screen>
+And on 10.0.0.11:
+<screen>
+#!/sbin/setkey -f
+flush;
+spdflush;
+
+spdadd 10.0.0.11 10.0.0.216 any -P out ipsec
+	esp/transport//require;
+
+spdadd 10.0.0.216 10.0.0.11 any -P in ipsec
+	esp/transport//require;
+</screen>
+Note how again these policies are mirrored.
+	</para>
+	<para>
+	We are now ready to launch racoon! Once launched, the moment we try
+to telnet from 10.0.0.11 to 10.0.0.216, or the other way around, racoon
+will start negotiating:
+<screen>
+12:18:44: INFO: isakmp.c:1689:isakmp_post_acquire(): IPsec-SA
+  request for 10.0.0.11 queued due to no phase1 found.
+12:18:44: INFO: isakmp.c:794:isakmp_ph1begin_i(): initiate new
+  phase 1 negotiation: 10.0.0.216[500]<=>10.0.0.11[500]
+12:18:44: INFO: isakmp.c:799:isakmp_ph1begin_i(): begin Aggressive mode.
+12:18:44: INFO: vendorid.c:128:check_vendorid(): received Vendor ID: 
+  KAME/racoon
+12:18:44: NOTIFY: oakley.c:2037:oakley_skeyid(): couldn't find
+  the proper pskey, try to get one by the peer's address.
+12:18:44: INFO: isakmp.c:2417:log_ph1established(): ISAKMP-SA
+  established 10.0.0.216[500]-10.0.0.11[500] spi:044d25dede78a4d1:ff01e5b4804f0680
+12:18:45: INFO: isakmp.c:938:isakmp_ph2begin_i(): initiate new phase 2 
+  negotiation: 10.0.0.216[0]<=>10.0.0.11[0]
+12:18:45: INFO: pfkey.c:1106:pk_recvupdate(): IPsec-SA established: 
+  ESP/Transport 10.0.0.11->10.0.0.216 spi=44556347(0x2a7e03b)
+12:18:45: INFO: pfkey.c:1318:pk_recvadd(): IPsec-SA established:
+  ESP/Transport 10.0.0.216->10.0.0.11 spi=15863890(0xf21052)
+</screen>
+</para>
+<para>
+	If we now run setkey -D, which shows the Security Associations, they
+are indeed there:
+<screen>
+10.0.0.216 10.0.0.11 
+	esp mode=transport spi=224162611(0x0d5c7333) reqid=0(0x00000000)
+	E: 3des-cbc  5d421c1b d33b2a9f 4e9055e3 857db9fc 211d9c95 ebaead04
+	A: hmac-sha1  c5537d66 f3c5d869 bd736ae2 08d22133 27f7aa99
+	seq=0x00000000 replay=4 flags=0x00000000 state=mature 
+	created: Nov 11 12:28:45 2002	current: Nov 11 12:29:16 2002
+	diff: 31(s)	hard: 600(s)	soft: 480(s)
+	last: Nov 11 12:29:12 2002	hard: 0(s)	soft: 0(s)
+	current: 304(bytes)	hard: 0(bytes)	soft: 0(bytes)
+	allocated: 3	hard: 0	soft: 0
+	sadb_seq=1 pid=17112 refcnt=0
+10.0.0.11 10.0.0.216 
+	esp mode=transport spi=165123736(0x09d79698) reqid=0(0x00000000)
+	E: 3des-cbc  d7af8466 acd4f14c 872c5443 ec45a719 d4b3fde1 8d239d6a
+	A: hmac-sha1  41ccc388 4568ac49 19e4e024 628e240c 141ffe2f
+	seq=0x00000000 replay=4 flags=0x00000000 state=mature 
+	created: Nov 11 12:28:45 2002	current: Nov 11 12:29:16 2002
+	diff: 31(s)	hard: 600(s)	soft: 480(s)
+	last:                     	hard: 0(s)	soft: 0(s)
+	current: 231(bytes)	hard: 0(bytes)	soft: 0(bytes)
+	allocated: 2	hard: 0	soft: 0
+	sadb_seq=0 pid=17112 refcnt=0
+</screen>
+As are the Security Policies we configured ourselves:
+<screen>
+10.0.0.11[any] 10.0.0.216[any] tcp
+	in ipsec
+	esp/transport//require
+	created:Nov 11 12:28:28 2002 lastused:Nov 11 12:29:12 2002
+	lifetime:0(s) validtime:0(s)
+	spid=3616 seq=5 pid=17134
+	refcnt=3
+10.0.0.216[any] 10.0.0.11[any] tcp
+	out ipsec
+	esp/transport//require
+	created:Nov 11 12:28:28 2002 lastused:Nov 11 12:28:44 2002
+	lifetime:0(s) validtime:0(s)
+	spid=3609 seq=4 pid=17134
+	refcnt=3
+</screen>
+	<sect3><title>Problems and known defects</title>
+	<para>
+		If this does not work, check that all configuration files
+are owned by root, and can only be read by root. To start racoon on the
+foreground, use '-F'. To force it to read a certain configuration file,
+instead of at the compiled location, use '-f'. For staggering amounts of
+detail, add a 'log debug;' statement to racoon.conf.
+	</para>
+	</sect2>
+	<sect2 id="lartc.ipsec.x509"><title>Automatic keying using X.509 certificates</title>
+	<para>
+	As mentioned before, the use of shared secrets is hard because they
+aren't easily shared and once shared, are no longer secret. Luckily, there
+is asymmetric encryption technology to help resolve this.
+	</para>
+	<para>
+	If each IPSEC participant makes a public and a private key, secure
+communications can be setup by both parties publishing their public key, and
+configuring policy.
+	</para>
+	<para>
+	Building a key is relatively easy, although it requires some work.
+The following is based on the 'openssl' tool. 
+	</para>
+	<sect3><title>Building an X.509 certificate for your host</title>
+	<para>
+	OpenSSL has a lot of infrastructure for keys that may or may not be
+signed by certificate authorities. Right now, we need to circumvent all that
+infrastructure and practice some good old Snake Oil security, and do without
+a certificate authority.
+	</para>
+	<para>
+	First we issue a 'certificate request' for our host, called
+'laptop':
+<screen>
+$ openssl req -new -nodes -newkey rsa:1024 -sha1 -keyform PEM -keyout \
+  laptop.private -outform PEM -out request.pem
+</screen>
+This asks us some questions:
+<screen>
+Country Name (2 letter code) [AU]:NL
+State or Province Name (full name) [Some-State]:.
+Locality Name (eg, city) []:Delft
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:Linux Advanced
+Routing & Traffic Control
+Organizational Unit Name (eg, section) []:laptop
+Common Name (eg, YOUR name) []:bert hubert
+Email Address []:ahu@ds9a.nl
+
+Please enter the following 'extra' attributes
+to be sent with your certificate request
+A challenge password []:
+An optional company name []:
+</screen>
+	It is left to your own discretion how completely you want to fill
+this out. You may or may not want to put your hostname in there, depending
+on your security needs. In this example, we have.
+</para>
+	<para>
+	We'll now 'self sign' this request:
+<screen>
+$ openssl x509 -req -in request.pem -signkey laptop.private -out \
+  laptop.public
+Signature ok
+subject=/C=NL/L=Delft/O=Linux Advanced Routing &amp; Traffic \
+  Control/OU=laptop/CN=bert hubert/Email=ahu@ds9a.nl
+Getting Private key
+</screen>	
+	The 'request.pem' file can now be discarded. 
+	</para>
+	<para>
+	Repeat this procedure for all hosts you need a key for. You can
+distribute the '.public' file with impunity, but keep the '.private' one
+private!
+	</para>
+	</sect3>
+	<sect3><title>Setting up and launching</title>
+	<para>
+	Once we have a public and a private key for our hosts we can tell
+	racoon to use them.
+	</para>
+	<para>
+	We return to our previous configuration and the two hosts, 10.0.0.11
+('upstairs') and 10.0.0.216 ('laptop').
+	</para>
+	<para>
+	To the <filename>racoon.conf</filename> file on 10.0.0.11, we add:
+<screen>
+path certificate "/usr/local/etc/racoon/certs";
+
+remote 10.0.0.216
+{
+ 	exchange_mode aggressive,main;
+	my_identifier asn1dn;
+	peers_identifier asn1dn;
+
+	certificate_type x509 "upstairs.public" "upstairs.private";
+
+	peers_certfile "laptop.public";
+	proposal {
+                encryption_algorithm 3des;
+		hash_algorithm sha1;
+		authentication_method rsasig;
+		dh_group 2 ;
+	}
+}
+</screen>
+	This tells racoon that certificates are to be found in
+<filename>/usr/local/etc/racoon/certs/</filename>. Furthermore, it contains
+configuration items specific for remote 10.0.0.216.
+	</para>
+	<para>
+	The 'asn1dn' lines tell racoon that the identifier for both the
+local and remote ends are to be extracted from the public keys. This is the
+'subject=/C=NL/L=Delft/O=Linux Advanced Routing &amp; Traffic 
+  Control/OU=laptop/CN=bert hubert/Email=ahu@ds9a.nl' output from above.
+	</para>
+	<para>
+	The <command>certificate_type</command> line configures the local
+public and private key. The <command>peers_certfile</command> statement
+configures racoon to read the public key of the remote peer from the file
+<filename>laptop.public</filename>.
+	</para>
+	<para>
+	The <command>proposal</command> stanza is unchanged from what we've
+seen earlier, with the exception that the
+<command>authentication_method</command> is now <command>rsasig</command>,
+indicating the use of RSA public/private keys for authentication.
+	</para>
+	<para>
+	The addition to the configuration of 10.0.0.216 is nearly identical, except for the
+usual mirroring:
+<screen>
+path certificate "/usr/local/etc/racoon/certs";
+
+remote 10.0.0.11
+{
+ 	exchange_mode aggressive,main;
+	my_identifier asn1dn;
+        peers_identifier asn1dn;
+
+        certificate_type x509 "laptop.public" "laptop.private";
+ 
+ 	peers_certfile "upstairs.public";
+
+	proposal {
+                encryption_algorithm 3des;
+	        hash_algorithm sha1;
+		authentication_method rsasig;
+	        dh_group 2 ;
+	}
+}
+</screen>
+</para>
+	<para>
+	Now that we've added these statements to both hosts, we only need to
+move the key files in place. The 'upstairs' machine needs 
+<filename>upstairs.private</filename>, <filename>upstairs.public</filename>, 
+and <filename>laptop.public</filename> in
+<filename>/usr/local/etc/racoon/certs</filename>. Make sure that this
+directory is owned by root and has mode 0600 or racoon may refuse to read
+it!
+</para>
+<para>
+The 'laptop' machine needs 
+<filename>laptop.private</filename>, <filename>laptop.public</filename>, 
+and <filename>upstairs.public</filename> in
+<filename>/usr/local/etc/racoon/certs</filename>. In other words, each host
+needs its own public and private key and additionally, the public key of the
+remote.
+</para>
+<para>
+	Verify that a Security Policy is in place (execute the 'spdadd' lines in
+<xref linkend="lartc.ipsec.automatic.keying.example">). Then launch racoon and everything should
+work.
+	</sect3>
+	<sect3><title>How to setup tunnels securely</title>
+	<para>
+	To setup secure communications with a remote party, we must exchange
+public keys. While the public key does not need to be kept a secret, on the
+contrary, it is very important to be sure that it is in fact the unaltered
+key. In other words, you need to be certain there is no 'man in the middle'.
+	</para>
+	<para>
+To make this easy, OpenSSL provides the 'digest' command:
+<screen>
+$ openssl dgst upstairs.public 
+MD5(upstairs.public)= 78a3bddafb4d681c1ca8ed4d23da4ff1
+</screen>
+</para>
+	<para>
+	Now all we need to do is verify if our remote partner sees the same
+digest. This might be done by meeting in real life or perhaps over the
+phone, making sure the number of the remote party was not in fact sent over
+the same email containing the key!
+	</para>
+	<para>
+	Another way of doing this is the use of a Trusted Third Party which
+runs a Certificate Authority. This CA would then sign your key, which we've
+done ourselves above.
+	</para>
+	
+	</sect3>
+    </sect2>
+
     </sect1>
     <sect1 id="lartc.ipsec.tunnel"><title>IPSEC tunnels</title>
       <para>
@@ -4328,13 +4764,6 @@ as well:
 </Para>
 
 <Para>
-FIXME: does this need something like 'nobroadcast'? A /31 is too small to
-house a network address and a broadcast address - if this doesn't work as
-planned, try a /30, and adjust the ip addresses accordingly. You might even
-try to make eth1 and eth2 do without an IP address!
-</Para>
-
-<Para>
 On router A:
 
 <Screen>
@@ -4381,8 +4810,8 @@ packets destined for ip addresses other than their own:
 <Para>
 
 <Screen>
-# echo 0 &#62; /proc/net/ipv4/conf/eth1/rp_filter
-# echo 0 &#62; /proc/net/ipv4/conf/eth2/rp_filter
+# echo 0 &#62; /proc/sys/net/ipv4/conf/eth1/rp_filter
+# echo 0 &#62; /proc/sys/net/ipv4/conf/eth2/rp_filter
 </Screen>
 
 </Para>
@@ -8253,7 +8682,258 @@ If the last two lines give an error, update your tc tool to a newer version!
 	<xref linkend="lartc.sfq"> for details on what this does.
       </para>
     </sect1>
+        
+	<sect1 id="lartc.cookbook.fullnat.intro"><title>Example of a full nat solution with QoS</title>
+		<para>
+			I'm Pedro Larroy <address><email>piotr@omega.resa.es</email></address> Here I'm describing a common set up where we have lots of users in a private network connected to the Internet trough a Linux router with a public ip address that is doing network address translation (NAT). I use this QoS setup to give access to the Internet to 198 users in a university dorm, in which I live and I'm netadmin of. The users here do heavy use of peer to peer programs, so proper traffic control is a must. I hope this serves as a practical example for all interested lartc readers.
+		</para>
+
+		<para>
+			At first I make a practical approach with step by step configuration, and in the end I explain how to make the process automatic at bootime. The network to which this example applies is a private LAN connected to the Internet through a Linux router which has one public ip address. Extending it to several public ip address should be very easy, a couple of iptables rules should be added.
+			In order to get things working we need:
+			<VariableList>
+				<VarListEntry>
+					<Term>Linux 2.4.18 or higher kernel version installed</Term>
+					<ListItem>
+					<Para>
+					If you use 2.4.18 you will have to apply HTB patch available here.
+					</Para></ListItem>
+				</VarListEntry>
+
+				<VarListEntry>
+					<Term>iproute</Term>
+					<ListItem>
+					<Para>
+					Also ensure the "tc" binary is HTB ready, a precompiled binary is distributed with HTB.
+					</Para></ListItem>
+				</VarListEntry>
+
+				<VarListEntry>
+					<Term>iptables</Term>
+					<ListItem>
+					<Para>
+					</Para></ListItem>
+				</VarListEntry>
+			</VariableList>
+
+		</para>
+
+
+	<sect2>
+	<Title>Let's begin optimizing that scarce bandwidth</Title>
+		<para>
+			First we set up some qdiscs in which we will classify the traffic. We create a htb qdisc with 6 classes with ascending priority. Then we have classes that will always get allocated rate, but can use the unused bandwidth that other classes don't need. Recall that classes with higher priority ( i.e with a lower prio number ) will get excess of bandwith allocated first. Our connection is 2Mb down 300kbits/s up Adsl. I use 240kbit/s as ceil rate just because it's the higher I can set it before latency starts to grow, due to buffer filling in whatever place between us and remote hosts. This parameter should be timed experimentally, raising it and lowering while observing latency between some near hosts.
+		</para>
+		<para>
+			Adjust CEIL to 75% of your upstream bandwith limit by now, and where I use eth0, you should use the interface which has a public Internet address. To begin our example execute the following in a root shell:
+			<Screen>
+			CEIL=240
+			tc qdisc add dev eth0 root handle 1: htb default 15
+			tc class add dev eth0 parent 1: classid 1:1 htb rate ${CEIL}kbit ceil ${CEIL}kbit
+			tc class add dev eth0 parent 1:1 classid 1:10 htb rate 80kbit ceil 80kbit prio 0
+			tc class add dev eth0 parent 1:1 classid 1:11 htb rate 80kbit ceil ${CEIL}kbit prio 1
+			tc class add dev eth0 parent 1:1 classid 1:12 htb rate 20kbit ceil ${CEIL}kbit prio 2
+			tc class add dev eth0 parent 1:1 classid 1:13 htb rate 20kbit ceil ${CEIL}kbit prio 2
+			tc class add dev eth0 parent 1:1 classid 1:14 htb rate 10kbit ceil ${CEIL}kbit prio 3
+			tc class add dev eth0 parent 1:1 classid 1:15 htb rate 30kbit ceil ${CEIL}kbit prio 3
+			tc qdisc add dev eth0 parent 1:12 handle 120: sfq perturb 10
+			tc qdisc add dev eth0 parent 1:13 handle 130: sfq perturb 10
+			tc qdisc add dev eth0 parent 1:14 handle 140: sfq perturb 10
+			tc qdisc add dev eth0 parent 1:15 handle 150: sfq perturb 10
+			</Screen>
+			We have just created a htb tree with one level depth. Something like this:
+
+			<Screen>
+			+---------+
+			| root 1: |
+			+---------+
+			     |
+			+---------------------------------------+
+			| class 1:1                             |
+			+---------------------------------------+
+			  |      |      |      |      |      |      
+			+----+ +----+ +----+ +----+ +----+ +----+
+			|1:10| |1:11| |1:12| |1:13| |1:14| |1:15| 
+			+----+ +----+ +----+ +----+ +----+ +----+ 
+			</Screen>
+			
+			<VariableList>
+				<VarListEntry>
+					<Term>classid 1:10 htb rate 80kbit ceil 80kbit prio 0</Term>
+					<ListItem>
+					<Para>
+					This is the higher priority class. The packets in this class will have the lowest delay and would get the excess of bandwith first so it's a good idea to limit the ceil rate to this class. We will send through this class the following packets that benefit from low delay, such as interactive traffic: <emphasis>ssh, telnet, dns, quake3, irc, and packets with the SYN flag</emphasis>.
+					</Para>
+					</ListItem>
+				</VarListEntry>
+
+				<VarListEntry>
+					<Term>classid 1:11 htb rate 80kbit ceil ${CEIL}kbit prio 1</Term>
+					<ListItem>
+					<Para>
+					Here we have the first class in which we can start to put bulk traffic. In my example I have traffic from the local web server and requests for web pages: source port 80, and destination port 80 respectively.
+					</Para></ListItem>
+				</VarListEntry>
+
+				<VarListEntry>
+					<Term>classid 1:12 htb rate 20kbit ceil ${CEIL}kbit prio 2</Term>
+					<ListItem>
+					<Para>
+					In this class I will put traffic with Maximize-Throughput TOS bit set and the rest of the traffic that goes from <emphasis>local processes</emphasis> on the router to the Internet. So the following classes will only have traffic that is <quote>routed through</quote> the box.
+					</Para></ListItem>
+				</VarListEntry>
+				
+				<VarListEntry>
+					<Term>classid 1:13 htb rate 20kbit ceil ${CEIL}kbit prio 2</Term>
+					<ListItem>
+					<Para>
+					This class is for the traffic of other NATed machines that need higher priority in their bulk traffic.
+					</Para></ListItem>
+				</VarListEntry>
+
+
+				<VarListEntry>
+					<Term>classid 1:14 htb rate 10kbit ceil ${CEIL}kbit prio 3</Term>
+					<ListItem>
+					<Para>
+					Here goes mail traffic (SMTP,pop3...) and packets with Minimize-Cost TOS bit set.
+					</Para></ListItem>
+				</VarListEntry>
+
+				<VarListEntry>
+					<Term>classid 1:15 htb rate 30kbit ceil ${CEIL}kbit prio 3</Term>
+					<ListItem>
+					<Para>
+					And finally here we have bulk traffic from the NATed machines behind the router. All kazaa, edonkey, and others will go here, in order to not interfere with other services.
+					</Para></ListItem>
+				</VarListEntry>
+
+			</VariableList>
+
+
+
+
+		</para>
+	</sect2>
+	
+	<sect2>
+	<Title>Classifying packets</Title>
+		<para>
+			We have created the qdisc setup but no packet classification has been made, so now all outgoing packets are going out in class 1:15 ( because we used: tc qdisc add dev eth0 root handle 1: htb <emphasis>default 15</emphasis> ). Now we need to tell which packets go where. This is the most important part.
+		</para>
+
+		<para>
+			Now we set the filters so we can classify the packets with iptables. I really prefer to do it with iptables, because they are very flexible and you have packet count for each rule. Also with the RETURN target packets don't need to traverse all rules. We execute the following commands:
+			<Screen>
+			tc filter add dev eth0 parent 1:0 protocol ip prio 1 handle 1 fw classid 1:10
+			tc filter add dev eth0 parent 1:0 protocol ip prio 2 handle 2 fw classid 1:11
+			tc filter add dev eth0 parent 1:0 protocol ip prio 3 handle 3 fw classid 1:12
+			tc filter add dev eth0 parent 1:0 protocol ip prio 4 handle 4 fw classid 1:13
+			tc filter add dev eth0 parent 1:0 protocol ip prio 5 handle 5 fw classid 1:14
+			tc filter add dev eth0 parent 1:0 protocol ip prio 6 handle 6 fw classid 1:15
+			</Screen>
+			We have just told the kernel that packets that has a specific FWMARK value ( hanlde x fw ) go in the specified class ( classid x:x). Next you will see how to mark packets with iptables. 
+		</para>
+		
+		<para>
+			First you have to understand how packet traverse the filters with iptables:
+			<Screen>
+			        +------------+                +---------+               +-------------+
+			Packet -| PREROUTING |--- routing-----| FORWARD |-------+-------| POSTROUTING |- Packets
+			input   +------------+    decision    +-­-------+       |       +-------------+    out
+			                             |                          |
+			                        +-------+                    +--------+   
+			                        | INPUT |---- Local process -| OUTPUT |
+			                        +-------+                    +--------+
+			
+			</Screen>
+			I assume you have all your tables creak and with default policy ACCEPT ( -P ACCEPT ) if you haven't poked with iptables yet, It should be ok by default. Ours private network is a class B with address 172.17.0.0/16 and public ip is 212.170.21.172
+		</para>
+
+		<para>
+			Next we instruct the kernel to <emphasis>actually do NAT</emphasis>, so clients in the private network can start talking to the outside. 
+			<Screen>
+			echo 1 > /proc/sys/net/ipv4/ip_forward
+			iptables -t nat -A POSTROUTING -s 172.17.0.0/255.255.0.0 -o eth0 -j SNAT --to-source 212.170.21.172
+			</Screen>
+			Now check that packets are flowing through 1:15:
+			<Screen>
+			tc -s class show dev eth0
+			</Screen>
+		</para>
+
+		<para>
+			You can start marking packets adding rules to the PREROUTING chain in the mangle table.
+			<Screen>
+			iptables -t mangle -A PREROUTING -p icmp -j MARK --set-mark 0x1
+			iptables -t mangle -A PREROUTING -p icmp -j RETURN
+			</Screen>
+			Now you should be able to see packet count increasing when pinging from machines within the private network to some site on the Internet. Check packet count increasing in 1:10
+			<Screen>
+			tc -s class show dev eth0
+			</Screen>
+			We have done a -j RETURN so packets don't traverse all rules. Icmp packets won't match other rules below RETURN. Keep that in mind.
+			Now we can start adding more rules, lets do proper TOS handling:
+			<Screen>
+			iptables -t mangle -A PREROUTING -m tos --tos Minimize-Delay -j MARK --set-mark 0x1
+			iptables -t mangle -A PREROUTING -m tos --tos Minimize-Delay -j RETURN
+			iptables -t mangle -A PREROUTING -m tos --tos Minimize-Cost -j MARK --set-mark 0x5
+			iptables -t mangle -A PREROUTING -m tos --tos Minimize-Cost -j RETURN
+			iptables -t mangle -A PREROUTING -m tos --tos Maximize-Throughput -j MARK --set-mark 0x6
+			iptables -t mangle -A PREROUTING -m tos --tos Maximize-Throughput -j RETURN
+			</Screen>
+
+			Now prioritize ssh packets:
+			<Screen>
+			iptables -t mangle -A PREROUTING -p tcp -m tcp --sport 22 -j MARK --set-mark 0x1
+			iptables -t mangle -A PREROUTING -p tcp -m tcp --sport 22 -j RETURN
+			</Screen>
+			A good idea is to prioritize packets to begin tcp connections, those with SYN flag set:
+			<Screen>
+			iptables -t mangle -I PREROUTING -p tcp -m tcp --tcp-flags SYN,RST,ACK SYN -j MARK --set-mark 0x1
+			iptables -t mangle -I PREROUTING -p tcp -m tcp --tcp-flags SYN,RST,ACK SYN -j RETURN
+			</Screen>
+			And so on.
+			
+			When we are done adding rules to PREROUTING in mangle, we terminate the PREROUTING table with:
+			<Screen>
+			iptables -t mangle -A PREROUTING -j MARK --set-mark 0x6
+			</Screen>
+			So previously unmarked traffic goes in 1:15. In fact this last step is unnecessary since default class was 1:15, but I will mark them in order to be consistent with the whole setup, and furthermore it's useful to see the counter in that rule.
+		</para>
+		
+		<para>
+			It will be a good idea to do the same in the OUTPUT rule, so repeat those commands with -A OUTPUT instead of PREROUTING. ( s/PREROUTING/OUTPUT/ ). Then traffic generated locally (on the Linux router) will also be classified. I finish OUTPUT chain with -j MARK --set-mark 0x3 so local traffic has higher priority. 
+		</para>
+
+	</sect2>
+		
+	<sect2>
+	<Title>Improving our setup</Title>
+		<para>
+			Now we have all our setup working. Take time looking at the graphs, and watching where your bandwith is spent and how do you want it. Doing that for lots of hours, I finally got the Internet connection working really well. Otherwise continuous timeouts and nearly zero allotment of bandwith to newly created tcp connections will occur.
+		</para>
+		<para>
+			If you find that some classes are full most of the time it would be a good idea to attach another queueing discipline to them so bandwith sharing is more fair:
+			<Screen>
+		        tc qdisc add dev eth0 parent 1:13 handle 130: sfq perturb 10
+		        tc qdisc add dev eth0 parent 1:14 handle 140: sfq perturb 10
+		        tc qdisc add dev eth0 parent 1:15 handle 150: sfq perturb 10
+			</Screen>
+		</para>
+
+	<sect2>
+	<Title>Making all of the above start at boot</Title>
+		<para>
+			It sure can be done in many ways. In mine, I have a shell script in /etc/init.d/packetfilter that accepts [start | stop | stop-tables | start-tables | reload-tables] it configures qdiscs and loads needed kernel modules, so it behaves much like a daemon. The same script loads iptables rules from /etc/network/iptables-rules. I will beautify it a little and will make it available on my web page <ULink URL="http://omega.resa.es/piotr/files/packetfilter.tar.bz2">here</ULink> 
+			
+		</para>
+	
+	</sect1>
+
 </chapter>
+
+
 
 <chapter id="lartc.bridging">
   <Title>Building bridges, and pseudo-bridges with Proxy ARP</Title>
@@ -9025,6 +9705,22 @@ helping.
   </Para>
   </ListItem>
 
+  <ListItem>
+   <Para>
+   <author><firstname>Hannes</firstname><surname>Ebner</surname>
+     </author>
+   <address><email>he%fli4l.de</email></address>
+  </Para>
+  </ListItem>
+
+  <ListItem>
+   <Para>
+   <author><firstname>Derek</firstname><surname>Fawcus</surname>
+     </author>
+   <address><email>dfawcus%cisco.com</email></address>
+  </Para>
+  </ListItem>
+
 
   <ListItem>
    <Para>
@@ -9194,14 +9890,19 @@ Patrick McHardy &lt;kaber@trash.net&gt;
 Andreas Mohr &lt;andi&percnt;lisas.de&gt;
 </Para>
 </ListItem>
-<ListItem>
 
+<listitem>
+<para>James Morris &lt;jmorris@intercode.com.au&gt;
+</para></listitem>
+
+
+<ListItem>
 <Para>
-Andrew Morton &lt;akpm@zip.com.au&gt;
+Andrew Morton &lt;akpm%zip.com.au&gt;
 </Para>
 </ListItem>
-<ListItem>
 
+<ListItem>
 <Para>
 Wim van der Most 
 </Para>
@@ -9219,6 +9920,7 @@ Togan Muftuoglu &lt;toganm&percnt;yahoo.com&gt;
 </Para>
 </ListItem>
 <ListItem>
+
 
 <Para>
 Chris Murray &lt;cmurray@stargate.ca&gt;
@@ -9363,6 +10065,14 @@ Tea Sponsor: Eric Veldhuyzen &lt;eric&percnt;terra.nu&gt;
 Song Wang &lt;wsong@ece.uci.edu&gt;
 </Para>
 </ListItem>
+
+  <ListItem>
+   <Para>
+   <author><firstname>Chris</firstname><surname>Wilson</surname></author>
+   <address><email>chris@netservers.co.uk</email></address>
+   </Para>
+  </ListItem>
+
 
   <ListItem>
    <Para>
