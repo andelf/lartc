@@ -7040,102 +7040,99 @@ with netfilter. On your local box:
 
 </Para>
 
-</Sect1>
+    </Sect1>
 
-<Sect1 id="lartc.cookbook.squid">
-  <Title>Transparent web-caching using <application>netfilter</application>,
-  <application>iproute2</application>, <application>ipchains</application> and 
-  <application>squid</application></Title>
+    <Sect1 id="lartc.cookbook.squid">
+      <Title>Transparent web-caching using <application>netfilter</application>,
+	<application>iproute2</application>, <application>ipchains</application> and 
+	<application>squid</application></Title>
+      
+      <Para>
+	This section was sent in by reader Ram Narula from Internet for Education
+	(Thailand).
+      </Para>
+      
+      <Para>
+	The regular technique in accomplishing this in Linux
+	is probably with use of ipchains AFTER making sure
+	that the "outgoing" port 80(web) traffic gets routed through
+	the server running squid.
+      </Para>
 
-<Para>
-This section was sent in by reader Ram Narula from Internet for Education
-(Thailand).
-</Para>
+      <Para>
+	There are 3 common methods to make sure "outgoing"
+	port 80 traffic gets routed to the server running squid
+	and 4th one is being introduced here.
+      </Para>
+      
+      <Para>
+	<VariableList>
+	  <VarListEntry>
+	    <Term>Making the gateway router do it.</Term>
+	    <ListItem>
+	      <Para>
+		If you can tell your gateway router to 
+		match packets that has outgoing destination port
+		of 80 to be sent to the IP address of squid server.
+	      </Para>
+	      
+	      <Para>
+		BUT
+	      </Para>
 
-<Para>
-The regular technique in accomplishing this in Linux
-is probably with use of ipchains AFTER making sure
-that the "outgoing" port 80(web) traffic gets routed through
-the server running squid.
-</Para>
-
-<Para>
-There are 3 common methods to make sure "outgoing"
-port 80 traffic gets routed to the server running squid
-and 4th one is being introduced here.
-</Para>
-
-<Para>
-<VariableList>
-
-<VarListEntry>
-<Term>Making the gateway router do it.</Term>
-<ListItem>
-<Para>
-If you can tell your gateway router to 
-match packets that has outgoing destination port
-of 80 to be sent to the IP address of squid server.
-</Para>
-
-<Para>
-BUT
-</Para>
-
-<Para>
-This would put additional load on the router and
-some commercial routers might not even support this.
-</Para></ListItem>
-</VarListEntry>
-<VarListEntry>
-<Term>Using a Layer 4 switch.</Term>
-<ListItem>
-<Para>
-Layer 4 switches can handle this without any problem.
-</Para>
-
-<Para>
-BUT
-</Para>
-
-<Para>
-The cost for this equipment is usually very high. Typical
-layer 4 switch would normally cost more than
-a typical router+good linux server.
-</Para></ListItem>
-</VarListEntry>
-<VarListEntry>
-<Term>Using cache server as network's gateway.</Term>
-<ListItem>
-<Para>
-You can force ALL traffic through cache server.
-</Para>
-
-<Para>
-BUT
-</Para>
-
-<Para>
-This is quite risky because Squid does
-utilize lots of CPU power which might
-result in slower over-all network performance
-or the server itself might crash and no one on the
-network will be able to access the Internet if
-that occurs.
-</Para></ListItem>
-</VarListEntry>
-<VarListEntry>
-<Term>Linux+NetFilter router.</Term>
-<ListItem>
-<Para>
-By using NetFilter another technique can be implemented
-which is using NetFilter for "mark"ing the packets
-with destination port 80 and using iproute2 to
-route the "mark"ed packets to the Squid server.
-</Para></ListItem>
-</VarListEntry>
-</VariableList>
-
-<Screen>
+	      <Para>
+		This would put additional load on the router and
+		some commercial routers might not even support this.
+	      </Para>
+	    </ListItem>
+	  </VarListEntry>
+	  <VarListEntry>
+	    <Term>Using a Layer 4 switch.</Term>
+	    <ListItem>
+	      <Para>
+		Layer 4 switches can handle this without any problem.
+	      </Para>
+	      
+	      <Para>
+		BUT
+	      </Para>
+	      
+	      <Para>
+		The cost for this equipment is usually very high. Typical
+		layer 4 switch would normally cost more than
+		a typical router+good linux server.
+	      </Para>
+	    </ListItem>
+	  </VarListEntry>
+	  <VarListEntry>
+	    <Term>Using cache server as network's gateway.</Term>
+	    <ListItem>
+	      <Para>
+		You can force ALL traffic through cache server.
+	      </Para>
+	      <Para>
+		BUT
+	      </Para>
+	      <Para>
+		This is quite risky because Squid does utilize lots of CPU power which might
+		result in slower over-all network performance or the server itself might crash and no one on the
+		network will be able to access the Internet if that occurs.
+	      </Para>
+	    </ListItem>
+	  </VarListEntry>
+	  <VarListEntry>
+	    <Term>Linux+NetFilter router.</Term>
+	    <ListItem>
+	      <Para>
+		By using NetFilter another technique can be implemented
+		which is using NetFilter for "mark"ing the packets
+		with destination port 80 and using iproute2 to
+		route the "mark"ed packets to the Squid server.
+	      </Para>
+	    </ListItem>
+	  </VarListEntry>
+	</VariableList>
+	<Screen>
 |----------------|
 | Implementation |
 |----------------|
@@ -7160,145 +7157,95 @@ donmuang
 ------------hub/switch----------
 |        |             |       |
 naret   silom        kaosarn  RAS etc.
-</Screen>
+	</Screen>
 
-First, make all traffic pass through naret by making
-sure it is the default gateway except for silom.
-Silom's default gateway has to be donmuang (10.0.0.3) or
-this would create web traffic loop.
-</Para>
-
-<Para>
-(all servers on my network had 10.0.0.1 as the default gateway
-which was the former IP address of donmuang router so what I did
-was changed the IP address of donmuang to 10.0.0.3 and gave
-naret ip address of 10.0.0.1)
-</Para>
-
-<Para>
-
-<Screen>
+	First, make all traffic pass through naret by making sure it is the default gateway except for silom.
+	Silom's default gateway has to be donmuang (10.0.0.3) or this would create web traffic loop.
+      </Para>
+      <Para>
+	(all servers on my network had 10.0.0.1 as the default gateway 	which was the former IP address of donmuang router so what I did
+	was changed the IP address of donmuang to 10.0.0.3 and gave naret ip address of 10.0.0.1)
+      </Para>
+      <Para>
+	<Screen>
 Silom
 -----
 -setup squid and ipchains 
-</Screen>
-
-</Para>
-
-<Para>
-Setup Squid server on silom, make sure it does support
-transparent caching/proxying, the default port is usually
-3128, so all traffic for port 80 has to be redirected to port
-3128 locally. This can be done by using ipchains with the following:
-</Para>
-
-<Para>
-
-<Screen>
+	</Screen>
+      </Para>
+      <Para>
+	Setup Squid server on silom, make sure it does support 	transparent caching/proxying, the default port is usually
+	3128, so all traffic for port 80 has to be redirected to port 3128 locally. This can be done by using ipchains with the following:
+      </Para>
+      <Para>
+	<Screen>
 silom# ipchains -N allow1
 silom# ipchains -A allow1 -p TCP -s 10.0.0.0/19 -d 0/0 80 -j REDIRECT 3128
 silom# ipchains -I input -j allow1
-</Screen>
-
-</Para>
-
-<Para>
- 
-</Para>
-
-<Para>
+	</Screen>
+      </Para>
+      <Para>
 Or, in netfilter lingo:
-
-<Screen>
+	<Screen>
 silom# iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 3128
-</Screen>
-
-</Para>
-
-<Para>
-(note: you might have other entries as well)
-</Para>
-
-<Para>
-For more information on setting Squid server please refer
-to Squid FAQ page on <ULink
-URL="http://squid.nlanr.net"
->http://squid.nlanr.net</ULink
->).
-</Para>
-
-<Para>
-Make sure ip forwarding is enabled on this server and the default
-gateway for this server is donmuang router (NOT naret).
-</Para>
-
-<Para>
-
-<Screen>
+	</Screen>
+      </Para>
+      <Para>
+	(note: you might have other entries as well)
+      </Para>
+      <Para>
+	For more information on setting Squid server please refer to Squid FAQ page on <ULink
+	  URL="http://squid.nlanr.net">http://squid.nlanr.net</ULink>).
+      </Para>
+      <Para>
+	Make sure ip forwarding is enabled on this server and the default gateway for this server is donmuang router (NOT naret).
+      </Para>
+      <Para>
+	<Screen>
 Naret
 -----
 -setup iptables and iproute2
 -disable icmp REDIRECT messages (if needed)
-</Screen>
-
-</Para>
-
-<Para>
-
-<OrderedList>
-<ListItem>
-
-<Para>
-"Mark" packets of destination port 80 with value 2
-
-<Screen>
- 
+	</Screen>
+      </Para>
+      <Para>
+	<OrderedList>
+	  <ListItem>
+	    <Para>
+	      "Mark" packets of destination port 80 with value 2
+	      <Screen>
 naret# iptables -A PREROUTING -i eth0 -t mangle -p tcp --dport 80 \
  -j MARK --set-mark 2
-</Screen>
-
-</Para>
-</ListItem>
-<ListItem>
-<Para>
-Setup iproute2 so it will route packets with "mark" 2 to silom
-
-<Screen>
+	      </Screen>
+	    </Para>
+	  </ListItem>
+	  <ListItem>
+	    <Para>
+	      Setup iproute2 so it will route packets with "mark" 2 to silom
+	      <Screen>
 naret# echo 202 www.out &#62;&#62; /etc/iproute2/rt_tables
 naret# ip rule add fwmark 2 table www.out
 naret# ip route add default via 10.0.0.2 dev eth0 table www.out
 naret# ip route flush cache
-
-</Screen>
-
-</para>
-<Para>
-If donmuang and naret is on the same subnet then
-naret should not send out icmp REDIRECT messages.
-In this case it is, so icmp REDIRECTs has to be
-disabled by:
-
-<Screen>
+	      </Screen>
+	    </para>
+	    <Para>
+	      If donmuang and naret is on the same subnet then naret should not send out icmp REDIRECT messages.
+	      In this case it is, so icmp REDIRECTs has to be disabled by:
+	      <Screen>
 naret# echo 0 &#62; /proc/sys/net/ipv4/conf/all/send_redirects
 naret# echo 0 &#62; /proc/sys/net/ipv4/conf/default/send_redirects
 naret# echo 0 &#62; /proc/sys/net/ipv4/conf/eth0/send_redirects
-
-</Screen>
-
-</Para>
-</ListItem>
-
-</OrderedList>
-
-</Para>
-
-<Para>
-The setup is complete, check the configuration
-</Para>
-
-<Para>
-
-<Screen>
+	      </Screen>
+	    </Para>
+	  </ListItem>
+	</OrderedList>
+      </Para>
+      <Para>
+	The setup is complete, check the configuration
+      </Para>
+      <Para>
+	<Screen>
 On naret:
 
 naret# iptables -t mangle -L
@@ -7330,13 +7277,9 @@ it's the line with 10.0.0.0/24)
 |------|
 |-DONE-|
 |------|
-
-
-</Screen>
-
-</Para>
-
-<Sect2>
+	</Screen>
+      </Para>
+      <Sect2>
 <Title>Traffic flow diagram after implementation</Title>
 
 <Screen width="80">
