@@ -67,15 +67,15 @@ underlying link bandwidth.
 Shaping is done using link idle time calculations, and actions taken if
 these calculations deviate from set limits.
 
-When shape a 10mbit/s connection to 1mbit/s, the link will
+When shaping a 10mbit/s connection to 1mbit/s, the link will
 be idle 90% of the time. If it isn't, it needs to be throttled so that it
 IS idle 90% of the time.
 
 From the kernel's perspecive, this is hard to measure, so CBQ instead 
-derives the idle time from the number of microseconds that elapse between 
-requests from the hardware layer for more data. Combined with the 
-knowledge of packet sizes, this is used to approximate how full or empty 
-the link is.
+derives the idle time from the number of microseconds (in fact, jiffies) 
+that elapse between  requests from the device driver for more data. Combined 
+with the  knowledge of packet sizes, this is used to approximate how full or 
+empty the link is.
 
 This is rather circumspect and doesn't always arrive at proper
 results. For example, what is the actual link speed of an interface
@@ -130,7 +130,7 @@ classes.
 (i)
 .B skb->priority class encoding.
 Can be set from userspace by an application with the 
-.B IP_PRIO
+.B SO_PRIORITY
 setsockopt.
 The 
 .B skb->priority class encoding
