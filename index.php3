@@ -38,23 +38,17 @@ href=dejairc.php>archives</a>)</td><td valign=bottom align=right>
 </td>
 <td valign=top>Translations:
 <br>
-<a href=LARTC-zh_CN.GB2312.pdf>[ Chinese (zh_CN.GB2312) ] </a> <br>
-<a
-href=http://www.linux-france.org/prj/inetdoc/guides/Advanced-routing-Howto/>
-
+<a href=LARTC-zh_CN.GB2312.pdf>[ Chinese (zh_CN.GB2312) ] </a>
+<br><a href=http://www.linux-france.org/prj/inetdoc/guides/Advanced-routing-Howto/>
 	[ French ]</a> (fixed)
+<br><a href="http://www.linux.or.jp/JF/JFdocs/Adv-Routing-HOWTO/">
+	[ Japanese (Nihongo) ]</a>
 <br><a href="http://www.gnukorea.org/">
 	[ Korean ]</a>
-<br>
-<a
-href=http://mr0vka.eu.org/tlumaczenia/2.4routing.html>
-	[ Polish ]
-</a>
-<br> 
-<a
-href=http://www.gulic.org/comos/LARTC>
-	[ Spanish ]
-</a>
+<br><a href=http://www.gulic.org/comos/LARTC>
+	[ Spanish ]</a>
+<br><a href=http://mr0vka.eu.org/tlumaczenia/2.4routing.html>
+	[ Polish ]</a>
  
 <p>
 <table bgcolor=#ff0000><tr><td>
@@ -90,9 +84,11 @@ This site attempts to document how to configure and use these features.
 <a name="news"></a>
 <h2>News</H2>
 <table border=1>
+<tr><td valign=top>2003-11-04</td><td>NAKANO Takeo translated the HOWTO into
+<a href="http://http://www.linux.or.jp/JF/JFdocs/Adv-Routing-HOWTO/">japanese</a>.</td></tr>
 <tr><td valign=top>2003-07-28</td><td>Ricardo Javier Cardenes reports that
 the Spanish translation <a
-href=http://asgard.debian.net/lartc>is done!</a></tr>
+href=http://asgard.debian.net/lartc>is done!</a></td></tr>
 <tr><td valign=top>2003-07-26</td><td>
 Started updating several sections based on the massive amount of email that
 concerned readers keep sending me, thanks! Added Thomas Graf as a section
@@ -223,7 +219,7 @@ in any of these areas, please pitch in.
 <a name="bazaar"></a>
 <H2>Bazaar</H2>
 This HOWTO is intended to be very much a <a
-href="http://www.tuxedo.org/~esr/writings/cathedral-bazaar/">Bazaar</a> style development. If it
+href="http://www.catb.org/~esr/writings/cathedral-bazaar/">Bazaar</a> style development. If it
 
 were to be any more open, bits would fall out. 
 <p>
@@ -245,6 +241,12 @@ can then integrate it easily. Thanks! Please make sure that you edit the
 
 The idea is that this HOWTO will be a cooperative effort, much like the
 Linux kernel itself. 
+</p>
+<p>
+Trivial patches can be send to <a href="mailto:lartc-trivial@reeler.org">
+lartc-trivial@reeler.org</a>.
+</p>
+
 <p>
 <a name="sponsor"></a>
 <H2>Sponsor</h2>
