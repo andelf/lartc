@@ -1,14 +1,13 @@
 <html>
 <head><title>Linux Advanced Routing &amp; Traffic Control HOWTO</title></head>
 <body bgcolor=#ffffff>
-
-<table width=100%><tr><td>
+<table width=100%><tr><td width=80%>
 <H1>Linux Advanced Routing &amp; Traffic Control</H1>
 <?
 if(!ereg("^\/lartc\/",$SCRIPT_NAME))
-	print("<font color=#ff0000>You are not using the canonical URL: <a
+	print("<big><font color=#ff0000>You are not using the canonical URL: <a
 href=http://ds9a.nl/lartc>http://ds9a.nl/lartc</a> -
-not all links may work!</font>");
+not all links may work! This URL may vanish in the future.</font></big>");
 ?>
 </td><td valign=top align=right><a href=http://www.powerdns.com><img
 src=http://ds9a.nl/pub/pdns88x33c.gif></a><p></td>
@@ -26,20 +25,25 @@ Paul B Schroeder &lt;paulsch@us.ibm.com&gt; <br>
 <a href="#mailinglist">lartc@mailman.ds9a.nl</a>
 (<small>mailing list</a>/<a
 href=http://mailman.ds9a.nl/pipermail/lartc/>archive</a>, the <strong>only</strong> place to send
-questions!</a></small>)</td><td valign=bottom align=right><table border=1>
-<tr><td>
-<a href="#news">News</a> </td>
+questions!</a></small>)<br>
+#lartc on <a href=http://www.openprojects.net>irc.openprojects.net</a></td><td valign=bottom align=right>
+
+</td>
+</table>
+<center>
+<table border=1>
+<tr>
+<td><a href="#news">News</a> </td>
 <td><a href="#mailinglist">Mailinglist</a> </td>
 <td><strong><a href="#download">Download</a></strong></td>
+<td><a href=manpages/>Manpages</a></td>
 <td><strong><a href=HOWTO//cvs/2.4routing/output/2.4routing.html><font color=#ff0000>Dive
 in!</font></a></strong>
 <td><a href="#jobs">Jobs</a> </td>
 <td><a href="#bazaar">Bazaar</a></td>
 <td><a href="#sponsor">Sponsor</a>
 </td></tr>
-</table></td>
 </table>
-<center>
 Massive thanks to:<br>
 <small>
 <?
@@ -54,6 +58,13 @@ This site attempts to document how to configure and use these features.
 <a name="news"></a>
 <h2>News</H2>
 <table border=1>
+<tr><td valign=top>2001-12-09</td><td>We now have an IRC channel, #lartc on
+<a href=http://www.openprojects.net>irc.openprojects.net</a>. Join #lartc
+to chat about Linux &amp; Routing &amp; Shaping!</td>
+<tr><td valign=top>2001-12-08</td><td>Started work on the <a
+href=manpages/>manpages</a> for tc and everything related to it. Some
+interesting material is already there. If you can help, please do, it is
+very hard work.</td>
 <tr><td valign=top>2001-12-06</td><td>Finished documenting policing filters,
 added short piece on Generic Random Early Detection queueing.
 
@@ -166,6 +177,14 @@ HTML</A>, <a href="HOWTO//cvs/2.4routing/2.4routing.tar.gz">HTML tarfile</A>
 Like the Linux kernel, we have a jobs list. If you have any expertise
 in any of these areas, please pitch in.
 <ul>
+<li>Write terminology chapter based on
+<a
+href=http://www.ietf.org/internet-drafts/draft-ietf-diffserv-model-06.txt>
+IETF draft</a>
+<li>Modify HOWTO to use this wording (mostly)
+<li>Asciify Jamals <a
+href=http://www.davin.ottawa.on.ca/ols/img9.htm>diagram</a>
+
 <li>There are a *lot* of FIXME notices, so this means YOU!</li>
 <li>IPsec</li>
 <li>Multipath routing

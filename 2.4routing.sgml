@@ -335,8 +335,8 @@ available on eth0, as is 10.0.0.1 for example.
 With ppp0, the same concept goes, though the numbers are different. Its
 address is 212.64.94.251, without a subnet mask. This means that we have a
 point-to-point connection and that every address, with the exception of
-212.64.94.251, is remote. There is more information however, it tells us
-that on the other side of the link there is yet again only one address,
+212.64.94.251, is remote. There is more information, however. It tells us
+that on the other side of the link there is, yet again, only one address,
 212.64.94.1. The /32 tells us that there are no 'network bits'.
 
 It is absolutely vital that you grasp these concepts. Refer to the
@@ -496,7 +496,7 @@ Let's take a real example once again, I have 2 (actually 3, about time I
 returned them) cable modems, connected to a Linux NAT ('masquerading')
 router. People living here pay me to use the Internet. Suppose one of my
 house mates only visits hotmail and wants to pay less. This is fine with me,
-but you'll end up using the low-end cable modem.
+but they'll end up using the low-end cable modem.
 
 The 'fast' cable modem is known as 212.64.94.251 and is a PPP link to
 212.64.94.1. The 'slow' cable modem is known by various ip addresses,
@@ -543,7 +543,7 @@ our tables to <file>/etc/iproute2/rt_tables</file>.
 32767:	from all lookup default
 </verb></tscreen>
 
-Now all that is left is to generate Johns table, and flush the route cache:
+Now all that is left is to generate John's table, and flush the route cache:
 <tscreen><verb>
 # ip route add default via 195.96.98.253 dev ppp2 table John
 # ip route flush cache
@@ -717,7 +717,7 @@ ip route add 3ffe::/15 dev sixbone
 
 Let's discuss this. In the first line, we created a tunnel device called sixbone. We gave it mode sit (which is IPv6 in IPv4 tunneling) and told it where to go to (remote) and where to come from (local). TTL is set to maximum, 255. Next, we made the device active (up). After that, we added our own network address, and set a route for 3ffe::/15 (which is currently all of 6bone) through the tunnel.
 <p>
-GRE tunnels are currently the preferred type of tunneling. It's a standard that's also widely adopted outside the Linux community and therefore a Good Thing.
+GRE tunnels are currently the preferred type of tunneling. It's a standard that is also widely adopted outside the Linux community and therefore a Good Thing.
 <p>
 <sect1>Userland tunnels
 <p>
@@ -1010,21 +1010,21 @@ This is the equivalent of not reading half of your mail, and hoping that
 people will stop sending it to you. With the difference that it works for
 the Internet :-)
 
-If you have a router and wish to prevent certain hosts of networks from
-downloading too fast, you need to do your shaping on the *inner* interface
+If you have a router and wish to prevent certain hosts within your network
+from downloading too fast, you need to do your shaping on the *inner* interface
 of your router, the one that sends data to your own computers.
 
 <sect1>Simple, classless Queueing Disciplines
 <p>
 As said, with queueing disciplines, we change the way data is sent.
 Classless queueing disciplines are those that, by and large accept data and
-only reorder, delay or drop it.
+only reschedule, delay or drop it.
 
 These can be used to shape traffic for an entire interface, without any
 subdivisions. It is vital that you understand this part of queueing before
 we go on the the classful qdisc-containing-qdiscs!
 
-By far the most widely used discipline is the pfifo_fast queue - this is the
+By far the most widely used discipline is the pfifo_fast qdisc - this is the
 default. This also explains why these advanced features are so robust. They
 are nothing more than 'just another queue'.
 
@@ -1043,42 +1043,109 @@ The kernel honors the so called Type of Service flag of packets, and takes
 care to insert 'minimum delay' packets in band 0. 
 
 Do not confuse this classless simple qdisc with the classful PRIO one!
+Although they behave similarly, pfifo_fast is classless and you cannot add
+other qdiscs to it with the tc command.
+
 <sect3>Parameters &amp; usage
 <p>
+You can't configure the pfifo_fast qdisc as it is the hardwired default.
+This is how it is configured by default:
 <descrip>
-<tag>bands</tag>
-Number of bands. Defaults to three. If you change this, also change:
 <tag>priomap</tag>
 Determines how packet priorities, as assigned by the kernel, map to bands.
-Mapping occurs according to the following table, which identical to the one
-used by the PRIO qdisc:
+Mapping occurs based on the TOS octet of the packet, which looks like this:
+
+<tscreen><verb>
+   0     1     2     3     4     5     6     7
++-----+-----+-----+-----+-----+-----+-----+-----+
+|                 |                       |     |
+|   PRECEDENCE    |          TOS          | MBZ |
+|                 |                       |     |
++-----+-----+-----+-----+-----+-----+-----+-----+
+</verb></tscreen>
+
+The four TOS bits (the 'TOS field') are defined as:
+<tscreen><verb>
+Binary Decimcal  Meaning
+-----------------------------------------
+1000   8         Minimize delay (md)
+0100   4         Maximize throughput (mt)
+0010   2         Maximize reliability (mr)
+0001   1         Minimize monetary cost (mmc)
+0000   0         Normal Service
+</verb></tscreen>
+
+As there is 1 bit to the right of these four bits, the actual value of the
+TOS field is double the value of the TOS bits. Tcpdump -v -v shows you the
+value of the entire TOS field, not just the four bits. It is the value you
+see in the first column of this table:
+
 <verb>
-TC_PRIO..          Num  TOS                        Band
--------------------------------------------------------
-BESTEFFORT         0    Maximize Reliablity        1
-FILLER             1    Minimize Cost              2
-BULK               2    Maximize Throughput (0x8)  2
-INTERACTIVE_BULK   4                               2
-INTERACTIVE        6    Minimize Delay (0x10)      1
-CONTROL            7                               2
-                   8                               0
-                   9                               0
-                  10                               1
-                  11                               1 
-                  12                               1
-                  13                               1
-                  14                               1
-                  15                               1
+TOS     Bits  Means                    Linux Priority    Band
+------------------------------------------------------------
+0x0     0     Normal Service           0 Best Effort     1
+0x2     1     Minimize Monetary Cost   1 Filler          2
+0x4     2     Maximize Reliability     0 Best Effort     1
+0x6     3     mmc+mr                   0 Best Effort     1
+0x8     4     Maximize Throughput      2 Bulk            2
+0xa     5     mmc+mt                   2 Bulk            2
+0xc     6     mr+mt                    2 Bulk            2
+0xe     7     mmc+mr+mt                2 Bulk            2
+0x10    8     Minimize Delay           6 Interactive     0
+0x12    9     mmc+md                   6 Interactive     0
+0x14    10    mr+md                    6 Interactive     0
+0x16    11    mmc+mr+md                6 Interactive     0
+0x18    12    mt+md                    4 Int. Bulk       1
+0x1a    13    mmc+mt+md                4 Int. Bulk       1
+0x1c    14    mr+mt+md                 4 Int. Bulk       1
+0x1e    15    mmc+mr+mt+md             4 Int. Bulk       1
 </verb>
-FIXME: It is not known what the higher priorities correspond to.
 
-SSH sets TOS to 'Minimize Delay', unless it is doing scp, in which case it
-sets 'Maximize Throughput'. The numbers in parentheses denote the TOS value
-as reported by tcpdump and the kernel. If you divide this by two, you get
-the values mentioned by RFC1349.
+Lots of numbers. The second column contains the value of the relevant four
+TOS bits, followed by their translated meaning. For example, 15 stands for a
+packet wanting Minimal Montetary Cost, Maximum Reliability, Maximum
+Throughput AND Minimum Delay. I would call this a 'Dutch Packet'.
 
-The default priomap is reasonable, you probably do not need to change
-it. 
+The fourth column lists the way the Linux kernel interprets the TOS bits, by
+showing to which Priority they are mapped. 
+
+The last column shows the result of the default priomap. On the commandline,
+the default priomap looks like this:
+<tscreen>
+1, 2, 2, 2, 1, 2, 0, 0 , 1, 1, 1, 1, 1, 1, 1, 1
+</tscreen>
+
+This means that priority 4, for example, gets mapped to band number 1. The
+priomap also allows you to list higher priorities (&gt; 7) which do not
+correspond to TOS mappings, but which are set by other means.
+
+This table from RFC 1349 (read it for more details) tells you how
+applications might very well set their TOS bits:
+<verb>
+TELNET                   1000           (minimize delay)
+FTP
+	Control          1000           (minimize delay)
+        Data             0100           (maximize throughput)
+
+TFTP                     1000           (minimize delay)
+
+SMTP 
+	Command phase    1000           (minimize delay)
+        DATA phase       0100           (maximize throughput)
+
+Domain Name Service
+	UDP Query        1000           (minimize delay)
+	TCP Query        0000
+	Zone Transfer    0100           (maximize throughput)
+
+NNTP                     0001           (minimize monetary cost)
+
+ICMP
+	Errors           0000
+	Requests         0000 (mostly)
+	Responses        <same as request> (mostly)
+</verb>
+
 <tag>txqueuelen</tag>
 The length of this queue is gleaned from the interface configuration, which
 you can see and set with ifconfig and ip. To set the queue length to 10,
@@ -1088,12 +1155,12 @@ You can't set this parameter with tc!
 </descrip>
 <sect2>Token Bucket Filter
 <p>
-The Token Bucket Filter (TBF) is a simple queue that only passes packets
-arriving at a rate which is not exceeding some administratively set rate,
+The Token Bucket Filter (TBF) is a simple qdisc that only passes packets
+arriving at a rate which is not exceeding some administratively set rate, but
 with the possibility to allow short bursts in excess of this rate.
 
 TBF is very precise, network- and processor friendly. It should be your
-first choice if you simple want to slow an interface down!
+first choice if you simply want to slow an interface down!
 
 The TBF implementation consists of a buffer (bucket), constantly filled by
 some virtual pieces of information called tokens, at a specific rate (token
@@ -1210,7 +1277,7 @@ The line above slows down sending to a rate that does not lead to a queue in
 the modem - the queue will be in Linux, where we can control it to a limited
 size.
 
-Change 220kbit to your uplinks *actual* speed, minus a few percent. If you
+Change 220kbit to your uplink's *actual* speed, minus a few percent. If you
 have a really fast modem, raise 'burst' a bit. 
 <sect2>Stochastic Fairness Queueing
 <p>
@@ -1290,7 +1357,7 @@ If you have a big backbone and know what you are doing, consider Random
 Early Drop (see Advanced chapter).
 <item>
 To 'shape' incoming traffic which you are not forwarding, use the Ingress
-Policer. 
+Policer. Incoming shaping is called 'policing', by the way, not 'shaping'. 
 <item>
 If you *are* forwarding it, use a TBF on the interface you are forwarding
 the data to.
@@ -1299,45 +1366,141 @@ If you don't want to shape, but only want to see if your interface is so
 loaded that it has to queue, use the pfifo queue (not pfifo_fast). It lacks
 internal bands but does account the size of its backlog.
 </itemize>
+<sect1>Terminology 
+<p>
+To properly understand more complicated configurations it is necessary to
+explain a few concepts first. Because of the complexity and he relative
+youth of the subject, a lot of different words are used when people in fact
+mean the same thing.
+
+The following is loosely based on draft-ietf-diffserv-model-06.txt, 'An
+Informal Management Model for Diffserv Routers'.
+
+<descrip>
+<tag>Queueing Discipline</tag>
+An algorithm that manages the queue of a device, either incoming (ingress)
+or outgoing (egress).
+<tag>Classless qdisc</tag>
+A qdisc with no configurable internal subdivisions. 
+<tag>Classful qdisc</tag>
+A classful qdisc contains multiple classes. Each of these classes contains a
+further qdisc, which may again be classful, but need not be. According to
+the strict definition, pfifo_fast *is* classful, because it contains three
+bands which are, in fact, classes. However, from the user's configuration
+perspective, it is classless as the classes can't be touched with the tc
+tool. 
+<tag>Classes</tag>
+A classful qdisc may have many classes, which each are internal to the
+qdisc. Each of these classes may contain a real qdisc.
+<tag>Classifier</tag>
+Each classful qdisc needs to determine to which class it needs to send a
+packet. This is done using the classifier.
+<tag>Filter</tag>
+Classification can be performed using filters. A filter contains a number of
+conditions which if matched, make the filter match.
+<tag>Scheduling</tag>
+A qdisc may, with the help of a classifier, decide that some packets need to
+go out earlier than others. This process is called Scheduling, and is
+performed for example by the pfifo_fast qdisc mentioned earlier. Scheduling
+is also called 'reordering', but this is confusing.
+<tag>Shaping</tag>
+The process of delaying packets before they go out to make traffic confirm
+to a configured maximum rate. Shaping is performed on egress.
+<tag>Policing</tag>
+The inverse of Shaping, which is performed on incoming traffic, on ingress.
+In Linux, policing can only drop a packet and not delay it, as there is no
+real 'ingress queue'.
+<tag>Work-Conserving</tag>
+A work-conserving qdisc always delivers a packet if one is available. In
+other words, it never delays a packet if the network adaptor is ready to
+send one (in the case of an egress qdisc).
+<tag>non-Work-Conserving</tag>
+Some queues, like for example the Token Bucket Filter, may need to hold on
+to a packet for a certain time in order to limit the bandwidth. This means
+that they sometimes refuse to give up a packet, even though they have one
+available.
+</descrip>
+
+Now that we have our terminology straight, let's see where all these things
+are.
+
+<verb>
+                Userspace programs
+                      ^
+                      |
+     +----------------+------------------------+
+     |               \|/                       |
+     |            _ IP Stack                   |
+     |            /| |            /-qdisc1-\   |
+     |           /   |    Egress /--qdisc2--\  |
+  -> | Ingress  /    | Classifier---qdisc3---- | ->  
+     | Classifier    |   /|\     \__qdisc4__/  |
+     |        |     \|/   |       \-qdiscN_/   |
+     |        +-> Forwarding                   |
+     |                                         |
+     +-----------------------------------------+
+
+</verb>
+The big block represents the kernel. The leftmost arrow represents traffic
+entering your machine from the network. It is then fed to the Ingress
+Classifier which may apply Filters to a packet, and decide to drop it. This
+is called 'Policing'.
+
+This happens at a very early stage, before it has seen a lot of the kernel.
+It is therefore a very good place to drop traffic very early, without
+consuming a lot of CPU power.
+
+If the packet is allowed to continue, it may be destined for a local
+application, in which case it enters the IP stack in order to be processed,
+and handed over to a userspace program. The packet may also be forwarded
+without entering an application, in which case it is destined for egress.
+Userspace programs may also deliver data, which is then examined and
+forwarded to the Egress Classifier.
+
+There it is investigated and enqueued to any of a number of qdiscs. In the
+unconfigured default case, there is only one egress qdisc installed, the
+pfifo_fast, which always receives the packet. This is called 'enqueueing'.
+
+The packet now sits in the qdisc, waiting for the kernel to ask for
+it for transmission over the network interface. This is called 'dequeueing'.
+
+This picture also holds in case there is only one network adaptor - the
+arrows entering and leaving the kernel should not be taken too literally.
+Each network adaptor has both ingress and egress hooks.
+
 <sect1>Classful Queueing Disciplines
 <p>
-Some queueing disciplines can contain other queueing disciplines, which are
-then suddenly called 'classes'. A class is nothing short of a qdisc, except
-that it lives within another qdisc. We use the terms 'inner qdisc'
-, 'sub-qdisc' and 'class' interchangeably.
-
 Classful qdiscs are very useful if you have different kinds of traffic which
 should have differing treatment. One of the classful qdiscs is called 'CBQ'
-, 'Class Based Queueing' - it is so widely mentioned that people identify
+, 'Class Based Queueing' and it is so widely mentioned that people identify
 queueing with classes solely with CBQ, but this is not the case.
 
-CBQ is merely the oldest kid on the block - yet it is by far the least
-useful qdisc and also the most complex one. I advise *against* using it.
-This may come as something of a shock to many who fell for the 'sendmail
-effect', which learns us that any complex technology which doesn't come with
-documentation must be the best available.
+CBQ is merely the oldest kid on the block - and also the most complex one.
+It may not always do what you want.  This may come as something of a shock
+to many who fell for the 'sendmail effect', which learns us that any complex
+technology which doesn't come with documentation must be the best available.
 
-More about CBQ and it's alternatives shortly.
+More about CBQ and its alternatives shortly.
 <sect2>Flow within classful qdiscs &amp; classes
 <p>
 When traffic enters a classful qdisc, it needs to be sent to any of the
-qdiscs within - the classes. To determine what to do with a packet, the so
-called 'filters' are consulted. It is important to know that the filters are
-called from within a qdisc, and not the other way around!
+ classes within - it needs to be 'classified'. To determine what to do with a
+packet, the so called 'filters' are consulted. It is important to know that
+the filters are called from within a qdisc, and not the other way around!
 
 The filters attached to that qdisc then return with a decision, and the
-qdisc uses this to enqueue the packet into one of the classes. These classes
-don't know that they are part of an outer-qdisc, they act as they normally
-do: accepting packets on one end and outputting them again when asked.
+qdisc uses this to enqueue the packet into one of the classes. Each subclass
+may try other filters to see if further instructions apply. If not, the
+class enqueues the packet to the qdisc it contains.
 
 Besides containing other qdiscs, most classful qdiscs also perform shaping.
-This is useful to perform both packet reordering (with SFQ, for example) and
+This is useful to perform both packet scheduling (with SFQ, for example) and
 rate control. You need this in cases where you have a high speed
 interface (for example, ethernet) to a slower device (a cable modem).
 
 If you were only to run SFQ, nothing would happen, as packets enter &amp;
 leave your router without delay: the output interface is far faster than
-your actual link speed. There is no queue to process then.
+your actual link speed. There is no queue to schedule then.
 
 <sect2>The qdisc family: roots, handles, siblings and parents
 <p>
@@ -1349,7 +1512,7 @@ qdisc.
 These handles consist of two parts, a major number and a minor number. It is
 habitual to name the root qdisc '1:', which is equal to '1:0'. 
 
-CBQ leaf nodes need to have the same major number as their parent. 
+Classes need to have the same major number as their parent. 
 <sect3>How filters are used to classify traffic 
 <p>
 Recapping, a typical hierarchy might look like this:
@@ -1370,13 +1533,13 @@ at the apex of the tree and the network below, that is just not the case.
 Packets get enqueued and dequeued at the root qdisc, which is the only thing
 the kernel talks to. 
 
-A packet might get enqueued in a chain like this:
+A packet might get classified in a chain like this:
 
 	1: -> 1:1 -> 12: -> 12:2
 
-The packet now resides in a queue in qdisc 12:2. In this example, a filter
-was attached to each 'node' in the tree, each chosing a branch to take next.
-This can make sense. However, tnis is also possible:
+The packet now resides in a queue in a qdisc attached to class 12:2. In this
+example, a filter was attached to each 'node' in the tree, each chosing a
+branch to take next. This can make sense. However, tnis is also possible:
 
 	1: -> 12:2
 
@@ -1391,77 +1554,52 @@ interface, the root qdisc 1: gets a dequeue request, which is passed to
 siblings, and try to dequeue() from them. In this case, the kernel needs to
 walk the entire tree, because only 12:2 contains a packet. 
 
-In short, nested qdiscs ONLY talk to their parent qdiscs, never to an
-interface. Only the root qdisc gets dequeued by the kernel! 
+In short, nested classes ONLY talk to their parent qdiscs, never to an
+interface. Only the root qdisc gets dequeued by the kernel!
 
-The upshot of this is that sub-qdiscs never get dequeued faster than their
-parents allow. And this is exactly what we want: this way we can have SFQ as
-an inner class, which doesn't do any shaping, only reordering, and have a
-shaping outer class, which does the shaping.
+The upshot of this is that classes never get dequeued faster than their
+parents allow. And this is exactly what we want: this way we can have SFQ in
+an inner class, which doesn't do any shaping, only scheduling, and have a
+shaping outer qdisc, which does the shaping.
 <sect2>The PRIO qdisc
 <p>
 The PRIO qdisc doesn't actually shape, it only subdivides traffic based on
 how you configured your filters. You can consider the PRIO qdisc a kind
-of pfifo_fast on stereoids, whereby each band is a separate qdisc instead of
+of pfifo_fast on stereoids, whereby each band is a separate class instead of
 a simple FIFO.
 
-When a packet is enqueued to the PRIO qdisc, a sub-qdisc is chosen based on
-the filter commands you gave. By default, three pfifo sub-qdiscs are
-created. These sub-qdiscs are by default pure FIFO queues with no internal
-structure, but you can replace them by any qdisc you have available.
+When a packet is enqueued to the PRIO qdisc, a class is chosen based on the
+filter commands you gave. By default, three classes are created. These
+classes by default contain pure FIFO qdiscs with no internal
+structure, but you can replace these by any qdisc you have available.
 
 Whenever a packet needs to be dequeued, class :1 is tried first. Higher
-classes are only used of lower bands all did not give up a packet.
+classes are only used if lower bands all did not give up a packet.
 
-This queue is very useful in case you want to prioritize certain kinds of
-traffic without using TOS-flags but using all the power of the tc filters.
+This qdisc is very useful in case you want to prioritize certain kinds of
+traffic without using only TOS-flags but using all the power of the tc
+filters. It can also contain more all qdiscs, whereas pfifo_fast is limited
+to simple fifo qdiscs.
+
 Because it doesn't actually shape, the same warning as for SFQ holds: either
 use it only if your physical link is really full or wrap it inside a
-classful qdisc that does shape.
+classful qdisc that does shape. The last holds for almost all cablemodems
+and DSL devices.
 
-The last holds for almost all cablemodems and DSL devices.
+In formal words, the PRIO qdisc is a Work-Conserving scheduler.
 <sect3>PRIO parameters &amp; usage
 <p>
 The following parameters are recognized by tc:
 <descrip>
 <tag>bands</tag>
 Number of bands to create. Each band is in fact a class. If you change this
-number, you should probably also change the priomap.
+number, you must also change:
 <tag>priomap</tag>
 If you do not provide tc filters to classify traffic, the PRIO qdisc looks
-at the TC_PRIO priority to decide how to enqueue traffic. The kernel assigns
-each packet a TC_PRIO priority, based on TOS flags or socket options passed
-by the application.
+at the TC_PRIO priority to decide how to enqueue traffic. 
 
-The TC_PRIO is decided based on the TOS, and mapped as follows:
-
-<verb>
-TC_PRIO..          Num  TOS                        Band
--------------------------------------------------------
-BESTEFFORT         0    Maximize Reliablity        1
-FILLER             1    Minimize Cost              2
-BULK               2    Maximize Throughput (0x8)  2
-INTERACTIVE_BULK   4                               2
-INTERACTIVE        6    Minimize Delay (0x10)      1
-CONTROL            7                               2
-                   8                               0
-                   9                               0
-                  10                               1
-                  11                               1 
-                  12                               1
-                  13                               1
-                  14                               1
-                  15                               1
-</verb>
-FIXME: It is not known what the higher priorities confirm to.
-
-SSH sets TOS to 'Minimize Delay', unless it is doing scp, in which case it
-sets 'Maximize Throughput'. The numbers in parentheses denote the TOS value
-as reported by tcpdump and the kernel. If you divide this by two, you get
-the values mentioned by RFC1349.
-
-The default values are reasonable, you probably do not need to change
-them. 
+This works just like with the pfifo_fast qdisc mentioned earlier, see there
+for lots of detail.
 </descrip>
 The bands are classes, and are called major:1 to major:3 by default, so if
 your PRIO qdisc is called 12:, tc filter traffic to 12:1 to grant it more
@@ -1486,7 +1624,7 @@ Bulk traffic will go to 30:, interactive traffic to 20: or 10:.
 Commandlines:
 <verb>
 # tc qdisc add dev eth0 root handle 1: prio 
-## This *instantly* creates 1:1, 1:2, 1:3
+## This *instantly* creates classes 1:1, 1:2, 1:3
   
 # tc qdisc add dev eth0 parent 1:1 handle 10: sfq
 # tc qdisc add dev eth0 parent 1:2 handle 20: tbf rate 20kbit buffer 1600 limit 3000
@@ -1556,21 +1694,20 @@ received our entire scp.
 <sect2>The famous CBQ qdisc
 <p>
 As said before, CBQ is the most complex qdisc available, the most hyped, the
-least understood and possibly the worst queueing discipline for you in the
-entire Linux kernel. This is not because the authors are evil or
-incompetent, far from it, it's just that the CBQ algorithm isn't all that
-precise and doesn't really match the way Linux works.
+least understood, and probably the trickiest one to get right. This is not
+because the authors are evil or incompetent, far from it, it's just that the
+CBQ algorithm isn't all that precise and doesn't really match the way Linux
+works.
 
 Besides being classful, CBQ is also a shaper and it is in that aspect that
 it really doesn't work very well. It should work like this. If you try to
 shape a 10mbit/s connection to 1mbit/s, the link should be idle 90% of the
 time. If it isn't, we need to throttle so that it IS idle 90% of the time.
 
-This is pretty hard to measure, so CBQ also needs to know how big an average
-packet is going to be, and instead derives the idle time from the number of
-microseconds that elapse between requests from the hardware layer for more
-data. Combined, this can be used to approximate how full or empty the link
-is.
+This is pretty hard to measure, so CBQ  instead derives the idle time from
+the number of microseconds that elapse between requests from the hardware
+layer for more data. Combined, this can be used to approximate how full or
+empty the link is.
 
 This is rather circumspect and doesn't always arrive at proper results. For
 example, what is the actual link speed of an interface that is not really
@@ -1583,20 +1720,13 @@ It gets even worse if we consider not-quite-real network devices like PPP
 over Ethernet or PPTP over TCP/IP. The effective bandwidth in that case is
 probably determined by the efficiency of pipes to userspace - which is huge.
 
-People who have done measurements discover that CBQ is not very accurate and
-sometimes completely misses the mark.
+People who have done measurements discover that CBQ is not always very
+accurate and sometimes completely misses the mark.
 
-Besides not being all that good, it also comes with little or no
-documentation AND with about 20 knobs to tune. In fact, CBQ is so hard to
-configure that people use scripts to generate the needed commands.
-
-In short - I would advise AGAINST using CBQ if you want to have accurate
-results and want to understand what you are doing.
+In many circumstances however it works well. With the documentation provided
+here, you should be able to configure it to work well in most cases.
 <sect3>CBQ shaping in detail
 <p>
-Because lots of people are using CBQ anyhow, possibly because they don't
-have anything else available, we will describe it here.
-
 As said before, CBQ works by making sure that the link is idle just long
 enough to bring down the real bandwidth to the configured rate. To do so, it
 calculates the time that should pass between average packets. 
@@ -1622,19 +1752,18 @@ amount of time that was calculated to pass between packets, and then pass
 one packet, and throttle again. But see the 'minburst' parameter below.
 
 These are parameters you can specify in order to configure shaping:
-
 <descrip>
 <tag>avpkt</tag>
-Average size of a packet, measured in bytes. Needed for idle time
-approximation.
+Average size of a packet, measured in bytes. Needed for calculating maxidle,
+which is derived from maxburst, which is specified in packets.
 <tag>bandwidth</tag>
-The physical bandwidth of your device, also needed for idle time
+The physical bandwidth of your device, needed for idle time
 calculations.
 <tag>cell</tag>
-The time a packet takes to be transmitted over an ethernet device grows in
-steps, based on the packet size. An 800 and a 806 size packet may take just
-as long to send, for example - this sets the granularity. Most often set 
-to '8'. Must be an integral power of two.
+The time a packet takes to be transmitted over a device may grow in steps,
+based on the packet size. An 800 and a 806 size packet may take just as long
+to send, for example - this sets the granularity. Most often set to '8'.
+Must be an integral power of two.
 <tag>maxburst</tag>
 This number of packets is used to calculate maxidle so that when avgidle is
 at maxidle, this number of average packets can be burst before avgidle drops
@@ -1661,7 +1790,7 @@ capped at -10us.
 <tag>mpu</tag>
 Mininum packet size - needed because even a zero size packet is padded
 to 64 bytes on ethernet, and so takes a certain time to transmit. CBQ needs
-to know this to accurately measure the idle time.
+to know this to accurately calculate the idle time.
 <tag>rate</tag>
 Desired rate of traffic leaving this qdisc - this is the 'speed knob'!
 </descrip>
@@ -1690,11 +1819,10 @@ The following parameters control the WRR process:
 <descrip>
 <tag>allot</tag>
 When the outer cbq is asked for a packet to send out on the interface, it
-will try all inner qdiscs (classes) in turn, in order of the 'priority'
-parameter. Each time a class gets its turn, it can only send out a limited
-amount of data. 'Allot' is the base unit of this amount. See the 'weight'
-parameter for more information.
-
+will try all inner qdiscs (in the classes) in turn, in order of 
+the 'priority' parameter. Each time a class gets its turn, it can only send out
+a limited amount of data. 'Allot' is the base unit of this amount. See 
+the 'weight' parameter for more information.
 
 <tag>prio</tag>
 The CBQ can also act like the PRIO device. Inner classes with lower priority
@@ -1707,14 +1835,14 @@ to send in turn. If you have classes with significantly more bandwidth than
 other classes, it makes sense to allow them to send more data in one round
 than the others.
 
-A CBQ adds up all weights within a class, and normalizes them, so you can
-use arbitrary numbers: only the ratios are important. People have been 
-using 'rate/10' as a rule of thumb and it appears to work well. The
-renormalized weight is multiplied by the 'allot' parameter to determine how
-much data can be sent in one round.
+A CBQ adds up all weights under a class, and normalizes them, so you can use
+arbitrary numbers: only the ratios are important. People have been 
+using 'rate/10' as a rule of thumb and it appears to work well. The renormalized
+weight is multiplied by the 'allot' parameter to determine how much data can
+be sent in one round. 
 </descrip>
 
-Please note that all nodes within an CBQ hierarchy need to share the same
+Please note that all classes within an CBQ hierarchy need to share the same
 major number!
 <sect3>CBQ parameters that determine link sharing &amp; borrowing
 <p>
@@ -1752,10 +1880,7 @@ mbit, and limits the sum to 5mbit:
   rate 5Mbit weight 0.5Mbit prio 8 allot 1514 cell 8 maxburst 20      \
   avpkt 1000
 </verb>
-This part installs the root and the customary 1:0 sub-root. While it is
-possible to remove the first line, and attach the second line directly to
-the root, there are some subtleties involved which are avoided if adding
-this extra layer.
+This part installs the root and the customary 1:0 class. 
 
 As said before, CBQ requires a *lot* of knobs. All parameters are explained
 above, however. The corresponding HTB configuration is lots simpler.
@@ -1781,7 +1906,7 @@ parent CBQ, by the way!
   15Kb mtu 1540
 </verb>
 
-Here we install token bucket filters in the two configured subclasses. The
+Here we install token bucket filters in the two configured classes. The
 /8 corresponds to the cell size we mentioned earlier for CBQ. We create a
 bucket of 10kbytes of tokens, a maximum 'pre-bucket' backlog of 15kbyte.
 
@@ -1796,13 +1921,11 @@ These commands, attached directly to the root, send traffic to the right
 qdiscs.
 
 Note that we use 'tc class add' to CREATE classes within a qdisc, but that
-we use 'tc qdisc add' to actually configure these classes.
+we use 'tc qdisc add' to actually add qdiscs to these classes.
 
 You may wonder what happens to traffic that is not classified by any of the
 two rules. It appears that in this case, data will then be processed within
-1:0, and be unlimited. The unfiltered behaviour can be configured in a
-variety of ways, which have not yet been documented adequately. HTB is
-clearer in this respect, so you may prefer it.
+1:0, and be unlimited. 
 
 If smtp+web together try to exceed the set limit of 5mbit/s, bandwidth will
 be divided according to the weight parameter, giving 5/8 of traffic to  the
@@ -1847,7 +1970,7 @@ Defmap refers to TC_PRIO bits, which are defined as follows:
 <verb>
 TC_PRIO..          Num  Corresponds to TOS
 -------------------------------------------------
-BESTEFFORT         0    Maximuze Reliablity        
+BESTEFFORT         0    Maximize Reliablity        
 FILLER             1    Minimize Cost              
 BULK               2    Maximize Throughput (0x8)  
 INTERACTIVE_BULK   4                               
@@ -1855,8 +1978,11 @@ INTERACTIVE        6    Minimize Delay (0x10)
 CONTROL            7                               
 </verb>
 
-This corresponds to bits, counted from the right. Now the interactive, and
-the bulk classes:
+The TC_PRIO.. number corresponds to bits, counted from the right. See the
+pfifo_fast section for more details how TOS bits are converted to
+priorities.
+
+Now the interactive and the bulk classes:
 
 <verb>
 # tc class add dev eth1 parent 1:1 classid 1:2 cbq bandwidth 10Mbit     \
@@ -1886,7 +2012,6 @@ priority	send to
 7		1:2
 </verb>
 
-
 For additional fun, you can also pass a 'change mask', which indicates
 exactly which priorities you wish to change. You only need to use this if you
 are running 'tc class change'. For example, to add best effort traffic to
@@ -1910,7 +2035,7 @@ priority	send to
 7		1:2
 </verb>
 
-FIXME: did not test this, only looked at the source.
+FIXME: did not test 'tc class change', only looked at the source.
 <sect2>Hierarchical Token Bucket 
 <p>
 Martin Devera (&lt;devik&gt;) rightly realised that CBQ is complex and does
@@ -1930,8 +2055,7 @@ As your HTB configuration gets more complex, your configuration scales
 well. With CBQ it is already complex even in simple cases! HTB is not yet a
 part of the standard kernel, but it should soon be!
 
-If you are in a position to patch your kernel, by all means use HTB instead
-of CBQ.
+If you are in a position to patch your kernel, by all means consider HTB.
 <sect3>Sample configuration
 <p>
 Functionally almost identical to the CBQ sample configuration above:
@@ -2281,7 +2405,7 @@ Bases the decision on which route the packet will be routed by
 <tag>rsvp, rsvp6</tag>
 Routes packets based on <url
 url="http://www.isi.edu/div7/rsvp/overview.html" name="RSVP ">. Only useful
-on networks you control - the Ifnternet does not respect RSVP.
+on networks you control - the Internet does not respect RSVP.
        
 <tag>tcindex</tag>
 Used in the DSMARK qdisc, see the relevant section.
@@ -2633,9 +2757,13 @@ Uses the following parameters:
 <item>rate
 </itemize>
 
-Which behave identical to those described in the Token Bucket Filter
-section.
+Which behave mostly identical to those described in the Token Bucket Filter
+section. Please note however that if you set the mtu of a TBF policer too
+low, *no* packets will pass, whereas the egress TBF qdisc will just pass
+them slower.
 
+Another difference is that a policer can only let a packet pass, or drop it.
+It cannot delay hold on to it in order to delay it.
 <sect2>Overlimit actions
 <p>
 If your filter decides that it is overlimit, it can take 'actions'.
@@ -3142,9 +3270,8 @@ FIXME: fill this in
 
 <sect>Advanced &amp; less common queueing disciplines
 <p>
-Besides the queues mentioned earlier, the kernel contains some other more
-specialized queues which are mentioned here, should you find that you have
-needs not addressed by the other queues.
+Should you find that you have needs not addressed by the queues mentioned
+earlier, the kernel contains some other more specialized queues mentioned here.
 <sect1>bfifo/pfifo
 <p>
 These classless queues are even simpler than pfifo_fast in that they lack
@@ -3231,7 +3358,7 @@ others). After this, new architectures appeared. One of these was DiffServ
 which kept TOS bits and renamed DS field.
 <sect2>Differentiated Services guidelines
 <p>
-Differentiated Services is group-oriented. I mean, we don't know nothing
+Differentiated Services is group-oriented. I mean, we don't know anything
 about flows (this will be the Integrated Services purpose); we know about
 flow aggregations and we will apply different behaviours depending on which
 aggregation a packet belongs to.
@@ -3455,31 +3582,32 @@ You can use it as any other kind of filter.
 I recommend you to look at all DiffServ examples included in iproute2 distribution. I promise I will try to
 complement this text as soon as I can. Besides, all I have explained is the result of a lot of tests.
 I would thank you tell me if I'm wrong in any point.
-<sect1>Ingress policer qdisc
+<sect1>Ingress qdisc
 <p> 
-The Ingress qdisc comes in handy if you need to ratelimit a host without
-help from routers or other Linux boxes. You can police incoming bandwidth
-and drop packets when this bandwidth exceeds your desired rate. This can
-save your host from a SYN flood, for example, and also works to slow down
-TCP/IP, which responds to dropped packets by reducing speed.
+All qdiscs discussed so far are egress qdiscs. Each interface however can
+also have an ingress qdisc which is not used to send packets
+out to the network adaptor. Instead, it allows you to apply tc filters to
+packets coming in over the interface, regardless of whether they have a local
+destination or are to be forwarded.
 
-FIXME: shaping by dropping packets seems less desirable than using, for
-example, a token bucket filter. Not sure though, Cisco CAR works this
-way, and people appear to be happy with it.
+As the tc filters contain a full Token Bucket Filter implementation, and are
+also able to match on the kernel flow estimator, there is a lot of
+functionality available. This effectively allows you to police incoming
+traffic, before it even enters the IP stack.
 
-See the reference to <ref id="CAR" name="IOS Committed Access Rate"> at the
-end of this document.
+<sect2>Parameters &amp; usage
+<p>
+The ingress qdisc itself does not require any parameters. It differs from
+other qdiscs in that it does not occupy the root of a device. Attach it like
+this:
+<verb>
+# tc qdisc add dev eth0 ingress
+</verb>
+This allows you to have other, sending, qdiscs on your device besides the
+ingress qdisc. 
 
-In short: you can use this to limit how fast your computer downloads files,
-thus leaving more of the available bandwidth for others.
-
-The ingress policer is not a regular qdisc, although it looks like one. It
-is in fact hooked to the interface via the Netfilter infrastructure.
-Configuration is achieved using 'tc filter police' commands.
-
-See the section on 'Protecting your host from SYN floods' for an example on
-how this works.
-
+For a contrived example how the ingress qdisc could be used, see the
+Cookbook.
 
 <sect1>Random Early Detection (RED)
 <p>
@@ -4225,9 +4353,9 @@ or a hub, should it break down.
 
 The bad news is that a bridge can cause great confusion unless it is very
 well documented. It does not appear in traceroutes, but somehow packets
-disappear or get changed from point A to point B. You should also wonder if
-an organization that 'does not want to change anything' is doing the right
-thing.
+disappear or get changed from point A to point B ('this network is
+HAUNTED!'). You should also wonder if an organization that 'does not want to
+change anything' is doing the right thing.
 
 The Linux 2.4/2.5 bridge is documented on
 
@@ -4336,6 +4464,11 @@ On a Cisco, this is done using the command 'clear arp-cache', under
 Linux, use 'arp -d ip.address'. You can also wait for the cache to expire
 manually, which can take rather long.
 
+You may also discover that your network was misconfigured if you are/were of
+the habit of specifying routes without netmasks. To explain, some versions
+of route may have guessed your netmask right in the past, or guessed wrong
+without you noticing. When doing surgical routing like described above, it
+is *vital* that you check your netmasks! 
 <sect>Dynamic routing - OSPF and BGP
 <p>
 Once your network starts to get really big, or you start to consider 'the
@@ -4536,18 +4669,18 @@ it is Linux specific, but it does a fair job discussing the theory and uses
 of CBQ.
 Very technical stuff, but good reading for those so inclined. 
 
+<tag>Differentiated Services on Linux</tag>
+This <url url="ftp://icaftp.epfl.ch/pub/linux/diffserv/misc/dsid-01.txt.gz"
+name="document"> by Werner Almesberger, Jamal Hadi Salim and Alexey
+Kuznetsov describes DiffServ facilities in the Linux kernel, amongst which
+are TBF, GRED, the DSMARK qdisc and the tcindex classifyer.
+
+
 <tag><url url="http://ceti.pl/~kravietz/cbq/NET4_tc.html"
 name="http://ceti.pl/~kravietz/cbq/NET4_tc.html"></tag>
 Yet another HOWTO, this time in Polish! You can copy/paste command lines
 however, they work just the same in every language. The author is
 cooperating with us and may soon author sections of this HOWTO.
-
-<tag><url
-url="http://snafu.freedom.org/linux2.2/docs/draft-almesberger-wajhak-diffserv-linux-00.txt"
-name="Differentiated Services on Linux"></tag>
-Discussion on how to use Linux in a diffserv compliant environment. Pretty
-far removed from your everyday routing needs, but very interesting none the
-less. We may include a section on this at a later date.
 
 <tag><url
 url="http://www.cisco.com/univercd/cc/td/doc/product/software/ios111/cc111/car.htm"
@@ -4581,6 +4714,7 @@ helping.
 <item>Lennert Buytenhek &lt;buytenh@gnu.org&gt;
 <item>Esteve Camps &lt;esteve@hades.udg.es&gt;
 <item>Stef Coene &lt;stef.coene@docum.org&gt;
+<item>Jonathan Corbet &lt;lwn%lwn.net&gt;
 <item>Gerry Creager N5JXS &lt;gerry%cs.tamu.edu&gt;
 <item>Marco Davids &lt;marco@sara.nl&gt;
 <item>Jonathan Day &lt;jd9812@my-deja.com&gt;
@@ -4592,6 +4726,7 @@ helping.
 <item>Koos van den Hout &lt;koos@kzdoos.xs4all.nl&gt;
 <item>Martin Josefsson &lt;gandalf%wlug.westbo.se&gt;
 <item>Pawel Krawczyk &lt;kravietz%alfa.ceti.pl&gt;
+<item>Amit Kucheria &lt;amitk@ittc.ku.edu&gt;
 <item>Edmund Lau &lt;edlau%ucf.ics.uci.edu&gt;
 <item>Philippe Latu &lt;philippe.latu%linux-france.org&gt;
 <item>Arthur van Leeuwen &lt;arthurvl%sci.kun.nl&gt;
@@ -4599,6 +4734,7 @@ helping.
 <item>Stuart Lynne &lt;sl@fireplug.net&gt;
 <item>Alexey Mahotkin &lt;alexm@formulabez.ru&gt;
 <item>Andreas Mohr &lt;andi%lisas.de&gt;
+<item>Andrew Morton &lt;akpm@zip.com.au&gt;
 <item>Wim van der Most 
 <item>Stephan Mueller &lt;smueller@chronox.de&gt;
 <item>Patrick Nagelschmidt &lt;dto%gmx.net&gt;

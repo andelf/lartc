@@ -46,7 +46,7 @@ clean:
 
 output/2.4routing.html: 2.4routing.sgml
 	-mkdir output
-	(cd output;sgml2html ../2.4routing.sgml)
+	(cd output;sgml2html -H header -F footer ../2.4routing.sgml)
 
 2.4routing.tar.gz: output/2.4routing.html
 	tar cvzf 2.4routing.tar.gz output/2.4routing*html
