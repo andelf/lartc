@@ -1,7 +1,7 @@
 all: tc.txt tc.dvi tc.pdf tc.ps tc.ps.gz 
 
 clean:
-	rm *.txt *.dvi *.pdf *.ps *.ps.gz
+	rm *.txt *.dvi *.pdf *.ps *.ps.gz *~
 
 %.txt: %.8
 	groff -man -Tascii -P-u -P-b ./$< > $@

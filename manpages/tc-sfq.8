@@ -63,7 +63,7 @@ Defaults to the MTU of the interface which is also the advised value and the min
 
 To attach to device ppp0:
 .P
-# tc qdisc add dev ppp0 root perturb 10
+# tc qdisc add dev ppp0 root sfq perturb 10
 .P
 Please note that SFQ, like all non-shaping SFQs, is only useful if it owns the queue.
 This is the case when the link speed equals the actually available bandwidth. This holds 
