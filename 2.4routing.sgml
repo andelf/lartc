@@ -1248,7 +1248,7 @@ Recapping, a typical hierarchy might look like this:
 But don't let this tree fool you! You should *not* imagine the kernel to be
 at the apex of the tree and the network below, that is just not the case.
 Packets get enqueued and dequeued at the root qdisc, which is the only thing
-the kernel talks to.
+the kernel talks to. 
 
 A packet might get enqueued in a chain like this:
 
@@ -1475,7 +1475,7 @@ to their assigened rate, and also won't allow each other to borrow.
 Within such an agency class, there might be other classes which are allowed
 to swap bandwidth.
 
-<sect3>Other CBQ parameters 
+<sect3>Other CBQ parameters: split &amp; defmap
 <p>
 As said before, a classful qdisc needs to call the filter chain to determine
 which class a packet will be enqueued to. 
@@ -1594,6 +1594,9 @@ has only a few parameters, which are well documented on his
 As your HTB configuration gets more complex, your configuration scales
 well. With CBQ it is already complex even in simple cases! HTB is not yet a
 part of the standard kernel, but it should soon be!
+
+If you are in a position to patch your kernel, by all means use HTB instead
+of CBQ.
 <sect1>Classifying packets with filters
 <p>
 To determine which class shall process a packet, the so-called 'classifier
@@ -4074,6 +4077,7 @@ helping.
 <item>Jason Pyeron &lt;jason%pyeron.com&gt;
 <item>Rusty Russell (with apologies for always misspelling your name)
 <item>Jamal Hadi Salim &lt;hadi%cyberus.ca&gt;
+<item>David Sauer &lt;davids%penguin.cz&gt;
 <item>Sheharyar Suleman Shaikh &lt;sss23@drexel.edu&gt;
 <item>Nick Silberstein &lt;nhsilber%yahoo.com&gt;
 <item>Konrads Smelkov &lt;konrads@interbaltika.com&gt;
