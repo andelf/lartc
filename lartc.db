@@ -2363,6 +2363,17 @@ spdadd 10.0.0.0/24 130.161.0.0/16 any -P in ipsec
 	</note>
       </para>
     </sect1>
+    <sect1 id="lartc.ipsec.other"><title>Other IPSEC software</title>
+      <para>
+	Thomas Walpuski reports that there is a patch to make OpenBSD isakpmd work with Linus 2.5 IPSEC.
+	It can be found <ulink url="http://bender.thinknerd.de/~thomas/IPsec/isakmpd-linux-2.5.diff">on his page</ulink>.
+	He notes that isakpmd on Linux depends only on <filename>libkeynote</filename>. According to Thomas, it works quite well
+	with Linus 2.5.59.
+      </para>
+      <para>
+	isakpmd is quite different from racoon mentioned above but many people like it.
+      </para>
+    </sect1>
     <sect1 id="lartc.ipsec.interop"><title>IPSEC interoperation with other systems</title>
       <para>
 	FIXME: Write this
@@ -10343,6 +10354,11 @@ Tea Sponsor: Eric Veldhuyzen &lt;eric&percnt;terra.nu&gt;
 </Para>
 </ListItem>
 
+<listitem>
+<para>
+Thomas Walpuski &lt;thomas%bender.thinknerd.de&gt;
+</para>
+</listitem>
 
 
 <ListItem>
