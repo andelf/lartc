@@ -2,8 +2,12 @@
 <head><title>Linux 2.4 Advanced Routing &amp; Traffic Control HOWTO</title></head>
 <body bgcolor=#ffffff>
 
-
+<table><tr><td>
 <H1>Linux 2.4 Advanced Routing &amp; Traffic Control</H1>
+</td><td valign=top><a href=http://www.powerdns.com><img
+src=http://ds9a.nl/pub/pdns88x33c.gif></a></td>
+</table>
+
 <a href="http://ds9a.nl/">bert hubert</a> (<a
 href=http://www.powerdns.com>PowerDNS.COM BV</a>) <a href=mailto:bert.hubert@netherlabs.nl>&lt;bert.hubert@netherlabs.nl&gt;</a>,<br>
 <a href="http://linuxpower.cx/~greg/">Greg Maxwell</a> <a
@@ -32,6 +36,9 @@ HOWTO.
 
 <h2>News</H2>
 <table border=1>
+<tr><td valign=top>2002-11-28</td><td>Lecture was given to a pretty full
+room, read more about it <a
+href=http://ds9a.nl/cbq-presentation>here</a>.</td>
 <tr><td valign=top>2001-11-22</td><td>Mailinglist has been back for a while
 and is in full swing again. Server broken again, due to crappy 1U case
 design we are seeing CPU temperatures of 80C. In contact with vendor. Bert
