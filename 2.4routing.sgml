@@ -2587,7 +2587,16 @@ police
 
 <sect1>Policing filters
 <p>
-FIXME: write about policing filters
+To make even more complicated setups possible, you can have filters that
+only match up to a certain bandwidth. In other words, if you have a 4mbit/s
+filter and offer it 5mbit/s of traffic, 1mbit/s of traffic will not be sent
+to the classid you specified, but will get other treatment.
+
+The default treatment is not to match, which will lead to reclassification
+to the 'best effort' class. You can also specify that overlimit packets
+should be dropped, or sent to another class.
+
+FIXME: continue
 
 <sect1>Hashing filters for very fast massive filtering
 <p>

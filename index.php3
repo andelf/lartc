@@ -96,9 +96,10 @@ href=http://mailman.ds9a.nl/mailman/listinfo/lartc>subscribe</a> first!</font>
 <a name="download"></a>
 <H2>Linux 2.4 Advanced Routing &amp; Traffic Control HOWTO</H2>
 <p>
-Current version is 0.3.0 Files were last updated at 
+Current version is 0.9.0 Files were last updated at 
 <?
-	$st=stat("HOWTO/cvs/2.4routing/2.4routing.sgml");
+	if(!($st=stat("HOWTO/cvs/2.4routing/2.4routing.sgml")))
+		$st=stat("2.4routing.sgml");
 	print date("Y-m-d H:i",$st[9]);
 	print " CET ";
 
