@@ -6212,7 +6212,7 @@ you are used as a relay in a DoS attack, it may be useful.
 </Para></ListItem>
 </VarListEntry>
 <VarListEntry>
-<Term>/proc/sys/net/ipv4/icmp_echo_ignore_broadcasts &lsqb;Useful&rsqb;</Term>
+<Term>/proc/sys/net/ipv4/icmp_echo_ignore_broadcasts [Useful]</Term>
 <ListItem>
 <Para>
 If you ping the broadcast address of a network, all hosts are supposed to
@@ -6799,7 +6799,7 @@ Maximum number of retries for multicast solicitation.
 <Term>/proc/sys/net/ipv4/neigh/DEV/proxy_delay</Term>
 <ListItem>
 <Para>
-Maximum time  (real  time is random &lsqb;0..proxytime]) before answering to an ARP
+Maximum time  (real  time is random  [0..proxytime]) before answering to an ARP
 request for  which  we have an proxy ARP entry. In some cases, this is used to
 prevent network flooding.
 </Para></ListItem>
@@ -9016,36 +9016,35 @@ If the last two lines give an error, update your tc tool to a newer version!
 		<para>
 			Adjust CEIL to 75% of your upstream bandwith limit by now, and where I use eth0, you should use the interface which has a public Internet address. To begin our example execute the following in a root shell:
 			<Screen>
-			CEIL=240
-			tc qdisc add dev eth0 root handle 1: htb default 15
-			tc class add dev eth0 parent 1: classid 1:1 htb rate ${CEIL}kbit ceil ${CEIL}kbit
-			tc class add dev eth0 parent 1:1 classid 1:10 htb rate 80kbit ceil 80kbit prio 0
-			tc class add dev eth0 parent 1:1 classid 1:11 htb rate 80kbit ceil ${CEIL}kbit prio 1
-			tc class add dev eth0 parent 1:1 classid 1:12 htb rate 20kbit ceil ${CEIL}kbit prio 2
-			tc class add dev eth0 parent 1:1 classid 1:13 htb rate 20kbit ceil ${CEIL}kbit prio 2
-			tc class add dev eth0 parent 1:1 classid 1:14 htb rate 10kbit ceil ${CEIL}kbit prio 3
-			tc class add dev eth0 parent 1:1 classid 1:15 htb rate 30kbit ceil ${CEIL}kbit prio 3
-			tc qdisc add dev eth0 parent 1:12 handle 120: sfq perturb 10
-			tc qdisc add dev eth0 parent 1:13 handle 130: sfq perturb 10
-			tc qdisc add dev eth0 parent 1:14 handle 140: sfq perturb 10
-			tc qdisc add dev eth0 parent 1:15 handle 150: sfq perturb 10
+CEIL=240
+tc qdisc add dev eth0 root handle 1: htb default 15
+tc class add dev eth0 parent 1: classid 1:1 htb rate ${CEIL}kbit ceil ${CEIL}kbit
+tc class add dev eth0 parent 1:1 classid 1:10 htb rate 80kbit ceil 80kbit prio 0
+tc class add dev eth0 parent 1:1 classid 1:11 htb rate 80kbit ceil ${CEIL}kbit prio 1
+tc class add dev eth0 parent 1:1 classid 1:12 htb rate 20kbit ceil ${CEIL}kbit prio 2
+tc class add dev eth0 parent 1:1 classid 1:13 htb rate 20kbit ceil ${CEIL}kbit prio 2
+tc class add dev eth0 parent 1:1 classid 1:14 htb rate 10kbit ceil ${CEIL}kbit prio 3
+tc class add dev eth0 parent 1:1 classid 1:15 htb rate 30kbit ceil ${CEIL}kbit prio 3
+tc qdisc add dev eth0 parent 1:12 handle 120: sfq perturb 10
+tc qdisc add dev eth0 parent 1:13 handle 130: sfq perturb 10
+tc qdisc add dev eth0 parent 1:14 handle 140: sfq perturb 10
+tc qdisc add dev eth0 parent 1:15 handle 150: sfq perturb 10
 			</Screen>
 			We have just created a htb tree with one level depth. Something like this:
 
 			<Screen>
-			+---------+
-			| root 1: |
-			+---------+
-			     |
-			+---------------------------------------+
-			| class 1:1                             |
-			+---------------------------------------+
-			  |      |      |      |      |      |      
-			+----+ +----+ +----+ +----+ +----+ +----+
-			|1:10| |1:11| |1:12| |1:13| |1:14| |1:15| 
-			+----+ +----+ +----+ +----+ +----+ +----+ 
++---------+
+| root 1: |
++---------+
+     |
++---------------------------------------+
+| class 1:1                             |
++---------------------------------------+
+  |      |      |      |      |      |      
++----+ +----+ +----+ +----+ +----+ +----+
+|1:10| |1:11| |1:12| |1:13| |1:14| |1:15| 
++----+ +----+ +----+ +----+ +----+ +----+ 
 			</Screen>
-			
 			<VariableList>
 				<VarListEntry>
 					<Term>classid 1:10 htb rate 80kbit ceil 80kbit prio 0</Term>
@@ -9114,12 +9113,12 @@ If the last two lines give an error, update your tc tool to a newer version!
 		<para>
 			Now we set the filters so we can classify the packets with iptables. I really prefer to do it with iptables, because they are very flexible and you have packet count for each rule. Also with the RETURN target packets don't need to traverse all rules. We execute the following commands:
 			<Screen>
-			tc filter add dev eth0 parent 1:0 protocol ip prio 1 handle 1 fw classid 1:10
-			tc filter add dev eth0 parent 1:0 protocol ip prio 2 handle 2 fw classid 1:11
-			tc filter add dev eth0 parent 1:0 protocol ip prio 3 handle 3 fw classid 1:12
-			tc filter add dev eth0 parent 1:0 protocol ip prio 4 handle 4 fw classid 1:13
-			tc filter add dev eth0 parent 1:0 protocol ip prio 5 handle 5 fw classid 1:14
-			tc filter add dev eth0 parent 1:0 protocol ip prio 6 handle 6 fw classid 1:15
+tc filter add dev eth0 parent 1:0 protocol ip prio 1 handle 1 fw classid 1:10
+tc filter add dev eth0 parent 1:0 protocol ip prio 2 handle 2 fw classid 1:11
+tc filter add dev eth0 parent 1:0 protocol ip prio 3 handle 3 fw classid 1:12
+tc filter add dev eth0 parent 1:0 protocol ip prio 4 handle 4 fw classid 1:13
+tc filter add dev eth0 parent 1:0 protocol ip prio 5 handle 5 fw classid 1:14
+tc filter add dev eth0 parent 1:0 protocol ip prio 6 handle 6 fw classid 1:15
 			</Screen>
 			We have just told the kernel that packets that has a specific FWMARK value ( hanlde x fw ) go in the specified class ( classid x:x). Next you will see how to mark packets with iptables. 
 		</para>
@@ -9127,66 +9126,73 @@ If the last two lines give an error, update your tc tool to a newer version!
 		<para>
 			First you have to understand how packet traverse the filters with iptables:
 			<Screen>
-			        +------------+                +---------+               +-------------+
-			Packet -| PREROUTING |--- routing-----| FORWARD |-------+-------| POSTROUTING |- Packets
-			input   +------------+    decision    +-­-------+       |       +-------------+    out
-			                             |                          |
-			                        +-------+                    +--------+   
-			                        | INPUT |---- Local process -| OUTPUT |
-			                        +-------+                    +--------+
-			
+        +------------+                +---------+               +-------------+
+Packet -| PREROUTING |--- routing-----| FORWARD |-------+-------| POSTROUTING |- Packets
+input   +------------+    decision    +-­-------+       |       +-------------+    out
+                             |                          |
+                        +-------+                    +--------+   
+                        | INPUT |---- Local process -| OUTPUT |
+                        +-------+                    +--------+
+
 			</Screen>
 			I assume you have all your tables creak and with default policy ACCEPT ( -P ACCEPT ) if you haven't poked with iptables yet, It should be ok by default. Ours private network is a class B with address 172.17.0.0/16 and public ip is 212.170.21.172
 		</para>
 
 		<para>
 			Next we instruct the kernel to <emphasis>actually do NAT</emphasis>, so clients in the private network can start talking to the outside. 
+
 			<Screen>
-			echo 1 > /proc/sys/net/ipv4/ip_forward
-			iptables -t nat -A POSTROUTING -s 172.17.0.0/255.255.0.0 -o eth0 -j SNAT --to-source 212.170.21.172
+echo 1 > /proc/sys/net/ipv4/ip_forward
+iptables -t nat -A POSTROUTING -s 172.17.0.0/255.255.0.0 -o eth0 -j SNAT --to-source 212.170.21.172
 			</Screen>
+			
 			Now check that packets are flowing through 1:15:
+			
 			<Screen>
-			tc -s class show dev eth0
+tc -s class show dev eth0
 			</Screen>
+			
 		</para>
 
 		<para>
 			You can start marking packets adding rules to the PREROUTING chain in the mangle table.
+			
 			<Screen>
-			iptables -t mangle -A PREROUTING -p icmp -j MARK --set-mark 0x1
-			iptables -t mangle -A PREROUTING -p icmp -j RETURN
+iptables -t mangle -A PREROUTING -p icmp -j MARK --set-mark 0x1
+iptables -t mangle -A PREROUTING -p icmp -j RETURN
 			</Screen>
+			
 			Now you should be able to see packet count increasing when pinging from machines within the private network to some site on the Internet. Check packet count increasing in 1:10
 			<Screen>
-			tc -s class show dev eth0
+tc -s class show dev eth0
 			</Screen>
 			We have done a -j RETURN so packets don't traverse all rules. Icmp packets won't match other rules below RETURN. Keep that in mind.
 			Now we can start adding more rules, lets do proper TOS handling:
+			
 			<Screen>
-			iptables -t mangle -A PREROUTING -m tos --tos Minimize-Delay -j MARK --set-mark 0x1
-			iptables -t mangle -A PREROUTING -m tos --tos Minimize-Delay -j RETURN
-			iptables -t mangle -A PREROUTING -m tos --tos Minimize-Cost -j MARK --set-mark 0x5
-			iptables -t mangle -A PREROUTING -m tos --tos Minimize-Cost -j RETURN
-			iptables -t mangle -A PREROUTING -m tos --tos Maximize-Throughput -j MARK --set-mark 0x6
-			iptables -t mangle -A PREROUTING -m tos --tos Maximize-Throughput -j RETURN
+iptables -t mangle -A PREROUTING -m tos --tos Minimize-Delay -j MARK --set-mark 0x1
+iptables -t mangle -A PREROUTING -m tos --tos Minimize-Delay -j RETURN
+iptables -t mangle -A PREROUTING -m tos --tos Minimize-Cost -j MARK --set-mark 0x5
+iptables -t mangle -A PREROUTING -m tos --tos Minimize-Cost -j RETURN
+iptables -t mangle -A PREROUTING -m tos --tos Maximize-Throughput -j MARK --set-mark 0x6
+iptables -t mangle -A PREROUTING -m tos --tos Maximize-Throughput -j RETURN
 			</Screen>
 
 			Now prioritize ssh packets:
 			<Screen>
-			iptables -t mangle -A PREROUTING -p tcp -m tcp --sport 22 -j MARK --set-mark 0x1
-			iptables -t mangle -A PREROUTING -p tcp -m tcp --sport 22 -j RETURN
+iptables -t mangle -A PREROUTING -p tcp -m tcp --sport 22 -j MARK --set-mark 0x1
+iptables -t mangle -A PREROUTING -p tcp -m tcp --sport 22 -j RETURN
 			</Screen>
 			A good idea is to prioritize packets to begin tcp connections, those with SYN flag set:
 			<Screen>
-			iptables -t mangle -I PREROUTING -p tcp -m tcp --tcp-flags SYN,RST,ACK SYN -j MARK --set-mark 0x1
-			iptables -t mangle -I PREROUTING -p tcp -m tcp --tcp-flags SYN,RST,ACK SYN -j RETURN
+iptables -t mangle -I PREROUTING -p tcp -m tcp --tcp-flags SYN,RST,ACK SYN -j MARK --set-mark 0x1
+iptables -t mangle -I PREROUTING -p tcp -m tcp --tcp-flags SYN,RST,ACK SYN -j RETURN
 			</Screen>
 			And so on.
 			
 			When we are done adding rules to PREROUTING in mangle, we terminate the PREROUTING table with:
 			<Screen>
-			iptables -t mangle -A PREROUTING -j MARK --set-mark 0x6
+iptables -t mangle -A PREROUTING -j MARK --set-mark 0x6
 			</Screen>
 			So previously unmarked traffic goes in 1:15. In fact this last step is unnecessary since default class was 1:15, but I will mark them in order to be consistent with the whole setup, and furthermore it's useful to see the counter in that rule.
 		</para>
@@ -9205,9 +9211,9 @@ If the last two lines give an error, update your tc tool to a newer version!
 		<para>
 			If you find that some classes are full most of the time it would be a good idea to attach another queueing discipline to them so bandwith sharing is more fair:
 			<Screen>
-		        tc qdisc add dev eth0 parent 1:13 handle 130: sfq perturb 10
-		        tc qdisc add dev eth0 parent 1:14 handle 140: sfq perturb 10
-		        tc qdisc add dev eth0 parent 1:15 handle 150: sfq perturb 10
+tc qdisc add dev eth0 parent 1:13 handle 130: sfq perturb 10
+tc qdisc add dev eth0 parent 1:14 handle 140: sfq perturb 10
+tc qdisc add dev eth0 parent 1:15 handle 150: sfq perturb 10
 			</Screen>
 		</para>
 
@@ -9215,7 +9221,7 @@ If the last two lines give an error, update your tc tool to a newer version!
 	<sect2>
 	<Title>Making all of the above start at boot</Title>
 		<para>
-			It sure can be done in many ways. In mine, I have a shell script in /etc/init.d/packetfilter that accepts [start | stop | stop-tables | start-tables | reload-tables] it configures qdiscs and loads needed kernel modules, so it behaves much like a daemon. The same script loads iptables rules from /etc/network/iptables-rules. I will beautify it a little and will make it available on my web page <ULink URL="http://omega.resa.es/piotr/files/packetfilter.tar.bz2">here</ULink> 
+			It sure can be done in many ways. In mine, I have a shell script in /etc/init.d/packetfilter that accepts [start | stop | stop-tables | start-tables | reload-tables] it configures qdiscs and loads needed kernel modules, so it behaves much like a daemon. The same script loads iptables rules from /etc/network/iptables-rules which can be saved with iptables-save and restored with iptables-restore. 
 			
 		</para>
 	
@@ -9642,66 +9648,66 @@ to the configuration language in Zebra :-)
 		<para>
 			Let's take this network as an example:
 			<screen>
-			----------------------------------------------------
-			| 192.168.0.0/24                                   |
-			|                                                  |
-			|      Area 0    100BaseTX Switched                |
-			|     Backbone     Ethernet                        |
-			----------------------------------------------------
-			  |           |                |              |
-			  |           |                |              |
-			  |eth1       |eth1            |eth0          |
-			  |100BaseTX  |100BaseTX       |100BaseTX     |100BaseTX
-			  |.1         |.2              |.253          |
-			 ---------   ------------   -----------      ----------------
-			 |R Omega|   |R Atlantis|   |R Legolas|      |R Frodo       |
-			 ---------   ------------   -----------      ----------------
-			  |eth0         |eth0             |             |          |
-			  |             |                 |             |          |
-			  |2MbDSL/ATM   |100BaseTX        |10BaseT      |10BaseT   |10BaseT
-			------------   ------------------------------------       -------------------------------
-			| Internet |   | 172.17.0.0/16        Area 1      |       |  192.168.1.0/24 wlan  Area 2|
-			------------   |         Student network (dorm)   |       |       barcelonawireless     |
-			               ------------------------------------       -------------------------------
+----------------------------------------------------
+| 192.168.0.0/24                                   |
+|                                                  |
+|      Area 0    100BaseTX Switched                |
+|     Backbone     Ethernet                        |
+----------------------------------------------------
+  |           |                |              |
+  |           |                |              |
+  |eth1       |eth1            |eth0          |
+  |100BaseTX  |100BaseTX       |100BaseTX     |100BaseTX
+  |.1         |.2              |.253          |
+ ---------   ------------   -----------      ----------------
+ |R Omega|   |R Atlantis|   |R Legolas|      |R Frodo       |
+ ---------   ------------   -----------      ----------------
+  |eth0         |eth0             |             |          |
+  |             |                 |             |          |
+  |2MbDSL/ATM   |100BaseTX        |10BaseT      |10BaseT   |10BaseT
+------------   ------------------------------------       -------------------------------
+| Internet |   | 172.17.0.0/16        Area 1      |       |  192.168.1.0/24 wlan  Area 2|
+------------   |         Student network (dorm)   |       |       barcelonawireless     |
+               ------------------------------------       -------------------------------
 			</screen>
 			Don't be afraid by this diagram, zebra does most of the work automatically, so it won't take any work to put all the routes up with zebra. It would be painful to mantain all those routes by hand in a day to day basis. The most important thing you must have clear, is the network topology. And take special care with Area 0, since it's the most important.
 			First configure zebra, editing zebra.conf and adapt it to your needs:
 			<screen>
-			hostname omega
-			password xxx 
-			enable password xxx
-			!
-			! Interface's description.
-			!
-			!interface lo
-			! description test of desc.
-			!
-			interface eth1
-			multicast
-			!
-			! Static default route
-			!
-			ip route 0.0.0.0/0 212.170.21.129
-			!
-			log file /var/log/zebra/zebra.log
+hostname omega
+password xxx 
+enable password xxx
+!
+! Interface's description.
+!
+!interface lo
+! description test of desc.
+!
+interface eth1
+multicast
+!
+! Static default route
+!
+ip route 0.0.0.0/0 212.170.21.129
+!
+log file /var/log/zebra/zebra.log
 			</screen>
 			In Debian, I will also had to edit /etc/zebra/daemons so they start at boot:
 			<screen>
-			zebra=yes
-			ospfd=yes
+zebra=yes
+ospfd=yes
 			</screen>
 			Now we have to edit ospfd.conf if you are still runnig IPV4 or ospf6d.conf if you run IPV6. My ospfd.conf looks like:
 			<screen>
-			hostname omega
-			password xxx
-			enable password xxx
-			!
-			router ospf
-			  network 192.168.0.0/24 area 0
-			  network 172.17.0.0/16 area 1
-			!
-			! log stdout
-			log file /var/log/zebra/ospfd.log
+hostname omega
+password xxx
+enable password xxx
+!
+router ospf
+  network 192.168.0.0/24 area 0
+  network 172.17.0.0/16 area 1
+!
+! log stdout
+log file /var/log/zebra/ospfd.log
 			</screen>
 			Here we instruct ospf about our network topology.
 		</para>
@@ -9712,21 +9718,21 @@ to the configuration language in Zebra :-)
 		<para>
 			Now, we have to start Zebra; either by hand by typing "zebra -d" or with some script like "/etc/init.d/zebra start". Then carefully watching the ospdfd logs we should see something like:
 			<screen>
-			2002/12/13 22:46:24 OSPF: interface 192.168.0.1 join AllSPFRouters Multicast group.
-			2002/12/13 22:46:34 OSPF: SMUX_CLOSE with reason: 5   
-			2002/12/13 22:46:44 OSPF: SMUX_CLOSE with reason: 5
-			2002/12/13 22:46:54 OSPF: SMUX_CLOSE with reason: 5   
-			2002/12/13 22:47:04 OSPF: SMUX_CLOSE with reason: 5   
-			2002/12/13 22:47:04 OSPF: DR-Election[1st]: Backup 192.168.0.1
-			2002/12/13 22:47:04 OSPF: DR-Election[1st]: DR     192.168.0.1
-			2002/12/13 22:47:04 OSPF: DR-Election[2nd]: Backup 0.0.0.0
-			2002/12/13 22:47:04 OSPF: DR-Election[2nd]: DR     192.168.0.1
-			2002/12/13 22:47:04 OSPF: interface 192.168.0.1 join AllDRouters Multicast group.
-			2002/12/13 22:47:06 OSPF: DR-Election[1st]: Backup 192.168.0.2
-			2002/12/13 22:47:06 OSPF: DR-Election[1st]: DR     192.168.0.1
-			2002/12/13 22:47:06 OSPF: Packet[DD]: Negotiation done (Slave).
-			2002/12/13 22:47:06 OSPF: nsm_change_status(): scheduling new router-LSA origination
-			2002/12/13 22:47:11 OSPF: ospf_intra_add_router: Start
+2002/12/13 22:46:24 OSPF: interface 192.168.0.1 join AllSPFRouters Multicast group.
+2002/12/13 22:46:34 OSPF: SMUX_CLOSE with reason: 5   
+2002/12/13 22:46:44 OSPF: SMUX_CLOSE with reason: 5
+2002/12/13 22:46:54 OSPF: SMUX_CLOSE with reason: 5   
+2002/12/13 22:47:04 OSPF: SMUX_CLOSE with reason: 5   
+2002/12/13 22:47:04 OSPF: DR-Election[1st]: Backup 192.168.0.1
+2002/12/13 22:47:04 OSPF: DR-Election[1st]: DR     192.168.0.1
+2002/12/13 22:47:04 OSPF: DR-Election[2nd]: Backup 0.0.0.0
+2002/12/13 22:47:04 OSPF: DR-Election[2nd]: DR     192.168.0.1
+2002/12/13 22:47:04 OSPF: interface 192.168.0.1 join AllDRouters Multicast group.
+2002/12/13 22:47:06 OSPF: DR-Election[1st]: Backup 192.168.0.2
+2002/12/13 22:47:06 OSPF: DR-Election[1st]: DR     192.168.0.1
+2002/12/13 22:47:06 OSPF: Packet[DD]: Negotiation done (Slave).
+2002/12/13 22:47:06 OSPF: nsm_change_status(): scheduling new router-LSA origination
+2002/12/13 22:47:11 OSPF: ospf_intra_add_router: Start
 			</screen>
 			Ignore the SMUX_CLOSE message by now, since it's about SNMP. We can see that 192.168.0.1 is the <emphasis>Designated Router</emphasis> and 192.168.0.2 is the <emphasis>Backup Designated Router</emphasis>
 		</para>
@@ -9734,49 +9740,49 @@ to the configuration language in Zebra :-)
 		<para>
 			We can also interact with the zebra or the ospfd interface by executing:
 			<screen>
-			<prompt>$ </prompt>telnet localhost zebra
-			<prompt>$ </prompt>telnet localhost ospfd
+<prompt>$ </prompt>telnet localhost zebra
+<prompt>$ </prompt>telnet localhost ospfd
 			</screen>
 
 			Let's see how to view if the routes are propagating, log into zebra and type:
 			
 			<screen>
-			root@atlantis:~# telnet localhost zebra
-			Trying 127.0.0.1...
-			Connected to atlantis.
-			Escape character is '^]'.
+root@atlantis:~# telnet localhost zebra
+Trying 127.0.0.1...
+Connected to atlantis.
+Escape character is '^]'.
 
-			Hello, this is zebra (version 0.92a).
-			Copyright 1996-2001 Kunihiro Ishiguro.
+Hello, this is zebra (version 0.92a).
+Copyright 1996-2001 Kunihiro Ishiguro.
 
-			User Access Verification
+User Access Verification
 
-			Password: 
-			atlantis&gt; show ip route
-			Codes: K - kernel route, C - connected, S - static, R - RIP, O - OSPF,
-			       B - BGP, &gt; - selected route, * - FIB route
+Password: 
+atlantis&gt; show ip route
+Codes: K - kernel route, C - connected, S - static, R - RIP, O - OSPF,
+       B - BGP, &gt; - selected route, * - FIB route
 
-			K>* 0.0.0.0/0 via 192.168.0.1, eth1
-			C>* 127.0.0.0/8 is directly connected, lo
-			O   172.17.0.0/16 [110/10] is directly connected, eth0, 06:21:53
-			C>* 172.17.0.0/16 is directly connected, eth0
-			O   192.168.0.0/24 [110/10] is directly connected, eth1, 06:21:53
-			C>* 192.168.0.0/24 is directly connected, eth1
-			atlantis&gt; show ip ospf border-routers
-			============ OSPF router routing table =============
-			R    192.168.0.253         [10] area: (0.0.0.0), ABR
-						   via 192.168.0.253, eth1
-							 [10] area: (0.0.0.1), ABR
-						   via 172.17.0.2, eth0
+K>* 0.0.0.0/0 via 192.168.0.1, eth1
+C>* 127.0.0.0/8 is directly connected, lo
+O   172.17.0.0/16 [110/10] is directly connected, eth0, 06:21:53
+C>* 172.17.0.0/16 is directly connected, eth0
+O   192.168.0.0/24 [110/10] is directly connected, eth1, 06:21:53
+C>* 192.168.0.0/24 is directly connected, eth1
+atlantis&gt; show ip ospf border-routers
+============ OSPF router routing table =============
+R    192.168.0.253         [10] area: (0.0.0.0), ABR
+			   via 192.168.0.253, eth1
+				 [10] area: (0.0.0.1), ABR
+			   via 172.17.0.2, eth0
 			</screen>
 			Or with iproute directly:
 			<screen>
-			root@omega:~# ip route
-			212.170.21.128/26 dev eth0  proto kernel  scope link  src 212.170.21.172 
-			192.168.0.0/24 dev eth1  proto kernel  scope link  src 192.168.0.1 
-			172.17.0.0/16 via 192.168.0.2 dev eth1  proto zebra  metric 20 
-			default via 212.170.21.129 dev eth0  proto zebra 
-			root@omega:~# 
+root@omega:~# ip route
+212.170.21.128/26 dev eth0  proto kernel  scope link  src 212.170.21.172 
+192.168.0.0/24 dev eth1  proto kernel  scope link  src 192.168.0.1 
+172.17.0.0/16 via 192.168.0.2 dev eth1  proto zebra  metric 20 
+default via 212.170.21.129 dev eth0  proto zebra 
+root@omega:~# 
 			</screen>
 			We can see the zebra routes, that weren't there before. It's really nice to see routes appearing just a few seconds after you start zebra and ospfd. You can check connectivity to other hosts with ping. Zebra routes are automatic, you can just add another router to the network, configure zebra, and voila!
 		</para>
@@ -9784,7 +9790,7 @@ to the configuration language in Zebra :-)
 		<para>
 			Hint: You can use:
 			<screen>
-			tcpdump -i eth1 ip[9] == 89
+tcpdump -i eth1 ip[9] == 89
 			</screen>
 			To capture OSPF packets for analisys. OSPF ip protocol number is 89, and the protocol field is the 9th octet on the ip header.
 		</para>
@@ -9824,18 +9830,17 @@ get your own AS from RIPE if you set up official peerings.
 </para>
 
 <screen>
-
-                  --------------------
-                  | 192.168.23.12/24 |
-                  |    AS: 23        |
-                  --------------------
-                    /             \
-                   /               \
-                  /                 \
-        ------------------       ------------------
-        | 192.168.1.1/24 |-------| 10.10.1.1/16   |
-        |    AS: 1       |       |    AS: 50      |
-        ------------------       ------------------
+          --------------------
+          | 192.168.23.12/24 |
+          |    AS: 23        |
+          --------------------
+            /             \
+           /               \
+          /                 \
+------------------       ------------------
+| 192.168.1.1/24 |-------| 10.10.1.1/16   |
+|    AS: 1       |       |    AS: 50      |
+------------------       ------------------
 </screen>
 
 </Sect2>

@@ -6,7 +6,7 @@ contriblist: lartc.txt
 	./makecontriblist > contriblist
 
 clean:
-	rm -rf *.dvi *.pdf *.tex *.toc *.aux *.txt *.ps *.bak *.tmp *~ *.log html *.pdf.gz *.ps.gz html.tar.gz lartc.html
+	rm -rf *.dvi *.pdf *.tex *.toc *.aux *.txt *.ps *.bak *.tmp *~ *.log html *.pdf.gz *.ps.gz html.tar.gz lartc.html contriblist
 
 %.pdf.gz: %.pdf
 	gzip < $<  > $@
