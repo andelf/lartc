@@ -8,9 +8,7 @@ dev
 classid 
 .B | root) [ handle 
 major: 
-.B ] cbq [ allot 
-bytes
-.B ] avpkt
+.B ] cbq avpkt
 bytes
 .B bandwidth
 rate
@@ -66,9 +64,30 @@ idle time calculations based on the timing of dequeue events and
 underlying link bandwidth.
 
 .SH SHAPING ALGORITHM
+Shaping is done using link idle time calculations, and actions taken if
+these calculations deviate from set limits.
+
 When shaping a 10mbit/s connection to 1mbit/s, the link will
 be idle 90% of the time. If it isn't, it needs to be throttled so that it
 IS idle 90% of the time.
+
+From the kernel's perspecive, this is hard to measure, so CBQ instead 
+derives the idle time from the number of microseconds (in fact, jiffies) 
+that elapse between  requests from the device driver for more data. Combined 
+with the  knowledge of packet sizes, this is used to approximate how full or 
+empty the link is.
+
+This is rather circumspect and doesn't always arrive at proper
+results. For example, what is the actual link speed of an interface
+that is not really able to transmit the full 100mbit/s of data,
+perhaps because of a badly implemented driver? A PCMCIA network card
+will also never achieve 100mbit/s because of the way the bus is
+designed - again, how do we calculate the idle time?
+
+The physical link bandwidth may be ill defined in case of not-quite-real 
+network devices like PPP over Ethernet or PPTP over TCP/IP. The effective 
+bandwidth in that case is probably determined by the efficiency of pipes 
+to userspace - which not defined.
 
 During operations, the effective idletime is measured using an
 exponential weighted moving average (EWMA), which considers recent
@@ -101,37 +120,101 @@ contains another qdisc, by default
 .BR tc-pfifo (8).
 
 When enqueueing a packet, CBQ starts at the root and uses various methods to 
-determine which class should receive the data. 
+determine which class should receive the data. If a verdict is reached, this
+process is repeated for the recipient class which might have further
+means of classifying traffic to its children, if any.
 
-In the absence of uncommon configuration options, the process is rather easy. 
-At each node we look for an instruction, and then go to the class the 
-instruction refers us to. If the class found is a barren leaf-node (without 
-children), we enqueue the packet there. If it is not yet a leaf node, we do 
-the whole thing over again starting from that node. 
-
-The following actions are performed, in order at each node we visit, until one 
-sends us to another node, or terminates the process.
+CBQ has the following methods available to classify a packet to any child 
+classes.
 .TP
 (i)
-Consult filters attached to the class. If sent to a leafnode, we are done. 
-Otherwise, restart.
+.B skb->priority class encoding.
+Can be set from userspace by an application with the 
+.B SO_PRIORITY
+setsockopt.
+The 
+.B skb->priority class encoding
+only applies if the skb->priority holds a major:minor handle of an existing 
+class within  this qdisc.
 .TP
 (ii)
-Consult the defmap for the priority assigned to this packet, which depends 
-on the TOS bits. Check if the referral is leafness, otherwise restart.
+tc filters attached to the class.
 .TP
 (iii)
-Ask the defmap for instructions for the 'best effort' priority. Check the 
-answer for leafness, otherwise restart.
+The defmap of a class, as set with the 
+.B split & defmap
+parameters. The defmap may contain instructions for each possible Linux packet
+priority.
+
+.P
+Each class also has a 
+.B level.
+Leaf nodes, attached to the bottom of the class hierarchy, have a level of 0.
+.SH CLASSIFICATION ALGORITHM
+
+Classification is a loop, which terminates when a leaf class is found. At any 
+point the loop may jump to the fallback algorithm.
+
+The loop consists of the following steps:
+.TP 
+(i)
+If the packet is generated locally and has a valid classid encoded within its
+.B skb->priority,
+choose it and terminate.
+
+.TP
+(ii)
+Consult the tc filters, if any, attached to this child. If these return
+a class which is not a leaf class, restart loop from the class returned.
+If it is a leaf, choose it and terminate.
+.TP
+(iii)
+If the tc filters did not return a class, but did return a classid, 
+try to find a class with that id within this qdisc. 
+Check if the found class is of a lower
+.B level
+than the current class. If so, and the returned class is not a leaf node,
+restart the loop at the found class. If it is a leaf node, terminate.
+If we found an upward reference to a higher level, enter the fallback 
+algorithm.
 .TP
 (iv)
-If none of the above returned with an instruction, enqeueue at this node.
+If the tc filters did not return a class, nor a valid reference to one,
+consider the minor number of the reference to be the priority. Retrieve
+a class from the defmap of this class for the priority. If this did not
+contain a class, consult the defmap of this class for the 
+.B BEST_EFFORT
+class. If this is an upward reference, or no 
+.B BEST_EFFORT 
+class was defined,
+enter the fallback algorithm. If a valid class was found, and it is not a
+leaf node, restart the loop at this class. If it is a leaf, choose it and 
+terminate. If
+neither the priority distilled from the classid, nor the 
+.B BEST_EFFORT 
+priority yielded a class, enter the fallback algorithm.
 .P
-This algorithm makes sure that a packet always ends up somewhere, even while
-you are busy building your configuration. 
-
-For more details, see
-.BR tc-cbq-details(8).
+The fallback algorithm resides outside of the loop and is as follows.
+.TP
+(i)
+Consult the defmap of the class at which the jump to fallback occured. If 
+the defmap contains a class for the 
+.B
+priority
+of the class (which is related to the TOS field), choose this class and 
+terminate. 
+.TP
+(ii)
+Consult the map for a class for the
+.B BEST_EFFORT
+priority. If found, choose it, and terminate.
+.TP
+(iii)
+Choose the class at which breakout to the fallback algorithm occured. Terminate.
+.P
+The packet is enqueued to the class which was chosen when either algorithm 
+terminated. It is therefore possible for a packet to be enqueued *not* at a
+leaf node, but in the middle of the hierarchy.
 
 .SH LINK SHARING ALGORITHM
 When dequeueing for sending to the network device, CBQ decides which of its 
@@ -142,9 +225,21 @@ highest semantically) for packets, and will continue to do so until they
 have no more data to offer, in which case the process repeats for lower 
 priorities.
 
-Classes by default borrow bandwidth from their siblings. A class can be 
-prevented from doing so by declaring it 'bounded'. A class can also indicate 
-its unwillingness to lend out bandwidth by being 'isolated'.
+.B CERTAINTY ENDS HERE, ANK PLEASE HELP
+
+Each class is not allowed to send at length though - they can only dequeue a
+configurable amount of data during each round. 
+
+If a class is about to go overlimit, and it is not
+.B bounded
+it will try to borrow avgidle from siblings that are not
+.B isolated. 
+This process is repeated from the bottom upwards. If a class is unable
+to borrow enough avgidle to send a packet, it is throttled and not asked
+for a packet for enough time for the avgidle to increase above zero.
+
+.B I REALLY NEED HELP FIGURING THIS OUT. REST OF DOCUMENT IS PRETTY CERTAIN
+.B AGAIN.
 
 .SH QDISC
 The root qdisc of a CBQ class tree has the following parameters:
@@ -158,15 +253,10 @@ of an interface or within an existing class.
 handle major:
 Like all other qdiscs, the CBQ can be assigned a handle. Should consist only
 of a major number, followed by a colon. Optional.
-.TP 
-allot bytes
-This allotment is the 'chunkiness' of link sharing and is used for determining packet
-transmission time tables. The qdisc allot differs slightly from the class allot discussed
-below. Optional. Defaults to a reasonable value, related to avpkt.
 .TP
 avpkt bytes
-The average size of a packet is needed for calculating maxidle, and is also used
-for making sure 'allot' has a safe value. Mandatory.
+For calculations, the average packet size must be known. It is silently capped
+at a minimum of 2/3 of the interface MTU. Mandatory.
 .TP
 bandwidth rate
 To determine the idle time, CBQ must know the bandwidth of your underlying 
@@ -184,9 +274,8 @@ are still deemed to have this size. Defaults to zero.
 ewma log
 When CBQ needs to measure the average idle time, it does so using an 
 Exponentially Weighted Moving Average which smoothes out measurements into
-a moving average. The EWMA LOG determines how much smoothing occurs. Lower 
-values imply greater sensitivity. Must be between 0 and 31. Defaults 
-to 5.
+a moving average. The EWMA LOG determines how much smoothing occurs. Defaults 
+to 5. Lower values imply greater sensitivity. Must be between 0 and 31.
 .P
 A CBQ qdisc does not shape out of its own accord. It only needs to know certain
 parameters about the underlying link. Actual shaping is done in classes.
@@ -215,8 +304,7 @@ of this class is maximal, in which case it is set to 1.
 allot bytes
 Allot specifies how many bytes a qdisc can dequeue
 during each round of the process. This parameter is weighted using the 
-renormalized class weight described above. Is silently capped at a 
-minimum of 3/2 of avpkt. Mandatory.
+renormalized class weight described above.
 
 .TP 
 priority priority
@@ -229,7 +317,7 @@ Maximum rate this class and all its children combined can send at. Mandatory.
 
 .TP
 bandwidth rate
-This is different from the bandwidth specified when creating a CBQ disc! Only
+This is different from the bandwidth specified when creating a CBQ disc. Only
 used to determine maxidle and offtime, which are only calculated when
 specifying maxburst or minburst. Mandatory if specifying maxburst or minburst.
 
@@ -251,7 +339,7 @@ go, and then sleep minburst times longer.
 
 The time to wait is called the offtime. Higher values of minburst lead
 to more accurate shaping in the long term, but to bigger bursts at
-millisecond timescales. Optional.
+millisecond timescales.
 
 .TP
 minidle
@@ -261,7 +349,7 @@ burst from shutting down the link for a prolonged period of time,
 avgidle is reset to minidle if it gets too low.
 
 Minidle is specified in negative microseconds, so 10 means that
-avgidle is capped at -10us. Optional.
+avgidle is capped at -10us.
 
 .TP
 bounded 
@@ -302,18 +390,7 @@ corresponds to the sluggishness of the measurement or, conversely, to the
 sensitivity of the average to short bursts. Higher values mean less
 sensitivity. 
 
-.SH BUGS
-The actual bandwidth of the underlying link may not be known, for example 
-in the case of PPoE or PPTP connections which in fact may send over a 
-pipe, instead of over a physical device. CBQ is quite resilient to major
-errors in the configured bandwidth, probably a the cost of coarser shaping.
 
-Default kernels rely on coarse timing information for making decisions. These 
-may make shaping precise in the long term, but inaccurate on second long scales.
-
-See 
-.BR tc-cbq-details(8)
-for hints on how to improve this.
 
 .SH SOURCES
 .TP
