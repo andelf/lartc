@@ -4,7 +4,7 @@ clean:
 	rm *.txt *.dvi *.pdf *.ps *.ps.gz
 
 %.txt: %.8
-	man ./$< > $@
+	groff -man -Tascii -P-u -P-b ./$< > $@
 
 %.dvi: %.8
 	man -l -Tdvi $< > $@
