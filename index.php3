@@ -76,6 +76,10 @@ This site attempts to document how to configure and use these features.
 <a name="news"></a>
 <h2>News</H2>
 <table border=1>
+<tr><td valign=top>2002-07-20</td><td>Hate so called 'opt-in' spam? Visit 
+<a href=http://www.intuh.net/opt-out/>this page</a> or the <a
+href=http://ds9a.nl/mirrors/opt-out/>local mirror</a>. Even better, submit
+addresses of known opt-in spam supporters!</td>
 <tr><td valign=top>2002-07-07</td><td>Moved the IRC channel #lartc to
 irc.oftc.net - a very down to earth IRC network without operators begging
 for financial support. If you are new to IRC, give it a try. An excellent

@@ -1,6 +1,8 @@
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
 <!-- $Id$ -->
 <Book id="lartc">
+<?dbhtml banner-text="Made possible by PowerDNS">
+<?dbhtml banner-href="http://www.powerdns.com">
 
   <bookinfo>
     <Title>Linux Advanced Routing &amp; Traffic Control HOWTO</Title>
@@ -330,7 +332,7 @@ $ cvs login
 CVS password: [enter 'cvs' (without 's)]
 $ cvs co 2.4routing
 cvs server: Updating 2.4routing
-U 2.4routing/2.4routing.sgml
+U 2.4routing/lartc.db
 </Screen>
 
 <Para>
@@ -346,6 +348,10 @@ html and plain text. You may need to install
 to get all formats.
 </Para>
 
+<para>
+Be careful not to edit 2.4routing.sgml! It contains an older version of the
+HOWTO. The right file is lartc.db.
+</para>
 </Sect1>
 
 <Sect1 id="lartc.intro.mlist">
@@ -3540,13 +3546,20 @@ URL="http://luxik.cdi.cz/~devik/qos/htb/"
 
 <Para>
 As your HTB configuration gets more complex, your configuration scales
-well. With CBQ it is already complex even in simple cases! HTB is not yet a
-part of the standard kernel, but it should soon be!
+well. With CBQ it is already complex even in simple cases! HTB3 (check
+<ulink url="http://luxik.cdi.cz/~devik/qos/htb/">its homepage</ulink> for
+details on HTB versions) is now part of the official kernel sources 
+(from 2.4.20-pre1 and 2.5.31 onwards). However, maybe you still need to
+get a HTB3 patched version of 'tc': HTB kernel and userspace parts must
+be the same major version, or 'tc' will not work with HTB.
+
 </Para>
 
 <Para>
-If you are in a position to patch your kernel, by all means consider HTB.
-</Para>
+If you already have a modern kernel, or are in a position to patch your 
+kernel, by all means consider HTB.
+</para>
+
 
 <Sect3>
 <Title>Sample configuration</Title>
@@ -8761,6 +8774,8 @@ helping.
    <address><email>devik@cdi.cz</email></address>
   </Para>
   </ListItem>
+
+
   <ListItem>
    <Para>
    <author><firstname>Stephan</firstname><othername>"Kobold"</othername>
@@ -8876,6 +8891,13 @@ Philippe Latu &lt;philippe.latu&percnt;linux-france.org&gt;
 Arthur van Leeuwen &lt;arthurvl&percnt;sci.kun.nl&gt;
 </Para>
 </ListItem>
+  <ListItem>
+   <Para>
+   <author><firstname>Jose Luis Domingo</firstname><surname>Lopez</surname>
+     </author>
+   <address><email>jdomingo@24x7linux.com</email></address>
+  </Para>
+  </ListItem>
 <ListItem>
 
 <Para>
