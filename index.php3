@@ -85,7 +85,7 @@ This site attempts to document how to configure and use these features.
 <h2>News</H2>
 <table border=1>
 <tr><td valign=top>2003-11-04</td><td>NAKANO Takeo translated the HOWTO into
-<a href="http://http://www.linux.or.jp/JF/JFdocs/Adv-Routing-HOWTO/">japanese</a>.</td></tr>
+<a href="http://www.linux.or.jp/JF/JFdocs/Adv-Routing-HOWTO/">japanese</a>.</td></tr>
 <tr><td valign=top>2003-07-28</td><td>Ricardo Javier Cardenes reports that
 the Spanish translation <a
 href=http://asgard.debian.net/lartc>is done!</a></td></tr>

@@ -4673,7 +4673,16 @@ The number 6 is arbitrary.
 
 <Para>
 If you don't want to understand the full tc filter syntax, just use
-iptables, and only learn to select on fwmark.
+iptables, and only learn to select on fwmark. You can also have iptables
+print basic statistics that will help you debug your rules.
+The following command will show you all the rules that mark packages
+in the mangle table, also how many packages and bytes have matched.
+
+<Screen>
+# iptables -L -t mangle -n -v
+</Screen>
+
+
 </Para></ListItem>
 </VarListEntry>
 <VarListEntry>
@@ -5341,7 +5350,7 @@ is:
 <Para>
 
 <Screen>
-match [ u32 | u16 | u8 ] PATTERN MASK [ at OFFSET | nexthdr+OFFSET]
+match [ u32 | u16 | u8 ] PATTERN MASK at [OFFSET | nexthdr+OFFSET]
 </Screen>
 
 </Para>
@@ -10477,6 +10486,13 @@ helping.
    <Para>
    <author><firstname>Ricardo Javier</firstname><surname>Cardenes</surname></author>
    <address><email>ricardo%conysis.com</email></address>
+   </Para>
+  </ListItem>
+
+  <ListItem>
+   <Para>
+   <author><firstname>Nelson</firstname><surname>Castillo</surname></author>
+   <address><email>arhuaco%yahoo.com</email></address>
    </Para>
   </ListItem>
 
