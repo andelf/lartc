@@ -298,7 +298,7 @@ speaker. Feel free to send suggestions.
 </Para>
 
 <Para>
-If you feel to you are better qualified to maintain a section, or think that
+If you feel you are better qualified to maintain a section, or think that
 you can author and maintain new sections, you are welcome to do so. The SGML
 of this HOWTO is available via CVS, I very much envision more people
 working on it.
@@ -2419,6 +2419,28 @@ try.".
 
 	</para>
       </sect2>
+
+      <sect2 id="lartc.ipsec.interop.checkpoint"><title> Check Point VPN-1
+NG</title>
+	<para>
+	Peter Bieringer reports: 
+<screen>
+Here are some results (tunnel mode only tested, auth=SHA1):
+
+DES:     ok 
+3DES:    ok 
+AES-128: ok 
+AES-192: not supported by CP VPN-1
+AES-256: ok 
+CAST* :  not supported by used Linux kernel
+
+Tested version: FP4 aka R54 aka w/AI
+</screen>
+	</para>
+	<para>
+	More information <ulink
+url="http://www.fw-1.de/aerasec/ng/vpn-racoon/CP-VPN1-NG-Linux-racoon.html">here</ulink>.
+      </sect2>
     </sect1>
 
   </chapter>
@@ -2964,7 +2986,7 @@ our waits so we send just at peakrate.
 </Para>
 
 <Para>
-However, due to de default 10ms timer resolution of Unix, with 10.000 bits
+However, due to the default 10ms timer resolution of Unix, with 10.000 bits
 average packets, we are limited to 1mbit/s of peakrate!
 </Para></ListItem>
 </VarListEntry>
@@ -9583,7 +9605,8 @@ to the configuration language in Zebra :-)
 				<Term>Cpu intensive</Term>
 				<ListItem>
 				<Para>
-				OSPF is based on Dijkstra's <ulink url="http://www.soi.wide.ad.jp/class/99007/slides/13/07.html">Shortest Path First algorithm</ulink>, which is expensive compared to other routing algorithms. But really is not that bad, since the Shortest Path is only calculed for each area, also for small to medium sized networks this won't be an issue, and you won't even notice.
+				OSPF is based on Dijkstra's <ulink url="http://www.soi.wide.ad.jp/class/99007/slides/13/07.html">Shortest Path First algorithm</ulink>, which is expensive compared to other routing algorithms. But really is not that bad, since the Shortest Path is only
+calculated for each area, also for small to medium sized networks this won't be an issue, and you won't even notice.
 				</Para></ListItem>
 			</VarListEntry>
 			
@@ -10139,6 +10162,9 @@ Redundancy Protocol implementation (
 )</Term>
 <ListItem>
 <Para>
+FIXME: This link died, anybody know where it went?
+</para>
+<para>
 This is purely for redundancy. Two machines with their own IP address and
 MAC Address together create a third IP Address and MAC Address, which is
 virtual. Originally intended purely for routers, which need constant MAC
@@ -10399,6 +10425,22 @@ helping.
    </Para>
   </ListItem>
 
+  <ListItem>
+   <Para>
+   <author><firstname>Peter</firstname>
+     <surname>Bieringer</surname></author>
+   <address><email>pb:bieringer.de</email></address>
+   </Para>
+  </ListItem>
+
+  <ListItem>
+  <Para>
+   <author><firstname>Adam</firstname>
+     <surname>Burke</surname></author>
+   <address><email>aburke%crg.ee.uct.ac.za</email></address>
+   </Para>
+  </ListItem>
+
 
   <ListItem>
    <Para>
@@ -10573,12 +10615,22 @@ helping.
    <address><email>koos@kzdoos.xs4all.nl</email></address>
    </Para>
   </ListItem>
+
   <ListItem>
 
 <Para>
 Stefan Huelbrock &lt;shuelbrock%datasystems.de&gt;
 </Para>
 </ListItem>
+
+  <ListItem>
+   <Para>
+   <author><firstname>Ayotunde</firstname><surname>Itayemi</surname></author>
+   <address><email>aitayemi:metrong.com</email></address>
+   </Para>
+  </ListItem>
+
+
 <ListItem>
 
 <Para>
@@ -10668,7 +10720,6 @@ Edmund Lau &lt;edlau%ucf.ics.uci.edu&gt;
 Philippe Latu &lt;philippe.latu%linux-france.org&gt;
 </Para>
 </ListItem>
-
 <ListItem>
 <Para>
 Arthur van Leeuwen &lt;arthurvl%sci.kun.nl&gt;
@@ -10683,13 +10734,15 @@ Arthur van Leeuwen &lt;arthurvl%sci.kun.nl&gt;
 </Para>
 </ListItem>
 
-<ListItem>
-<Para>
-<author><firstname>Robert</firstname><surname>Lowe</surname>
- </author>
-<address><email>robert.h.lowe@lawrence.edu</email></address>
-</Para>
-</ListItem>
+
+  <ListItem>
+   <Para>
+   <author><firstname>Robert</firstname><surname>Lowe</surname>
+     </author>
+   <address><email>robert.h.lowe@lawrence.edu</email></address>
+  </Para>
+  </ListItem>
+
 
 <ListItem>
 <Para>
@@ -10916,6 +10969,10 @@ Jason Tackaberry &lt;tack@linux.com&gt;
 Charles Tassell &lt;ctassell%isn.net&gt;
 </Para>
 </ListItem>
+
+<listitem>
+<para>Jason Thomas &lt;jason5intology.com.au&gt;
+</para>
 <ListItem>
 
 <Para>
