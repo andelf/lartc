@@ -1641,15 +1641,22 @@ web interface. Search for "ipv6 tunnel broker" on your favourite search engine.
 	<para>
 	  As this is written, 2.5.47 has not even been released! A lot of what follows is likely to change. To try this with 2.5.46,
 	  fetch patches from the linux kernel mailinglist. Crude userspace utilities are <ulink url="ftp://ftp.inr.ac.ru/ip-routing/ipsec">
-	    here</ulink>.
+	    here</ulink>. Compiling these userspace utilities requires editing the GNUMakefiles in there to point them at your
+	  2.5.x kernel. This situation is expected to improve rapidly however.
 	</para>
       </note>
+      <warning>
+	<para>
+	  The author of this chapter is a complete DNSSEC nitwit! If you find the inevitable mistakes, please email
+	  bert hubert <email>ahu@ds9a.nl</email>.
+	</para>
+      </warning>
     </Para>
     <para>
       First, we'll show how to setup secure communication between two hosts. This sample can be made much
-      more complicated and powerful but we'll only do that in a later section.
+      more complicated and powerful and we'll only do that, but only in a later section.
     </para>
-    <sect1 id="lartc.ipsec.intro"><title>Intro</title>
+    <sect1 id="lartc.ipsec.intro"><title>Intro with Manual Keying</title>
       <para>
 	IPSEC is a complicated subject. A lot of information is available online, this HOWTO will concentrate on getting you
 	up and running and explaining the basic principles.
@@ -1667,11 +1674,8 @@ web interface. Search for "ipv6 tunnel broker" on your favourite search engine.
 	but no guarantee is offered that the remote party is the one you expect it to be.
       </para>
       <para>
-	This is why SSL certificates exist - just doing crypto without authentication does not cut it.
-      </para>
-      <para>
 	IPSEC supports 'Encapsulated Security Payload' (ESP) for encryption and 'Authentication Header' (AH) for authenticating the remote partner.
-	You should configure both of them. 
+	You can configure both of them, or decided to do only either.
       </para>
       <para>
 	Both ESP and AH rely on security associations. A security association (SA) consists of a source, a destination and an instruction. A sample 
@@ -1680,8 +1684,8 @@ web interface. Search for "ipv6 tunnel broker" on your favourite search engine.
 	  add 10.0.0.11 10.0.0.216 ah 15700 -A hmac-md5 "1234567890123456";
 	</screen>
 	This says 'traffic going from 10.0.0.11 to 10.0.0.216 that needs an AH can be signed using HMAC-MD5 using secret 1234567890123456'. This instruction
-	is labelled with SPI id '15700', more about that later.
-	The interesting bit about SAs is that they are symmetrical. Both sides of a conversation share exactly the same SA. It is not mirrored on the
+	is labelled with SPI ('Security Parameter Index') id '15700', more about that later.
+	The interesting bit about SAs is that they are symmetrical. Both sides of a conversation share exactly the same SA, it is not mirrored on the
 	other side. Do note however that there is no 'autoreverse' rule - this SA only describes a possible authentication from 10.0.0.11 to 
 	10.0.0.216. For two-way traffic, two SAs are needed.
       </para>
@@ -1706,11 +1710,11 @@ spdadd 10.0.0.216 10.0.0.11 any -P out ipsec
    ah/transport//require;
 	</screen>
 	If entered on host 10.0.0.216, this means that all traffic going out to 10.0.0.11 must be encrypted 
-	and be wrapped in an AH authenticating header. Note that this does not descibe which SA is to be used,
+	and be wrapped in an AH authenticating header. Note that this does not describe which SA is to be used,
 	that is left as an exercise for the kernel to determine.
       </para>
       <para>
-	Outgoing packets are however labelled with the SAs SPI ids the kernel used for encryption and authentication 
+	Outgoing packets are however labelled with the SA SPI ids the kernel used for encryption and authentication 
 	so the remote can lookup the corresponding verification and decryption instruction.
       </para>
       <para>
@@ -1818,8 +1822,10 @@ spdadd 10.0.0.216 10.0.0.11 any -P in ipsec
 	</screen>
       </para>
       <para>
-	Note that in this example we used identical keys for both directions of traffic. This is not required however.
+	Note that in this example we used identical keys for both directions of traffic. This is not in any way required however.
       </para>
+      <para>
+	To examine the configuration we just created, 
     </sect1>
     <sect1 id="lartc.ipsec.automatic.keying"><title>Automatic keying</title>
       <para>
@@ -1833,8 +1839,18 @@ spdadd 10.0.0.216 10.0.0.11 any -P in ipsec
 	if there are 10 parties, this needs at least 50 different secrets. 
       </para>
       <para>
-	To solve this, IPSEC provides Internet Key Exchange to automatically exchange randomly generated keys which are
-	transmitted using asymmetric encryption technology.
+	Besides the symmetric key problem, there is also the need for key rollover. If a third party manages to sniff enough traffic,
+	it may be in a position to reverse engineer the key. This is prevented by moving to a new key every once in a while but that is
+	a process that needs to be automated.
+      </para>
+      <para>
+	Another problem is that with manual keying as described above we exactly define the algorithms and key lengths used, something
+	that requires a lot of coordination with the remote party. It is desireable to be able to have the ability to describe a 
+	broader key policy such as 'We can do 3DES and Blowfish with at least the following key lengths'.
+      </para>
+      <para>
+	To solve these isses, IPSEC provides Internet Key Exchange to automatically exchange randomly generated keys which are
+	transmitted using asymmetric encryption technology, according to negotiated algorithm details.
       </para>
       <para>
 	The Linux 2.5 IPSEC implementation works with the KAME 'racoon' IKE daemon.
