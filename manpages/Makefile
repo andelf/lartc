@@ -1,4 +1,6 @@
-all: tc.txt tc.dvi tc.pdf tc.ps tc.ps.gz 
+all:    tc.txt tc.dvi tc.pdf tc.ps tc.ps.gz  \
+        tc-sfq.txt tc-sfq.dvi tc-sfq.pdf tc-sfq.ps tc-sfq.ps.gz  \
+        tc-tbf.txt tc-tbf.dvi tc-tbf.pdf tc-tbf.ps tc-tbf.ps.gz  
 
 clean:
 	rm *.txt *.dvi *.pdf *.ps *.ps.gz *~

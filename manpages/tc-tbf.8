@@ -1,12 +1,24 @@
 .TH TC 8 "8 December 2001" "iproute2" "Linux"
 .SH NAME
-sfq \- Token Bucket Filter
+tbf \- Token Bucket Filter
 .SH SYNOPSIS
-.B tc qdisc ... perturb
-seconds
-.B quantum
+.B tc qdisc ... tbf rate
+rate
+.B burst
+bytes/cell
+.B ( latency 
+ms 
+.B | limit
 bytes
-
+.B ) [ mpu 
+bytes
+.B [ peakrate
+rate
+.B mtu
+bytes/cell
+.B ] ]
+.P
+burst is also known as buffer and maxburst. mtu is also known as minburst.
 .SH DESCRIPTION
 
 The Token Bucket Filter is a classless queueing discipline available for
