@@ -1,4 +1,4 @@
-.TH TC 8 "8 December 2001" "iproute2" "Linux"
+.TH TC 8 "13 December 2001" "iproute2" "Linux"
 .SH NAME
 tbf \- Token Bucket Filter
 .SH SYNOPSIS
@@ -65,15 +65,20 @@ on HZ as 1/HZ. For perfect shaping, only a single packet can get sent per jiffy 
 packets of on average 1000 bytes each, which roughly corresponds to 1mbit/s.
 
 .SH PARAMETERS
+See 
+.BR tc (8)
+for how to specify the units of these values.
 .TP
 limit or latency
-Limit is the number of bytes that can be queued waiting for tokens to become available. You can also specify this 
-the other way around by setting the latency parameter, which specifies the maximum amount of time a packet can sit 
-in the TBF. The latter calculation takes into account the size of the bucket, the rate and possibly the peakrate (if set).
-
-These two parameters are mutually exclusive.
+Limit is the number of bytes that can be queued waiting for tokens to become
+available. You can also specify this the other way around by setting the
+latency parameter, which specifies the maximum amount of time a packet can
+sit in the TBF. The latter calculation takes into account the size of the
+bucket, the rate and possibly the peakrate (if set). These two parameters
+are mutually exclusive. 
 .TP
-burst (also known as buffer or maxburst).
+burst
+Also known as buffer or maxburst.
 Size of the bucket, in bytes. This is the maximum amount of bytes that tokens can be available for instantaneously. 
 In general, larger shaping rates require a larger buffer. For 10mbit/s on Intel, you need at least 10kbyte buffer 
 if you want to reach your configured rate!
@@ -83,18 +88,20 @@ The minimum buffer size can be calculated by dividing the rate by HZ.
 
 Token usage calculations are performed using a table which by default has a resolution of 8 packets. 
 This resolution can be changed by specifying the 
-.B
-cell
-size with the burst. For example, to specify a 6000 byte buffer with a 16 byte cell size, set a burst of 6000/16. You will
-probably never have to set this. Must be an integral power of 2.
+.B cell
+size with the burst. For example, to specify a 6000 byte buffer with a 16
+byte cell size, set a burst of 6000/16. You will probably never have to set
+this. Must be an integral power of 2.
 .TP
 mpu
 A zero-sized packet does not use zero bandwidth. For ethernet, no packet uses less than 64 bytes. The Minimum Packet Unit 
-determines the minimal token usage for a packet. Defaults to zero.
+determines the minimal token usage (specified in bytes) for a packet. Defaults to zero.
 .TP
 rate
-The speedknob. See remarks above about limits!
-.P
+The speedknob. See remarks above about limits! See 
+.BR tc (8)
+for units.
+.PP
 Furthermore, if a peakrate is desired, the following parameters are available:
 
 .TP

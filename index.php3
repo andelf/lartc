@@ -26,7 +26,8 @@ Paul B Schroeder &lt;paulsch@us.ibm.com&gt; <br>
 (<small>mailing list</a>/<a
 href=http://mailman.ds9a.nl/pipermail/lartc/>archive</a>, the <strong>only</strong> place to send
 questions!</a></small>)<br>
-#lartc on <a href=http://www.openprojects.net>irc.openprojects.net</a></td><td valign=bottom align=right>
+#lartc on <a href=http://www.openprojects.net>irc.openprojects.net</a> (<a
+href=dejairc.php>archives</a>)</td><td valign=bottom align=right>
 
 </td>
 </table>
@@ -58,13 +59,18 @@ This site attempts to document how to configure and use these features.
 <a name="news"></a>
 <h2>News</H2>
 <table border=1>
+<tr><td valign=top>2001-12-10</td><td>Added <a
+href=http://ds9a.nl/lartc/HOWTO//cvs/2.4routing/output/2.4routing-15.html#ss15.8>The Wonder
+Shaper</a>, which allows you to retain very low latency while doing very
+fast up- and downloads. You can even do both at the same time, but then
+latency suffers. Added <a href=dejairc.php>logs
+for the irc channel</a> which is already seeing some traffic.</td>
+<tr><td valign=top>2001-12-10</td><td>The <a
+href=manpages/>manpages</a> now include a huge CBQ page. Read it and weep.</td>
 <tr><td valign=top>2001-12-09</td><td>We now have an IRC channel, #lartc on
 <a href=http://www.openprojects.net>irc.openprojects.net</a>. Join #lartc
 to chat about Linux &amp; Routing &amp; Shaping!</td>
-<tr><td valign=top>2001-12-08</td><td>Started work on the <a
-href=manpages/>manpages</a> for tc and everything related to it. Some
-interesting material is already there. If you can help, please do, it is
-very hard work.</td>
+
 <tr><td valign=top>2001-12-06</td><td>Finished documenting policing filters,
 added short piece on Generic Random Early Detection queueing.
 

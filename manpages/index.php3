@@ -42,6 +42,7 @@ I'm attempting, with your help, to write manpages for tc. These pages will
 complement the <a href=http://ds9a.nl/lartc>HOWTO</a> and are intented to be
 donated to Alexey, the tc author, for inclusion in the distribution.
 <p>
+HTML output is somewhat shoddy in places, but looks nice:
 <table border=1>
 <?
 function manpage($name,$desc="",$there=0)
@@ -49,24 +50,26 @@ function manpage($name,$desc="",$there=0)
 	print("<tr><td><td>$name</td><td>$desc</td>");
 	if($there) {
 		print("<td><a href=$name.txt>txt</a></td>");
+		print("<td><a href=$name.html>html</a></td>");
 		print("<td><a href=$name.8>man</a></td>");
 		print("<td><a href=$name.pdf>pdf</a></td>");
 		print("<td><a href=$name.ps>ps</a>/<a href=$name.ps.gz>ps.gz</a></td>");
 		print("<td><a href=$name.dvi>dvi</a></td>");
 	}
-	else print("<td colspan=5 align=center><font color=#999999>forthcoming</font></td>");
+	else print("<td colspan=6 align=center><font color=#999999>forthcoming</font></td>");
 	print("</tr>");
 }
 manpage("tc","The main command",1);
 manpage("tc-filter","tc filters in depth",0);
-manpage("tc-cbq","The Class Based Queueing qdisc");
+manpage("tc-cbq","The Class Based Queueing qdisc",1);
 manpage("tc-dsmark","The DiffServ qdisc");
 manpage("tc-htb","The Hierarchy Token Bucket qdisc");
 manpage("tc-sfq","Stochastic Fairness Queueing",1);
-manpage("tc-red","Random Early Detection");
+manpage("tc-red","Random Early Detection",1);
 manpage("tc-tbf","Token Bucket Filter",1);
 manpage("tc-pfifo","Packet limited First In First Out");
 manpage("tc-bfifo","Byte limited First In First Out");
+manpage("tc-prio","N-band classful scheduler",1);
 manpage("tc-pfifo_fast","Default three-band scheduler");
 ?>
 </table>

@@ -44,7 +44,7 @@ Welcome, gentle reader.
 This document hopes to enlighten you on how to do more with Linux 2.2/2.4
 routing. Unbeknownst to most users, you already run tools which allow you to
 do spectacular things. Commands like 'route' and 'ifconfig' are actually
-very thin wrappers for the very powerful iproute2 infrastructure
+very thin wrappers for the very powerful iproute2 infrastructure.
 <p>
 I hope that this HOWTO will become as readable as the ones by Rusty Russell
 of (amongst other things) netfilter fame.
@@ -834,7 +834,7 @@ subnet notation works just like with regular IP adresses.
 Your IPv4 address is 145.100.24.181 and the 6bone router has IPv4 address
 145.100.1.5
 <tscreen><verb>
-# ip tunnel add sixbone mode sit remote 145.100.1.5 [local 145.100.24.181 ttl 225]
+# ip tunnel add sixbone mode sit remote 145.100.1.5 [local 145.100.24.181 ttl 255]
 # ip link set sixbone up
 # ip addr add 3FFE:604:6:7::2/126 dev sixbone
 # ip route add 3ffe::0/16 dev sixbone
@@ -989,6 +989,12 @@ dedicated bandwidth management systems.
 
 Linux even goes far beyond what Frame and ATM provide. 
 
+Just to prevent confusion, tc uses the following rules for bandwith
+specification:
+<verb> 
+mb = 1024 kb = 1024 * 1024 b =>  byte/s
+mbit = 1024 kbit = 1024 * 1024 bit => bit/s.
+</verb>
 <sect1>Queues and Queueing Disciplines explained
 <p>
 With queueing we determine the way in which data is <em>sent</em>. It is
@@ -1013,6 +1019,13 @@ the Internet :-)
 If you have a router and wish to prevent certain hosts within your network
 from downloading too fast, you need to do your shaping on the *inner* interface
 of your router, the one that sends data to your own computers.
+
+You also have to be sure you are controlling the bottleneck of the link.
+If you have a 100Mbit NIC and you have a router that has a 256kbit link,
+you have to make sure you are not sending more data than your router can
+handle.  Othewise, it will be the router who is controlling the link and
+shaping the available bandwith. We need to 'own the queue' so to speak, and
+be the slowest link in the chain. Luckily this is easily possoble.
 
 <sect1>Simple, classless Queueing Disciplines
 <p>
@@ -1270,7 +1283,7 @@ destroys interactivity.
 This is because uploading will fill the queue in the modem, which is
 probably *huge* because this helps actually achieving good data throughput
 uploading. But this is not what you want, you want to have the queue not too
-big so interactivity remains and you can stil do other stuff while sending
+big so interactivity remains and you can still do other stuff while sending
 data.
 
 The line above slows down sending to a rate that does not lead to a queue in
@@ -1374,8 +1387,10 @@ youth of the subject, a lot of different words are used when people in fact
 mean the same thing.
 
 The following is loosely based on draft-ietf-diffserv-model-06.txt, 'An
-Informal Management Model for Diffserv Routers'.
+Informal Management Model for Diffserv Routers'. It can currently be found
+at http://www.ietf.org/internet-drafts/draft-ietf-diffserv-model-06.txt.
 
+Read it for the strict definitions of the terms used.
 <descrip>
 <tag>Queueing Discipline</tag>
 An algorithm that manages the queue of a device, either incoming (ingress)
@@ -1405,11 +1420,12 @@ performed for example by the pfifo_fast qdisc mentioned earlier. Scheduling
 is also called 'reordering', but this is confusing.
 <tag>Shaping</tag>
 The process of delaying packets before they go out to make traffic confirm
-to a configured maximum rate. Shaping is performed on egress.
+to a configured maximum rate. Shaping is performed on egress. Colloquially, 
+dropping packets to slow traffic down is also often called Shaping.
 <tag>Policing</tag>
-The inverse of Shaping, which is performed on incoming traffic, on ingress.
-In Linux, policing can only drop a packet and not delay it, as there is no
-real 'ingress queue'.
+Delaying or dropping packets in order to make traffic stay below a
+configured bandwidth. In Linux, policing can only drop a packet and not
+delay it - there is no 'ingress queue'.
 <tag>Work-Conserving</tag>
 A work-conserving qdisc always delivers a packet if one is available. In
 other words, it never delays a packet if the network adaptor is ready to
@@ -1426,24 +1442,32 @@ are.
 
 <verb>
                 Userspace programs
-                      ^
-                      |
-     +----------------+------------------------+
-     |               \|/                       |
-     |            _ IP Stack                   |
-     |            /| |            /-qdisc1-\   |
-     |           /   |    Egress /--qdisc2--\  |
-  -> | Ingress  /    | Classifier---qdisc3---- | ->  
-     | Classifier    |   /|\     \__qdisc4__/  |
-     |        |     \|/   |       \-qdiscN_/   |
-     |        +-> Forwarding                   |
-     |                                         |
-     +-----------------------------------------+
-
+                     ^
+                     |
+     +---------------+-----------------------------------------+
+     |               Y                                         |
+     |    -------> IP Stack                                    |
+     |   |              |                                      |
+     |   |              Y                                      |
+     |   |              Y                                      |
+     |   ^              |                                      |
+     |   |  / ----------> Forwarding ->                        |
+     |   ^ /                           |                       |
+     |   |/                            Y                       |
+     |   |                             |                       |
+     |   ^                             Y          /-qdisc1-\   |
+     |   |                            Egress     /--qdisc2--\  |
+  --->->Ingress                       Classifier ---qdisc3---- | ->
+     |   Qdisc                                   \__qdisc4__/  |
+     |                                            \-qdiscN_/   |
+     |                                                         |
+     +----------------------------------------------------------+
 </verb>
+Thanks to Jamal Hadi Salim for this ascii representation.
+
 The big block represents the kernel. The leftmost arrow represents traffic
 entering your machine from the network. It is then fed to the Ingress
-Classifier which may apply Filters to a packet, and decide to drop it. This
+Qdisc which may apply Filters to a packet, and decide to drop it. This
 is called 'Policing'.
 
 This happens at a very early stage, before it has seen a lot of the kernel.
@@ -1504,13 +1528,15 @@ your actual link speed. There is no queue to schedule then.
 
 <sect2>The qdisc family: roots, handles, siblings and parents
 <p>
-Each interface has a 'root qdisc', by default the earlier mentioned
+Each interface has one egress 'root qdisc', by default the earlier mentioned
 classless pfifo_fast queueing discipline. Each qdisc can be assigned a
 handle, which can be used by later configuration statements to refer to that
-qdisc.
+qdisc. Besides an egress qdisc, an interface may also have an ingress, which
+polices traffic coming in.
 
-These handles consist of two parts, a major number and a minor number. It is
-habitual to name the root qdisc '1:', which is equal to '1:0'. 
+The handles of these qdiscs consist of two parts, a major number and a minor
+number. It is habitual to name the root qdisc '1:', which is equal to '1:0'.
+The minor number of a qdisc is always 0. 
 
 Classes need to have the same major number as their parent. 
 <sect3>How filters are used to classify traffic 
@@ -1539,7 +1565,7 @@ A packet might get classified in a chain like this:
 
 The packet now resides in a queue in a qdisc attached to class 12:2. In this
 example, a filter was attached to each 'node' in the tree, each chosing a
-branch to take next. This can make sense. However, tnis is also possible:
+branch to take next. This can make sense. However, this is also possible:
 
 	1: -> 12:2
 
@@ -1808,8 +1834,8 @@ priorities and that lower priority numbers will be polled before the higher
 priority ones.
 
 Each time a packet is requested by the hardware layer to be sent out to the
-network, a weighted round robin process starts, beginning with the lower
-priority classes. 
+network, a weighted round robin process ('WRR') starts, beginning with the
+lower priority classes.
 
 These are then grouped and queried if they have data available. If so, it is
 returned. After a class has been allowed to dequeue a number of bytes, the
@@ -1865,22 +1891,24 @@ reverse of 'bounded'.
 </descrip>
 A typical situation might be where you have two agencies on your link which
 are both 'isolated' and 'bounded', which means that they are really limited
-to their assigened rate, and also won't allow each other to borrow.
+to their assigned rate, and also won't allow each other to borrow.
 
 Within such an agency class, there might be other classes which are allowed
 to swap bandwidth.
 <sect3>Sample configuration
 <p>
 This configuration limits webserver traffic to 5mbit and smtp traffic to 3
-mbit, and limits the sum to 5mbit:
+mbit. Together, they may not get more than 6mbit. We have a 100mbit NIC and
+the classes may borrow bandwidth from each other.
 <verb>
 # tc qdisc add dev eth0 root handle 1:0 cbq bandwidth 100Mbit         \
   avpkt 1000 cell 8
 # tc class add dev eth0 parent 1:0 classid 1:1 cbq bandwidth 100Mbit  \
-  rate 5Mbit weight 0.5Mbit prio 8 allot 1514 cell 8 maxburst 20      \
-  avpkt 1000
+  rate 6Mbit weight 0.6Mbit prio 8 allot 1514 cell 8 maxburst 20      \
+  avpkt 1000 bounded
 </verb>
-This part installs the root and the customary 1:0 class. 
+This part installs the root and the customary 1:0 class. The 1:1 class is
+bounded, so the total bandwidth can't exceed 6mbit.
 
 As said before, CBQ requires a *lot* of knobs. All parameters are explained
 above, however. The corresponding HTB configuration is lots simpler.
@@ -1888,28 +1916,25 @@ above, however. The corresponding HTB configuration is lots simpler.
 <verb>
 # tc class add dev eth0 parent 1:1 classid 1:3 cbq bandwidth 100Mbit  \
   rate 5Mbit weight 0.5Mbit prio 5 allot 1514 cell 8 maxburst 20      \
-  avpkt 1000 bounded                                                    
+  avpkt 1000                       
 # tc class add dev eth0 parent 1:1 classid 1:4 cbq bandwidth 100Mbit  \
   rate 3Mbit weight 0.3Mbit prio 5 allot 1514 cell 8 maxburst 20      \
-  avpkt 1000 bounded
+  avpkt 1000
 </verb>
 
 These are our two classes. Note how we scale the weight with the configured
-rate. Also note that both classes are bounded and won't therefore try to
-borrow traffic. The classid's need to be within the same major number as the
-parent CBQ, by the way!
+rate. Both classes are not bounded, but they are connected to class 1:1
+which is bounded.  So the sum of bandwith of the 2 classes will never be
+more than 6mbit. The classid's need to be within the same major number as
+the parent CBQ, by the way!
 
 <verb>
-# tc qdisc add dev eth0 parent 1:3 tbf rate 5Mbit buffer 10Kb/8 limit \
-  15Kb mtu 1540
-# tc qdisc add dev eth0 parent 1:4 tbf rate 3Mbit buffer 10Kb/8 limit \
-  15Kb mtu 1540
+# tc qdisc add dev eth0 parent 1:3 handle 30: sfq
+# tc qdisc add dev eth0 parent 1:4 handle 40: sfq
 </verb>
 
-Here we install token bucket filters in the two configured classes. The
-/8 corresponds to the cell size we mentioned earlier for CBQ. We create a
-bucket of 10kbytes of tokens, a maximum 'pre-bucket' backlog of 15kbyte.
-
+Both classes have a FIFO qdisc by default.  But we replaced these with an SFQ
+queue so each flow of data is treated equally.
 <verb>
 # tc filter add dev eth0 parent 1:0 protocol ip prio 1 u32 match ip \
   sport 80 0xffff flowid 1:3
@@ -1927,10 +1952,12 @@ You may wonder what happens to traffic that is not classified by any of the
 two rules. It appears that in this case, data will then be processed within
 1:0, and be unlimited. 
 
-If smtp+web together try to exceed the set limit of 5mbit/s, bandwidth will
+If smtp+web together try to exceed the set limit of 6mbit/s, bandwidth will
 be divided according to the weight parameter, giving 5/8 of traffic to  the
 webserver and 3/8 to the mailserver.
 
+With this configuratien you can also say that webserver traffic will always
+get at minimum 5/8 * 6 mbit = 3.75 mbit.
 <sect3>Other CBQ parameters: split &amp; defmap
 <p>
 As said before, a classful qdisc needs to call filters to determine
@@ -2063,11 +2090,11 @@ Functionally almost identical to the CBQ sample configuration above:
 <tscreen><verb>
 # tc qdisc add dev eth0 root handle 1: htb default 30
 
-# tc class add dev eth0 parent 1: classid 1:1 htb rate 5mbit burst 15k
+# tc class add dev eth0 parent 1: classid 1:1 htb rate 6mbit burst 15k
 
 # tc class add dev eth0 parent 1:1 classid 1:10 htb rate 5mbit burst 15k
-# tc class add dev eth0 parent 1:1 classid 1:20 htb rate 3mbit ceil 5mbit burst 15k
-# tc class add dev eth0 parent 1:1 classid 1:30 htb rate 1kbit ceil 5mbit burst 15k
+# tc class add dev eth0 parent 1:1 classid 1:20 htb rate 3mbit ceil 6mbit burst 15k
+# tc class add dev eth0 parent 1:1 classid 1:30 htb rate 1kbit ceil 6mbit burst 15k
 </verb></tscreen>
 
 The author then recommends SFQ for beneath these classes:
@@ -2567,34 +2594,35 @@ TTL is the field starting just after 8-th byte of the IP header.
 
 FIXME: it has been pointed out that this syntax does not work currently.
 
-Stuart DJ Lynne uses this to match ACKs:
+Use this to match ACKs on packets smaller than 64 bytes:
 
 <tscreen><verb>
 ## match acks the hard way,
 ## IP protocol 6,
 ## IP header length 0x5(32 bit words),
-## IP Total length 0x34
+## IP Total length 0x34 (ACK + 12 bytes of TCP options)
 ## TCP ack set (bit 5, offset 33)
 # tc filter add dev ppp14 parent 1:0 protocol ip prio 10 u32 \
             match ip protocol 6 0xff \
             match u8 0x05 0x0f at 0 \
-            match u8 0x34 0xff at 3 \
+            match u16 0x0000 0xffc0 at 2 \
             match u8 0x10 0xff at 33 \
             flowid 1:3
 </verb></tscreen>
 
 <p>
-This rule will only match TCP packets with ACK bit set. Here we can see
-an example of using two selectors, the final result will be logical AND
-of their results. If we take a look at TCP header diagram, we can see
-that the ACK bit is second older bit (0x10) in the 14-th byte of the TCP
-header (<tt>at nexthdr+13</tt>).  As for the second selector, if we'd like
-to make our life harder, we could write <tt>match u8 0x06 0xff at 9</tt>
-instead of using the specific selector <tt>protocol tcp</tt>, because
-6 is the number of TCP protocol, present in 10-th byte of the IP header.
-On the other hand, in this example we couldn't use any specific selector
-for the first match - simply because there's no specific selector to match
-TCP ACK bits.
+
+This rule will only match TCP packets with ACK bit set, and no further
+payload. Here we can see an example of using two selectors, the final result
+will be logical AND of their results. If we take a look at TCP header
+diagram, we can see that the ACK bit is second older bit (0x10) in the 14-th
+byte of the TCP header (<tt>at nexthdr+13</tt>).  As for the second
+selector, if we'd like to make our life harder, we could write <tt>match u8
+0x06 0xff at 9</tt> instead of using the specific selector <tt>protocol
+tcp</tt>, because 6 is the number of TCP protocol, present in 10-th byte of
+the IP header. On the other hand, in this example we couldn't use any
+specific selector for the first match - simply because there's no specific
+selector to match TCP ACK bits.
 
 <sect2>Specific selectors
 <p>
@@ -2617,6 +2645,8 @@ Some examples:
      match ip tos 0x10 0xff \
      flowid 1:4
 </verb></tscreen>
+
+FIXME: tcp dst match does not work as described below:
 
 The above rule will match packets which have the TOS field set to 0x10.
 The TOS field starts at second byte of the packet and is one byte big,
@@ -3727,22 +3757,6 @@ relevant behavior for such a site is a central part of the WRR distribution.
 This section contains 'cookbook' entries which may help you solve problems.
 A cookbook is no replacement for understanding however, so try and comprehend
 what is going on. 
-<!-- 
-<sect1>Reserving bandwidth for your IRC server
-<p>
-Recently the IRC networks have been plagued by distributed denial of service
-attacks. The aim of some of these attacks is to disrupt communication
-between servers which split the network. You then join the splitted part
-of the network. Because nobody else is there, the server assigns you
-operator status. You then stop the disruption, the network rejoins and
-voila, you can take over the channel.
-
-This silly behaviour is seriously damaging IRC, and luckily, Linux is there
-to protect it :-) 
-
-We need to be smarter than your average scriptkid, so we'll use some
-advanced netfilter features to help us.
--->
 
 <sect1>Running multiple sites with different SLAs
 <p>
@@ -3799,7 +3813,8 @@ FIXME: why no token bucket filter? is there a default pfifo_fast fallback
 somewhere?
 
 <sect1>Protecting your host from SYN floods 
-<p>From Alexey's iproute documentation, adapted to netfilter and with more
+<p>
+From Alexey's iproute documentation, adapted to netfilter and with more
 plausible paths. If you use this, take care to adjust the numbers to
 reasonable values for your system.
 
@@ -4335,6 +4350,299 @@ think that you know best, you can also do something like this:
 This sets the MSS of passing SYN packets to 128. Use this if you have VoIP
 with tiny packets, and huge http packets which are causing chopping in your
 voice calls.
+<sect1>The Ultimate Traffic Conditioner: Low Latency, Fast Up &amp; Downloads
+<p>
+Note: This script has recently been upgraded and previously only worked for
+Linux clients in your network! So you might want to update if you have
+Windows machines or Macs in your network and noticed that they were not able
+to download faster while others were uploading.
+
+I attempted to create the holy grail:
+<descrip>
+<tag>Maintain low latency for interfactive traffic at all times</tag>
+This means that downloading or uploading files should not disturb SSH or
+even telnet. These are the most important things, even 200ms latency is
+sluggish to work over.
+<tag>Allow 'surfing' at reasonable speeds while up or downloading</tag>
+Even though http is 'bulk' traffic, other traffic should not drown it out 
+too much.
+<tag>Make sure uploads don't harm downloads, and the other way around</tag>
+This is a much observed phenomenon where upstream traffic simply destroys
+download speed.
+</descrip>
+It turns out that all this is possible, at the cost of a tiny bit of
+bandwidth. The reason that uploads, downloads and ssh hurt eachother is the
+presence of large queues in many domestic access devices like cable or DSL
+modems.
+
+The next section explains in depth what causes the delays, and how we can
+fix them. You can safely skip it and head straight for the script if you
+don't care how the magic is performed.
+<sect2>Why it doesn't work well by default
+<p>
+ISPs know that they are benchmarked solely on how fast people can download.
+Besides available bandwidth, download speed is influenced heavily by packet
+loss, which seriously hampers TCP/IP performance. Large queues can help
+prevent packetloss, and speed up downloads. So ISPs configure large queues.
+
+These large queues however damage interactivity. A keystroke must first
+travel the upstream queue, which may be seconds (!) long and go to your
+remote host. It is then displayed, which leads to a packet coming back, which
+must then traverse the downstream queue, located at your ISP, before it
+appears on your screen.
+
+This HOWTO learns you how to mangle and process the queue in many ways, but
+sadly, not all queues are accessible to us. The queue over at the ISP is
+completely off-limits, whereas the upstream queue probably lives inside your
+cable modem or DSL device. You may or may not be able to configure it. Most
+probably not.
+
+So, what next? As we can't control either of those queues, they must be
+eliminated, and moved to your Linux router. Luckily this is possible.
+
+<descrip>
+<tag>Limit upload speed</tag>
+By limiting our upload speed to slightly less than the truly available rate,
+no queues are built up in our modem. The queue is now moved to Linux.
+<tag>Limit download speed</tag>
+This is slightly trickier as we can't really influence how fast the internet
+ships us data. We can however drop packets that are coming in too fast,
+which causes TCP/IP to slow down to just the rate we want. Because we don't 
+want to drop traffic unnecessarily, we configure a 'burst' size we allow at
+higher speed.
+</descrip>
+
+Now, once we have done this, we have eliminated the downstream queue totally
+(except for short bursts), and gain the ability to manage the upstream queue
+with all the power Linux offers.
+
+What remains to be done is to make sure interactive traffic jumps to the
+front of the upstream queue. To make sure that uploads don't hurt downloads,
+we also move ACK packets to the front of the queue. This is what normally
+causes the huge slowdown observed when generating bulk traffic both ways.
+The ACKnowledgements for downstream traffic must compete with upstream
+traffic, and get delayed in the process.
+
+If we do all this we get the following measurements using an excellent ADSL
+connection from xs4all in the Netherlands:
+
+<verb>
+Baseline latency:
+round-trip min/avg/max = 14.4/17.1/21.7 ms
+
+Without traffic conditioner, while downloading:
+round-trip min/avg/max = 560.9/573.6/586.4 ms
+
+Without traffic conditioner, while uploading:
+round-trip min/avg/max = 2041.4/2332.1/2427.6 ms
+
+With conditioner, during 220kbit/s upload:
+round-trip min/avg/max = 15.7/51.8/79.9 ms
+
+With conditioner, during 850kbit/s download:
+round-trip min/avg/max = 20.4/46.9/74.0 ms
+
+When uploading, downloads proceed at ~80% of the available speed. Uploads
+at around 90%. Latency then jumps to 850 ms, still figuring out why.
+</verb>
+
+What you can expect from this script depends a lot on your actual uplink
+speed. When uploading at full speed, there will always be a single packet
+ahead of your keystroke. That is the lower limit to the latency you can
+achieve - divide your MTU by your upstream speed to calculate. Typical
+values will be somewhat higher than that. Lower your MTU for better effects!
+
+Next, two versions of this script, one with Devik's excellent HTB, the other
+with CBQ which is in each Linux kernel, unlike HTB. Both are tested and work
+well.
+<sect2>The actual script (CBQ)
+<p>
+Works on all kernels. Within the CBQ
+qdisc we place two Stochastic Fairness Queues that make sure that multiple
+bulk streams don't drown each other out.
+
+Downstream traffic is policed using a tc filter containing a Token Bucket
+Filter.
+
+You might improve on this script by adding 'bounded' to the line that starts
+with 'tc class add .. classid 1:20'. If you lowered your MTU, also lower the
+allot &amp; avpkt numbers!
+
+<verb>
+#!/bin/sh 
+
+# The Ultimate Setup For Your Internet Connection At Home
+# 
+#
+# Set the following values to somewhat less than your actual download
+# and uplink speed. In kilobits
+DOWNLINK=800
+UPLINK=220
+
+# clean existing down- and uplink qdiscs, hide errors
+tc qdisc del dev ppp0 root    2> /dev/null > /dev/null
+tc qdisc del dev ppp0 ingress 2> /dev/null > /dev/null
+
+###### uplink
+
+# install root CBQ
+
+tc qdisc add dev ppp0 root handle 1: cbq avpkt 1000 bandwidth 10mbit 
+
+# shape everything at $UPLINK speed - this prevents huge queues in your
+# DSL modem which destroy latency:
+# main class
+
+tc class add dev ppp0 parent 1: classid 1:1 cbq rate ${UPLINK}kbit \
+allot 1500 prio 5 bounded isolated 
+
+# high prio class 1:10:
+
+tc class add dev ppp0 parent 1:1 classid 1:10 cbq rate ${UPLINK}kbit \
+   allot 1600 prio 1 avpkt 1000
+
+# bulk and default class 1:20 - gets slightly less traffic, 
+#  and a lower priority:
+
+tc class add dev ppp0 parent 1:1 classid 1:20 cbq rate $[9*$UPLINK/10]kbit \
+   allot 1600 prio 2 avpkt 1000
+
+# both get Stochastic Fairness:
+tc qdisc add dev ppp0 parent 1:10 handle 10: sfq perturb 10
+tc qdisc add dev ppp0 parent 1:20 handle 20: sfq perturb 10
+
+# start filters
+# TOS Minimum Delay (ssh, NOT scp) in 1:10:
+tc filter add dev ppp0 parent 1:0 protocol ip prio 10 u32 \
+      match ip tos 0x10 0xff  flowid 1:10
+
+# ICMP (ip protocol 1) in the interactive class 1:10 so we 
+# can do measurements & impress our friends:
+tc filter add dev ppp0 parent 1:0 protocol ip prio 11 u32 \
+	match ip protocol 1 0xff flowid 1:10
+
+# To speed up downloads while an upload is going on, put ACK packets in
+# the interactive class:
+
+tc filter add dev ppp0 parent 1: protocol ip prio 12 u32 \
+   match ip protocol 6 0xff \
+   match u8 0x05 0x0f at 0 \
+   match u16 0x0000 0xffc0 at 2 \
+   match u8 0x10 0xff at 33 \
+   flowid 1:10
+
+# rest is 'non-interactive' ie 'bulk' and ends up in 1:20
+
+tc filter add dev ppp0 parent 1: protocol ip prio 13 u32 \
+   match ip dst 0.0.0.0/0 flowid 1:20
+
+########## downlink #############
+# slow downloads down to somewhat less than the real speed  to prevent 
+# queuing at our ISP. Tune to see how high you can set it.
+# ISPs tend to have *huge* queues to make sure big downloads are fast
+#
+# attach ingress policer:
+
+tc qdisc add dev ppp0 handle ffff: ingress
+
+# filter *everything* to it (0.0.0.0/0), drop everything that's
+# coming in too fast:
+
+tc filter add dev ppp0 parent ffff: protocol ip prio 50 u32 match ip src \
+   0.0.0.0/0 police rate ${DOWNLINK}kbit burst 10k drop flowid :1
+</verb>
+If you want this script to be run by ppp on connect, copy it to
+/etc/ppp/ip-up.d.
+
+If the last two lines give an error, update your tc tool to a newer version!
+<sect2>The actual script (HTB)
+<p>
+The following script achieves all goals using the wonderful HTB queue, see
+the relevant chapter. Well worth patching your kernel for! 
+<verb>
+#!/bin/sh
+
+# The Ultimate Setup For Your Internet Connection At Home
+# 
+#
+# Set the following values to somewhat less than your actual download
+# and uplink speed. In kilobits
+DOWNLINK=800
+UPLINK=220
+DEV=ppp0
+
+# clean existing down- and uplink qdiscs, hide errors
+tc qdisc del dev $DEV root    2> /dev/null > /dev/null
+tc qdisc del dev $DEV ingress 2> /dev/null > /dev/null
+
+###### uplink
+
+# install root HTB, point default traffic to 1:20:
+
+tc qdisc add dev $DEV root handle 1: htb default 20
+
+# shape everything at $UPLINK speed - this prevents huge queues in your
+# DSL modem which destroy latency:
+
+tc class add dev $DEV parent 1: classid 1:1 htb rate ${UPLINK}kbit burst 6k
+
+# high prio class 1:10:
+
+tc class add dev $DEV parent 1:1 classid 1:10 htb rate ${UPLINK}kbit \
+   burst 6k prio 1
+
+# bulk & default class 1:20 - gets slightly less traffic, 
+# and a lower priority:
+
+tc class add dev $DEV parent 1:1 classid 1:20 htb rate $[9*$UPLINK/10]kbit \
+   burst 6k prio 2
+
+# both get Stochastic Fairness:
+tc qdisc add dev $DEV parent 1:10 handle 10: sfq perturb 10
+tc qdisc add dev $DEV parent 1:20 handle 20: sfq perturb 10
+
+# TOS Minimum Delay (ssh, NOT scp) in 1:10:
+tc filter add dev $DEV parent 1:0 protocol ip prio 10 u32 \
+      match ip tos 0x10 0xff  flowid 1:10
+
+# ICMP (ip protocol 1) in the interactive class 1:10 so we 
+# can do measurements & impress our friends:
+tc filter add dev $DEV parent 1:0 protocol ip prio 10 u32 \
+	match ip protocol 1 0xff flowid 1:10
+
+# To speed up downloads while an upload is going on, put ACK packets in
+# the interactive class:
+
+tc filter add dev $DEV parent 1: protocol ip prio 10 u32 \
+   match ip protocol 6 0xff \
+   match u8 0x05 0x0f at 0 \
+   match u16 0x0000 0xffc0 at 2 \
+   match u8 0x10 0xff at 33 \
+   flowid 1:10
+
+# rest is 'non-interactive' ie 'bulk' and ends up in 1:20
+
+
+########## downlink #############
+# slow downloads down to somewhat less than the real speed  to prevent 
+# queuing at our ISP. Tune to see how high you can set it.
+# ISPs tend to have *huge* queues to make sure big downloads are fast
+#
+# attach ingress policer:
+
+tc qdisc add dev $DEV handle ffff: ingress
+
+# filter *everything* to it (0.0.0.0/0), drop everything that's
+# coming in too fast:
+
+tc filter add dev $DEV parent ffff: protocol ip prio 50 u32 match ip src \
+   0.0.0.0/0 police rate ${DOWNLINK}kbit burst 10k drop flowid :1
+</verb>
+
+If you want this script to be run by ppp on connect, copy it to
+/etc/ppp/ip-up.d.
+
+If the last two lines give an error, update your tc tool to a newer version!
 <sect>Building bridges, and pseudo-bridges with Proxy ARP
 <p>
 Bridges are devices which can be installed in a network without any
@@ -4725,6 +5033,7 @@ helping.
 <item>Nadeem Hasan &lt;nhasan@usa.net&gt;
 <item>Vik Heyndrickx &lt;vik.heyndrickx@edchq.com&gt;
 <item>Koos van den Hout &lt;koos@kzdoos.xs4all.nl&gt;
+<item>Gareth John &lt;gdjohn%zepler.org&gt;
 <item>Martin Josefsson &lt;gandalf%wlug.westbo.se&gt;
 <item>Andi Kleen &lt;ak%suse.de&gt;
 <item>Pawel Krawczyk &lt;kravietz%alfa.ceti.pl&gt;
@@ -4743,6 +5052,7 @@ helping.
 <item>Ram Narula &lt;ram@princess1.net&gt;
 <item>Jorge Novo &lt;jnovo@educanet.net&gt;
 <item>Patrik &lt;ph@kurd.nu&gt;
+<item>Lutz Pre&szlig;ler &lt;Lutz.Pressler%SerNet.DE&gt;
 <item>Jason Pyeron &lt;jason%pyeron.com&gt;
 <item>Rusty Russell &lt;rusty%rustcorp.com.au&gt;
 <item>Jamal Hadi Salim &lt;hadi%cyberus.ca&gt;
@@ -4756,7 +5066,6 @@ helping.
 <item>Charles Tassell &lt;ctassell%isn.net&gt;
 <item>Glen Turner &lt;glen.turner%aarnet.edu.au&gt;
 <item>Song Wang &lt;wsong@ece.uci.edu&gt;
-
 </itemize>
 
 </article>

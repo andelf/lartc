@@ -1,4 +1,4 @@
-.TH TC 8 "8 December 2001" "iproute2" "Linux"
+.TH TC 8 "16 December 2001" "iproute2" "Linux"
 .SH NAME
 tc \- show / manipulate traffic control settings
 .SH SYNOPSIS
@@ -244,6 +244,53 @@ FILTERS
 Filters have a three part ID, which is only needed when using a hashed
 filter hierarchy, for which see
 .BR tc-filters (8).
+.SH UNITS
+All parameters accept a floating point number, possibly followed by a unit.
+.P
+Bandwidths or rates can be specified in:
+.TP 
+kbps
+Kilobytes per second
+.TP
+mbps
+Megabytes per second
+.TP
+kbit
+Kilobits per second
+.TP
+mbit
+Megabits per second
+.TP
+bps or a bare number
+Bits per second
+.P
+Amounts of data can be specified in:
+.TP
+kb or k
+Kilobytes
+.TP
+mb or m
+Megabytes
+.TP
+mbit
+Megabits
+.TP
+kbit
+Kilobits
+.TP
+b or a bare number
+Bytes.
+.P
+Lengths of time can be specified in:
+.TP
+s, sec or secs
+Whole seconds
+.TP
+ms, msec or msecs
+Milliseconds
+.TP
+us, usec, usecs or a bare number
+Microseconds.
 
 .SH TC COMMANDS
 The following commands are available for qdiscs, classes and filter:
