@@ -3,16 +3,12 @@
 <LINK REL="SHORTCUT ICON" HREF="/lartc/tux16-16.ico">
 </head>
 <body bgcolor=#ffffff>
+
 <table width=100%><tr><td width=80%>
 <H1>Linux Advanced Routing &amp; Traffic Control</H1>
-<?
-if(!ereg("^\/lartc\/",$SCRIPT_NAME))
-	print("<big><font color=#ff0000>You are not using the canonical URL: <a
-href=http://ds9a.nl/lartc>http://ds9a.nl/lartc</a> -
-not all links may work! This URL may vanish in the future.</font></big>");
-?>
-</td><td valign=top align=right><a href=http://www.powerdns.com><img
+</td><td></td><td valign=top align=right><a href=http://www.powerdns.com><img
 src=http://ds9a.nl/pub/pdns88x33c.gif></a><p></td>
+
 <tr><td><a href="http://ds9a.nl/">bert hubert</a> (<a
 href=http://www.powerdns.com>PowerDNS.COM BV</a>) <a href=mailto:bert.hubert@netherlabs.nl>&lt;bert.hubert@netherlabs.nl&gt;</a>,<br>
 <a href="http://linuxpower.cx/~greg/">Greg Maxwell</a> <a
@@ -85,12 +81,17 @@ just shake the bags out of the foil package and ship them in a regular
 envelope.
 <p>
 <table border=1>
+<tr><td valign=top>2002-02-23</td><td>Moved to <a
+href=http://lartc.org>lartc.org</a>!</td>
 <tr><td valign=top>2002-02-19</td><td>Spam. Due to a broken IPv6 patch, our
 postfix has been an open relay somewhere in January. It was fixed promptly,
 but we're still trying to get out of a lot of spamlists.
 Relays.osirusoft.com keeps on listing us, we hope they will get round to
 removing us soon. This may be the cause of mail not arriving. I'm trying to
-move postfix to another local interface, stay tuned.</td>
+move postfix to another local interface, stay tuned. <font
+color=#ff0000>Update: </font>We are now no longer listed as an open relay,
+but as a 'testblocker' now, which is weird, but mail should be arriving
+again!</td>
 <tr><td valign=top>2002-02-07</td><td>Back from holiday. Bought lartc.org, 
 will bring it in service soon. New <a
 href=http://mr0vka.eu.org/tlumaczenia/2.4routing.html>Polish

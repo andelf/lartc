@@ -2290,7 +2290,10 @@ easier):
 <tscreen><verb>
 # tc qdisc add dev eth1 root teql0
 # tc qdisc add dev eth2 root teql0
+# ip link set dev teql0 up
 </verb></tscreen>
+
+Don't forget the 'ip link set up' command!
 
 This needs to be done on both hosts. The device teql0 is basically a
 roundrobbin distributor over eth1 and eth2, for sending packets. No data
@@ -3323,7 +3326,15 @@ The default settings limit warning messages to one every five seconds.
 Writing to this file results in a flush of the routing cache.
 <tag>/proc/sys/net/ipv4/route/gc_elasticity</tag>
 Values to  control  the  frequency  and  behavior  of  the  garbage collection
-algorithm for the routing cache.
+algorithm for the routing cache. This can be important for when doing
+failover. At least gc_timeout seconds will elapse before Linux will skip
+to another route because the previous one has died. By default set to 300,
+you may want to lower it if you want to have a speedy failover.
+
+Also see <url
+url="http://mailman.ds9a.nl/pipermail/lartc/2002q1/002667.html" name="this
+post"> by Ard van Breemen.
+
 <tag>/proc/sys/net/ipv4/route/gc_interval</tag>
 See /proc/sys/net/ipv4/route/gc_elasticity.
 <tag>/proc/sys/net/ipv4/route/gc_min_interval</tag>
@@ -5118,6 +5129,7 @@ helping.
 <item>Wim van der Most 
 <item>Stephan Mueller &lt;smueller@chronox.de&gt;
 <item>Togan Muftuoglu &lt;toganm%yahoo.com&gt;
+<item>Chris Murray &lt;cmurray@stargate.ca&gt;
 <item>Patrick Nagelschmidt &lt;dto%gmx.net&gt;
 <item>Ram Narula &lt;ram@princess1.net&gt;
 <item>Jorge Novo &lt;jnovo@educanet.net&gt;
@@ -5135,6 +5147,7 @@ helping.
 <item>Jason Tackaberry &lt;tack@linux.com&gt;
 <item>Charles Tassell &lt;ctassell%isn.net&gt;
 <item>Glen Turner &lt;glen.turner%aarnet.edu.au&gt;
+<item>Tea Sponsor: Eric Veldhuyzen &lt;eric%terra.nu&gt; 
 <item>Song Wang &lt;wsong@ece.uci.edu&gt;
 </itemize>
 
