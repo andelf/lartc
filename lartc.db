@@ -8644,6 +8644,7 @@ Stef Coene is busy convincing his boss to sell Linux support, and so he is
 experimenting a lot, especially with managing bandwidth. His site has a lot
 of practical information, examples, tests and also points out some CBQ/tc bugs. 
 </Para>
+</ListItem>
 </VarListEntry>
 <VarListEntry>
 <Term>TCP/IP Illustrated, volume 1, W. Richard Stevens, ISBN 0-201-63346-9</Term>
@@ -8652,6 +8653,7 @@ of practical information, examples, tests and also points out some CBQ/tc bugs.
 Required reading if you truly want to understand TCP/IP. Entertaining as
 well.
 </Para>
+</ListItem>
 </VarListEntry>
 </VariableList> 
 </Para>
