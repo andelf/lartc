@@ -922,9 +922,10 @@ that connect a local network (or even a single machine) to the big Internet.
                                           |            |       |
                                           +------------+        \________
 </screen>
-
+</para>
+<para>
 There are usually two questions given this setup.
-
+</para>
       <sect2><title>Split access</title>
 	<para>
 	  The first is how to route answers to packets coming in over a
@@ -6665,10 +6666,7 @@ URL="http://linux-atm.sourceforge.net/"
 
 <Para>
 This qdisc is not included in the standard kernels but can be downloaded from 
-<ULink
-URL="http://wipl-wrr.dkik.dk/wrr/"
->&#65533;</ULink
->. 
+<ULink URL="http://wipl-wrr.dkik.dk/wrr/">here</ULink>. 
 Currently the qdisc is only tested with Linux 2.2 kernels but it will 
 probably work with 2.4/2.5 kernels too.
 </Para>
@@ -7273,7 +7271,7 @@ naret# ip route flush cache
 
 </Screen>
 
-
+</para>
 <Para>
 If donmuang and naret is on the same subnet then
 naret should not send out icmp REDIRECT messages.
