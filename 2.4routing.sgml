@@ -1052,6 +1052,44 @@ for band 1 and band 2.
 The kernel honors the so called Type of Service flag of packets, and takes
 care to insert 'minimum delay' packets in band 0. 
 
+Do not confuse this classless simple qdisc with the classful PRIO one!
+<sect3>Parameters &amp; usage
+<p>
+<descrip>
+<tag>bands</tag>
+Number of bands. Defaults to three. If you change this, also change:
+<tag>priomap</tag>
+Determines how packet priorities, as assigned by the kernel, map to bands.
+Mapping occurs according to the following table, which identical to the one
+used by the PRIO qdisc:
+<verb>
+TC_PRIO..          Num  TOS                        Band
+-------------------------------------------------------
+BESTEFFORT         0    Maximize Reliablity        1
+FILLER             1    Minimize Cost              2
+BULK               2    Maximize Throughput (0x8)  2
+INTERACTIVE_BULK   4                               2
+INTERACTIVE        6    Minimize Delay (0x10)      1
+CONTROL            7                               2
+                   8                               0
+                   9                               0
+                  10                               1
+                  11                               1 
+                  12                               1
+                  13                               1
+                  14                               1
+                  15                               1
+</verb>
+FIXME: It is not known what the higher priorities correspond to.
+
+SSH sets TOS to 'Minimize Delay', unless it is doing scp, in which case it
+sets 'Maximize Throughput'. The numbers in parentheses denote the TOS value
+as reported by tcpdump and the kernel. If you divide this by two, you get
+the values mentioned by RFC1349.
+
+The default values are reasonable, you probably do not need to change
+them. 
+</descrip>
 <sect2>Token Bucket Filter
 <p>
 The Token Bucket Filter (TBF) is a simple queue that only passes packets
@@ -1095,6 +1133,65 @@ The accumulation of tokens allows a short burst of overlimit data to be
 still passed without loss, but any lasting overload will cause packets to be
 constantly delayed, and then dropped.
 
+Please note that in the actual implementation, tokens correspond to bytes,
+not packets.
+<sect3>Parameters &amp; usage
+<p>
+Even though you will probably not need to change them, tbf has some knobs
+available. First the parameters that are always available:
+<descrip>
+<tag>limit or latency</tag>
+Limit is the number of bytes that can be queued waiting for tokens to become
+available. You can also specify this the other way around by setting the
+latency parameter, which specifies the maximum amount of time a packet can
+sit in the TBF. The latter calculation takes into account the size of the
+bucket, the rate and possibly the peakrate (if set).
+
+<tag>burst/buffer/maxburst</tag>
+Size of the bucket, in bytes. This is the maximum amount of bytes that
+tokens can be available for instantaneously. In general, larger shaping
+rates require a larger buffer. For 10mbit/s on Intel, you need at least
+10kbyte buffer if you want to reach your configured rate!
+
+If your buffer is too small, packets may be dropped because more tokens
+arrive per timer tick than fit in your bucket.
+<tag>mpu</tag>
+A zero-sized packet does not use zero bandwidth. For ethernet, no packet
+uses less than 64 bytes. The Minimum Packet Unit determines the minimal
+token usage for a packet.
+<tag>rate</tag>
+The speedknob. See remarks above about limits!
+</descrip>
+
+If the bucket contains tokens and is allowed to empty, by default it does so
+at infinite speed. If this is unacceptable, use the following parameters:
+
+<descrip>
+<tag>peakrate</tag>
+If tokens are available, and packets arrive, they are sent out immediately
+by default, at 'lightspeed' so to speak. That may not be what you want,
+especially if you have a large bucket. 
+
+The peakrate can be used to specify how quickly the bucket is allowed to be
+depleted. If doing everything by the book, this is achieved by releasing a
+packet, and then wait just long enough, and release the next. We calculated
+our waits so we send just at peakrate.
+
+However, due to de default 10ms timer resolution of Unix, with 10.000 bits
+average packets, we are limited to 1mbit/s of peakrate!
+
+<tag>mtu/minburst</tag>
+The 1mbit/s peakrate is not very useful if your regular rate is more than
+that. A higher peakrate is possible by sending out more packets per
+timertick, which effectively means that we create a second bucket!
+
+This second bucket defaults to a single packet, which is not a bucket at
+all.
+
+To calculate the maximum possible peakrate, multiply the configured mtu by
+100 (or more correctly, HZ, which is 100 on intel, 1024 on Alpha).
+
+</descrip>
 <sect2>Stochastic Fairness Queueing
 <p>
 Stochastic Fairness Queueing (SFQ) is a simple implementation of the fair
@@ -1124,6 +1221,18 @@ SFQ with other qdiscs to get a best-of-both worlds situation.
 
 Specifically, setting SFQ on the ethernet interface heading to your
 cablemodem or DSL router is pointless without further shaping!
+<sect3>Parameters &amp; usage
+<p>
+The SFQ is pretty much selftuning:
+<descrip>
+<tag>perturb</tag>
+Reconfigure hashing once this many seconds. If unset, hash will never be
+reconfigured. Not recommended. 10 seconds is probably a good value.
+<tag>quantum</tag>
+Amount of bytes a stream is allowed to dequeue before the next queue gets a
+turn. Defaults to 1 maximum sized packet (MTU-sized). Do not set below the
+MTU!
+</descrip>
 <sect2>Random Early Drop
 <p>
 RED has some extra smartness built in. When a TCP/IP session starts, neither
@@ -1156,6 +1265,10 @@ end of this document.
 
 In short: you can use this to limit how fast your computer downloads files,
 thus leaving more of the available bandwidth for others.
+
+The ingress policer is not a regular qdisc, although it looks like one. It
+is in fact hooked to the interface via the Netfilter infrastructure.
+Configuration is achieved using 'tc filter police' commands.
 
 See the section on 'Protecting your host from SYN floods' for an example on
 how this works.
@@ -1198,6 +1311,7 @@ This may come as something of a shock to many who fell for the 'sendmail
 effect', which learns us that any complex technology which doesn't come with
 documentation must be the best available.
 
+More about CBQ and it's alternatives shortly.
 <sect2>Flow within classful qdiscs &amp; classes
 <p>
 When traffic enters a classful qdisc, it needs to be sent to any of the
@@ -1205,10 +1319,10 @@ qdiscs within - the classes. To determine what to do with a packet, the so
 called 'filters' are consulted. It is important to know that the filters are
 called from within a qdisc, and not the other way around!
 
-The filters then return with a decision, and the qdisc uses this to enqueue
-the packet into one of the classes. These classes don't know that they are
-part of an outer-qdisc, they act as they normally do: accepting packets on
-one end and outputting them again when asked.
+The filters attached to that qdisc then return with a decision, and the
+qdisc uses this to enqueue the packet into one of the classes. These classes
+don't know that they are part of an outer-qdisc, they act as they normally
+do: accepting packets on one end and outputting them again when asked.
 
 Besides containing other qdiscs, most classful qdiscs also perform shaping.
 This is useful to perform both packet reordering (with SFQ, for example) and
@@ -1231,7 +1345,8 @@ habitual to name the root qdisc '1:', which is equal to '1:0'.
 
 Because classful qdiscs can have a lot of children, you should give them
 their own namespace by giving them a separate major number.
-
+<sect3>How filters are used to classify traffic 
+<p>
 Recapping, a typical hierarchy might look like this:
 <verb>
                     root 1:
@@ -1254,8 +1369,17 @@ A packet might get enqueued in a chain like this:
 
 	1: -> 1:1 -> 12: -> 12:2
 
-The packet now resides in a queue in qdisc 12:2.
+The packet now resides in a queue in qdisc 12:2. In this example, a filter
+was attached to each 'node' in the tree, each chosing a branch to take next.
+This can make sense. However, tnis is also possible:
 
+	1: -> 12:2
+
+In this case, a filter attached to the root decided to send the packet
+directly to 12:2.
+
+<sect3>How packets are dequeued to the hardware
+<p>
 When the kernel decides that it needs to extract packets to send to the
 interface, the root qdisc 1: gets a dequeue request, which is passed to
 1:1, which is in turn passed to 10:, 11: and 12:, which each query their
@@ -1281,6 +1405,9 @@ the filter commands you gave. By default, three pfifo sub-qdiscs are
 created. These sub-qdiscs are pure FIFO queues with no internal structure,
 but you can replace them by any qdisc you have available.
 
+Whenever a packet needs to be dequeued, class :0 is tried first. Higher
+classes are only used of lower bands all did not give up a packet.
+
 This queue is very useful in case you want to prioritize certain kinds of
 traffic without using TOS-flags but using all the power of the tc filters.
 Because it doesn't actually shape, the same warning as for SFQ holds: either
@@ -1288,6 +1415,52 @@ use it only if your physical link is really full or wrap it inside a
 classful qdisc that does shape.
 
 The last holds for almost all cablemodems and DSL devices.
+<sect3>PRIO parameters &amp; usage
+<p>
+The following parameters are recognized by tc:
+<descrip>
+<tag>bands</tag>
+Number of bands to create. Each band is in fact a class. If you change this
+number, you should probably also change the priomap.
+<tag>priomap</tag>
+If you do not provide tc filters to classify traffic, the PRIO qdisc looks
+at the TC_PRIO priority to decide how to enqueue traffic. The kernel assigns
+each packet a TC_PRIO priority, based on TOS flags or socket options passed
+by the application.
+
+The TC_PRIO is decided based on the TOS, and mapped as follows:
+
+<verb>
+TC_PRIO..          Num  TOS                        Band
+-------------------------------------------------------
+BESTEFFORT         0    Maximize Reliablity        1
+FILLER             1    Minimize Cost              2
+BULK               2    Maximize Throughput (0x8)  2
+INTERACTIVE_BULK   4                               2
+INTERACTIVE        6    Minimize Delay (0x10)      1
+CONTROL            7                               2
+                   8                               0
+                   9                               0
+                  10                               1
+                  11                               1 
+                  12                               1
+                  13                               1
+                  14                               1
+                  15                               1
+</verb>
+FIXME: It is not known what the higher priorities confirm to.
+
+SSH sets TOS to 'Minimize Delay', unless it is doing scp, in which case it
+sets 'Maximize Throughput'. The numbers in parentheses denote the TOS value
+as reported by tcpdump and the kernel. If you divide this by two, you get
+the values mentioned by RFC1349.
+
+The default values are reasonable, you probably do not need to change
+them. 
+</descrip>
+The bands are classes, and are called major:0 to major:2 by default, so if
+your PRIO qdisc is called 12:, tc filter traffic to 12:0 to grant it more
+priority.
 <sect2>The famous CBQ qdisc
 <p>
 As said before, CBQ is the most complex qdisc available, the most hyped, the
@@ -1477,7 +1650,7 @@ to swap bandwidth.
 
 <sect3>Other CBQ parameters: split &amp; defmap
 <p>
-As said before, a classful qdisc needs to call the filter chain to determine
+As said before, a classful qdisc needs to call filters to determine
 which class a packet will be enqueued to. 
 
 Besides calling the filter, CBQ offers other options, defmap &amp; split.
@@ -1512,12 +1685,14 @@ required!
 Defmap refers to TC_PRIO bits, which are defined as follows:
 
 <verb>
-TC_PRIO_BESTEFFORT              0
-TC_PRIO_FILLER                  1
-TC_PRIO_BULK                    2
-TC_PRIO_INTERACTIVE_BULK        4
-TC_PRIO_INTERACTIVE             6
-TC_PRIO_CONTROL                 7
+TC_PRIO..          Num  Corresponds to TOS
+-------------------------------------------------
+BESTEFFORT         0    Maximuze Reliablity        
+FILLER             1    Minimize Cost              
+BULK               2    Maximize Throughput (0x8)  
+INTERACTIVE_BULK   4                               
+INTERACTIVE        6    Minimize Delay (0x10)      
+CONTROL            7                               
 </verb>
 
 This corresponds to bits, counted from the right. Now the interactive, and
@@ -2892,7 +3067,7 @@ FIXME: fill this in
 
 </descrip>
 
-<sect2> Neighbor pollicy
+<sect2> Neighbor policy
 <p>
 Dev can either stand for a real interface, or for 'all' or 'default'.
 Default also changes settings for interfaces yet to be created.
