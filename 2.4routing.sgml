@@ -490,7 +490,7 @@ tables which allow us to override system wide routing rules.
 For the exact semantics on what the kernel does when there are more matching
 rules, see Alexey's ip-cref documentation. 
 
-<sect1>Simple source routing
+<sect1>Simple source policy routing
 <p>
 Let's take a real example once again, I have 2 (actually 3, about time I
 returned them) cable modems, connected to a Linux NAT ('masquerading')
@@ -2900,7 +2900,7 @@ this many rules. First we make a filter root, then we create a table with
 256 entries:
 <verb>
 # tc filter add dev eth1 parent 1:0 prio 5 protocol ip u32
-# tc filter add dev eth1 parent 1:0 prio 5 handle 2: u32 divisor 256
+# tc filter add dev eth1 parent 1:0 prio 5 handle 2: protocol ip u32 divisor 256
 </verb>
 
 Now we add some rules to entries in the created table:
@@ -2930,7 +2930,7 @@ the hashing table:
 Ok, some numbers need explaining. The default hash table is called 800:: and
 all filtering starts there. Then we select the source address, which lives
 as position 12, 13, 14 and 15 in the IP header, and indicate that we are
-only interested in the last part. This we send to hash table 1:, which we
+only interested in the last part. This we send to hash table 2:, which we
 created earlier.
 
 It is quite complicated, but it does work in practice and performance will
@@ -4916,6 +4916,9 @@ VLANs with machines like Cisco Catalyst, 3Com: {Corebuilder, Netbuilder II,
 SuperStack II switch 630}, Extreme Ntwks Summit 48, Foundry: {ServerIronXL,
 FastIron}.
 
+A great HOWTO about VLANs can be found <url
+url="http://scry.wanfear.com/~greear/vlan/cisco_howto.html" name="here">.
+
 Update: has been included in the kernel as of 2.4.14 (perhaps 13).
 <tag>Alternate 802.1Q VLAN Implementation for Linux <url 
 url="http://vlan.sourceforge.net "
@@ -5090,6 +5093,7 @@ helping.
 
 <itemize>
 <item>Juanjo Alins &lt;juanjo%mat.upc.es&gt;
+<item>Michael T. Babcock &lt;mbabcock@fibrespeed.net&gt;
 <item>Ard van Breemen &lt;ard%kwaak.net&gt;
 <item>Ron Brinker &lt;service%emcis.com&gt;
 <item>?ukasz Bromirski &lt;L.Bromirski@prosys.com.pl&gt;
@@ -5115,6 +5119,7 @@ helping.
 <item>Gareth John &lt;gdjohn%zepler.org&gt;
 <item>Martin Josefsson &lt;gandalf%wlug.westbo.se&gt;
 <item>Andi Kleen &lt;ak%suse.de&gt;
+<item>Andreas J. Koenig &lt;andreas.koenig%anima.de&gt;
 <item>Pawel Krawczyk &lt;kravietz%alfa.ceti.pl&gt;
 <item>Amit Kucheria &lt;amitk@ittc.ku.edu&gt;
 <item>Edmund Lau &lt;edlau%ucf.ics.uci.edu&gt;
@@ -5137,6 +5142,7 @@ helping.
 <item>Lutz Pre&szlig;ler &lt;Lutz.Pressler%SerNet.DE&gt;
 <item>Jason Pyeron &lt;jason%pyeron.com&gt;
 <item>Rusty Russell &lt;rusty%rustcorp.com.au&gt;
+<item>Mihai RUSU &lt;dizzy%roedu.net&gt;
 <item>Jamal Hadi Salim &lt;hadi%cyberus.ca&gt;
 <item>David Sauer &lt;davids%penguin.cz&gt;
 <item>Sheharyar Suleman Shaikh &lt;sss23@drexel.edu&gt;

@@ -1,6 +1,6 @@
 <html>
 <head><title>Linux Advanced Routing &amp; Traffic Control HOWTO</title>
-<LINK REL="SHORTCUT ICON" HREF="/lartc/tux16-16.ico">
+<LINK REL="SHORTCUT ICON" HREF="/tux16-16.ico">
 </head>
 <body bgcolor=#ffffff>
 
@@ -43,6 +43,10 @@ href=http://www.linux-france.org/prj/inetdoc/i/net/guides/2.4routingfr/>
 href=http://mr0vka.eu.org/tlumaczenia/2.4routing.html>
 	[ Polish ]
 </a>
+<p>
+<table bgcolor=#ff0000><tr><td>
+<a href=wondershaper><font color=#ffffff>ADSL/Cable Wondershaper!</a>
+</td></table>
 </td>
 </table>
 <center>
