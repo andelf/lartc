@@ -34,5 +34,5 @@ lartc.html:
 	docbook2html lartc.db --nochunks | tail +4 > $@
 
 publish:
-	rsync --copy-links --delete -avrze ssh ./html pdns.txt pdns.pdf \
-	spoon.powerdns.com:/opt/websites/downloads.powerdns.com/www/documentation/
+	rsync --copy-links --delete -avrze ssh ./html lartc.txt lartc.pdf html/index.html html.tar.gz lartc.dvi lartc.pdf.gz lartc.ps lartc.ps lartc.ps.gz lartc.html \
+	ds9a.nl:./lartc/
