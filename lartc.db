@@ -50,7 +50,7 @@
      <collab>
        <collabname>Pedro Larroy (Section Author)</collabname>
         <affiliation>
-          <address><email>piotr%omega.resa.es</email></address>
+          <address><email>piotr%member.fsf.org</email></address>
         </affiliation>
      </collab>
 
@@ -5857,6 +5857,131 @@ where each chain contains 1 filter!
 
 </Sect1>
 
+
+<Sect1 id="lartc.adv-filter.ipv6">
+<Title>Filtering IPv6 Traffic</Title>
+
+<Sect2>
+<Title>How come that IPv6 tc filters do not work?</Title>
+
+<Para>
+The Routing Policy Database (RPDB) replaced the IPv4 routing and
+addressing structure within the Linux Kernel which lead to all the
+wonderful features this HOWTO describes. Unfortunately, the IPv6
+structure within Linux was implemented outside of this core structure.
+Although they do share some facilities, the essential RPDB structure
+does not particpate in or with the IPv6 addressing and routing
+structures.
+</Para>
+
+<Para>
+This will change for sure, we just have to wait a little longer.
+</Para>
+
+<Para>
+FIXME: Any ideas if someone is working on this? Plans?
+</Para>
+
+</Sect2>
+
+<Sect2>
+<Title>Marking IPv6 packets using ip6tables</Title>
+
+<Para>
+ip6tables is able to mark a packet and assign a number to it:
+</Para>
+
+<Screen>
+# ip6tables -A PREROUTING -i eth0 -t mangle -p tcp -j MARK --mark 1
+</Screen>
+
+<Para>
+But still, this will not help because the packet will not pass through the
+RPDB structure.
+</Para>
+
+</Sect2>
+
+<Sect2>
+<Title>Using the u32 selector to match IPv6 packet</Title>
+
+<Para>
+IPv6 is normally encapsulated in a SIT tunnel and transported
+over IPv4 networks. See section IPv6 Tunneling for information on
+howto setup such a tunnel. This allows us to filter on the IPv4 packets
+holding the IPv6 packets as payload.
+</Para>
+
+<Para>
+The following filter matches all IPv6 encapsulated in IPv4 packets:
+</Para>
+
+<Screen>
+# tc filter add dev $DEV parent 10:0 protocol ip prio 10 u32 \
+            match ip protocol 41 0xff flowid 42:42
+</Screen>
+
+<Para>
+Let's carry on with that. Assume your IPv6 packets get sent out
+over IPv4 and these packets have no options set. One could use
+the following filter to match ICMPv6 in IPv6 in IPv4 with no options.
+0x3a (58) is the Next-Header type for ICMPv6.
+</Para>
+
+<Screen>
+# tc filter add dev $DEV parent 10:0 protocol ip prio 10 u32 \
+           match ip protocol 41 0xff \
+           match u8 0x05 0x0f at 0 \
+           match u8 0x3a 0xff at 26 \
+           flowid 42:42
+</Screen>
+
+<Para>
+Matching the destination IPv6 address is a bit more work. The following
+filter matches on the destination address
+3ffe:202c:ffff:32:230:4fff:fe08:358d:
+</Para>
+
+<Screen>
+# tc filter add dev $DEV parent 10:0 protocol ip prio 10 u32 \
+            match ip protocol 41 0xff \
+            match u8 0x05 0x0f at 0 \
+            match u8 0x3f 0xff at 44 \
+            match u8 0xfe 0xff at 45 \
+            match u8 0x20 0xff at 46 \
+            match u8 0x2c 0xff at 47 \
+            match u8 0xff 0xff at 48 \
+            match u8 0xff 0xff at 49 \
+            match u8 0x00 0xff at 50 \
+            match u8 0x32 0xff at 51 \
+            match u8 0x02 0xff at 52 \
+            match u8 0x30 0xff at 53 \
+            match u8 0x4f 0xff at 54 \
+            match u8 0xff 0xff at 55 \
+            match u8 0xfe 0xff at 56 \
+            match u8 0x08 0xff at 57 \
+            match u8 0x35 0xff at 58 \
+            match u8 0x8d 0xff at 59 \
+            flowid 10:13
+</Screen>
+
+<Para>
+The same technique can be used to match subnets. For example 2001::
+</Para>
+
+<Screen>
+# tc filter add dev $DEV parent 10:0 protocol ip prio 10 u32 \
+            match ip protocol 41 0xff \
+            match u8 0x05 0x0f at 0 \
+            match u8 0x20 0xff at 28 \
+            match u8 0x01 0xff at 29 \
+            flowid 10:13
+</Screen>
+
+</Sect2>
+
+</Sect1>
+
 </chapter>
 
 <chapter id="lartc.kernel">
@@ -8780,7 +8905,8 @@ If the last two lines give an error, update your tc tool to a newer version!
         
 	<sect1 id="lartc.cookbook.fullnat.intro"><title>Example of a full nat solution with QoS</title>
 		<para>
-			I'm Pedro Larroy <address><email>piotr@omega.resa.es</email></address>. Here I'm describing a common set up where we have lots of users in a private network connected to the Internet trough a Linux router with a public ip address that is doing network address translation (NAT). I use this QoS setup to give access to the Internet to 198 users in a university dorm, in which I live and I'm netadmin of. The users here do heavy use of peer to peer programs, so proper traffic control is a must. I hope this serves as a practical example for all interested lartc readers.
+			I'm Pedro Larroy
+<address><email>piotr%member.fsf.org</email></address>. Here I'm describing a common set up where we have lots of users in a private network connected to the Internet trough a Linux router with a public ip address that is doing network address translation (NAT). I use this QoS setup to give access to the Internet to 198 users in a university dorm, in which I live and I'm netadmin of. The users here do heavy use of peer to peer programs, so proper traffic control is a must. I hope this serves as a practical example for all interested lartc readers.
 		</para>
 
 		<para>
@@ -9277,7 +9403,7 @@ popping up all the time.
 </Para>
 
 <Para>
-The Internet has mostly standardized on OSPF and BGP4 (rfc1771).
+The Internet has mostly standardized on OSPF (RFC 2328) and BGP4 (RFC 1771).
 Linux supports both, by way of <application>gated</application> and 
 <application>zebra</application>
 </Para>
@@ -9350,14 +9476,14 @@ to the configuration language in Zebra :-)
 		<FirstName>Pedro</FirstName><Surname>Larroy Tovar</Surname>
 		<affiliation>
 		<address>
-		<email>piotr@omega.resa.es</email>
+		<email>piotr%member.fsf.org</email>
 		</address>
 		</affiliation>
 		</author>
 	</sect1info><Title>Setting up OSPF with Zebra</Title>
 
 	<para>
-		Please, let <ulink url="mailto:piotr@omega.resa.es">me</ulink> know if any of the following information is not accurate or if you have any suggestions.
+		Please, let <ulink url="mailto:piotr%member.fsf.org">me</ulink> know if any of the following information is not accurate or if you have any suggestions.
 		<ulink url="http://www.zebra.org">Zebra</ulink> is a great dynamic routing software written by Kunihiro Ishiguro, Toshiaki Takada and Yasuhiro Ohara. With Zebra, setting up OSPF is fast an simple, but in practice there's a lot of parameters to tune if you have very specific needs. OSPF stands for Open Shortest Path First, and some of its principal features are:
 		<VariableList>
 			<VarListEntry>
@@ -9592,7 +9718,7 @@ to the configuration language in Zebra :-)
 			<screen>
 			tcpdump -i eth1 ip[9] == 89
 			</screen>
-			To campture OSPF packets for analisys. OSPF ip protocol number is 89, and the protocol field is the 9nth octet on the ip header.
+			To capture OSPF packets for analisys. OSPF ip protocol number is 89, and the protocol field is the 9th octet on the ip header.
 		</para>
 		
 		<para>
@@ -9600,6 +9726,186 @@ to the configuration language in Zebra :-)
 		</para>
 	</sect2>
 </Sect1>  
+
+<Sect1 id="lartc.dynamic-routing.bgp">
+<Title>Setting up BGP4 with Zebra</Title>
+
+<para>
+The Border Gateway Protocol Version 4 (BGP4) is a dynamic routing
+protocol described in RFC 1771. It allows the distribution of
+reachability information, i.e. routing tables, to other BGP4
+enabled nodes. It can either be used as EGP or IGP, in EGP mode
+each node must have its own Autonomous System (AS) number.
+BGP4 supports Classless Inter Domain Routing (CIDR) and route
+aggregation (merge multiple routes into one).
+</para>
+
+<Sect2 id="lartc.dynamic-routing.bgp.netmap">
+<Title>Network Map (Example)</Title>
+
+<para>
+The following network map is used for further examples. AS 1 and 50
+have more neighbors but we only need to configure 1 and 50 as our
+neighbor. The nodes itself communicate over tunnels in this example
+but that is not a must.
+</para>
+
+<para>
+Note: The AS numbers used in this example are reserved, please
+get your own AS from RIPE if you set up official peerings.
+</para>
+
+<screen>
+
+                  --------------------
+                  | 192.168.23.12/24 |
+                  |    AS: 23        |
+                  --------------------
+                    /             \
+                   /               \
+                  /                 \
+        ------------------       ------------------
+        | 192.168.1.1/24 |-------| 10.10.1.1/16   |
+        |    AS: 1       |       |    AS: 50      |
+        ------------------       ------------------
+</screen>
+
+</Sect2>
+
+<Sect2 id="lartc.dynamic-routing.bgp.config">
+<Title>Configuration (Example)</Title>
+
+<para>
+The following configuration is written for node 192.168.23.12/24,
+it is easy to adapt it for the other nodes.
+</para>
+
+<para>
+It starts with some general stuff like hostname, passwords and
+debug switches:
+</para>
+
+<screen>
+! hostname
+hostname anakin
+
+! login password
+password xxx
+
+! enable password (super user mode)
+enable password xxx
+
+! path to logfile
+log file /var/log/zebra/bgpd.log
+
+! debugging: be verbose (can be removed afterwards)
+debug bgp events
+debug bgp filters
+debug bgp fsm
+debug bgp keepalives
+debug bgp updates
+</screen>
+
+<para>
+Access list, used to limit the redistribution to 
+private networks (RFC 1918).
+</para>
+
+<screen>
+! RFC 1918 networks
+access-list local_nets permit 192.168.0.0/16
+access-list local_nets permit 172.16.0.0/12
+access-list local_nets permit 10.0.0.0/8
+access-list local_nets deny any
+</screen>
+
+<para>
+Next step is to do the per AS configuration:
+</para>
+
+<screen>
+! Own AS number
+router bgp 23
+
+    ! IP address of the router
+    bgp router-id 192.168.23.12
+
+    ! announce our own network to other neighbors
+    network 192.168.23.0/24
+
+    ! advertise all connected routes (= directly attached interfaces)
+    redistribute connected
+
+    ! advertise kernel routes (= manually inserted routes)
+    redistribute kernel
+</screen>
+
+<para>
+Every 'router bgp' block contains a list of neighbors to which
+the router is connected to:
+</para>
+
+<screen>
+    neighbor 192.168.1.1 remote-as 1
+    neighbor 192.168.1.1 distribute-list local_nets in
+    neighbor 10.10.1.1   remote-as 50
+    neighbor 10.10.1.1   distribute-list local_nets in
+</screen>
+
+</Sect2>
+
+<Sect2>
+<Title>Checking Configuration</Title>
+
+<para>
+Note: vtysh is a multiplexer an connects all the Zebra interfaces
+together.
+</para>
+
+<screen>
+anakin# sh ip bgp summary 
+BGP router identifier 192.168.23.12, local AS number 23
+2 BGP AS-PATH entries
+0 BGP community entries
+
+Neighbor        V    AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
+10.10.0.1       4    50      35      40        0    0    0 00:28:40        1
+192.168.1.1     4     1   27574   27644        0    0    0 03:26:04       14
+
+Total number of neighbors 2
+anakin#
+anakin# sh ip bgp neighbors 10.10.0.1
+BGP neighbor is 10.10.0.1, remote AS 50, local AS 23, external link
+  BGP version 4, remote router ID 10.10.0.1
+  BGP state = Established, up for 00:29:01
+  ....
+anakin#
+</screen>
+
+<para>
+Let's see which routes we got from our neigbors:
+</para>
+
+<screen>
+anakin# sh ip ro bgp 
+Codes: K - kernel route, C - connected, S - static, R - RIP, O - OSPF,
+       B - BGP, > - selected route, * - FIB route
+
+B>* 172.16.0.0/14 [20/0] via 192.168.1.1, tun0, 2d10h19m
+B>* 172.30.0.0/16 [20/0] via 192.168.1.1, tun0, 10:09:24
+B>* 192.168.5.10/32 [20/0] via 192.168.1.1, tun0, 2d10h27m
+B>* 192.168.5.26/32 [20/0] via 192.168.1.1, tun0, 10:09:24
+B>* 192.168.5.36/32 [20/0] via 192.168.1.1, tun0, 2d10h19m
+B>* 192.168.17.0/24 [20/0] via 192.168.1.1, tun0, 3d05h07m
+B>* 192.168.17.1/32 [20/0] via 192.168.1.1, tun0, 3d05h07m
+B>* 192.168.32.0/24 [20/0] via 192.168.1.1, tun0, 2d10h27m
+anakin#
+</screen>
+
+</Sect2>
+
+</Sect1>
+
 </chapter>
 
 
@@ -10496,7 +10802,7 @@ Song Wang &lt;wsong@ece.uci.edu&gt;
   <ListItem>
    <Para>
    <author><firstname>Pedro</firstname><surname>Larroy</surname></author>
-   <address><email>piotr%omega.resa.es</email></address>
+   <address><email>piotr%member.fsf.org</email></address>
    <ItemizedList>
 	<ListItem>
 	<para>
