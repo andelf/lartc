@@ -998,6 +998,19 @@ There are usually two questions given this setup.
 	  particular interface get answered from that interface.
 	</para>
 	<para>
+	<warning><para>
+Reader Rod Roark notes: 'If $P0_NET is the local network and $IF0 is its interface,
+the following additional entries are desirable:
+<screen>
+ip route add $P0_NET     dev $IF0 table T1
+ip route add $P2_NET     dev $IF2 table T1
+ip route add 127.0.0.0/8 dev lo   table T1
+ip route add $P0_NET     dev $IF0 table T2
+ip route add $P1_NET     dev $IF1 table T2
+ip route add 127.0.0.0/8 dev lo   table T2                                      
+</screen>'
+</para></warning</para>
+	<para>
 	  Now, this is just the very basic setup. It will work for all processes
 	  running on the router itself, and for the local network, if it is
 	  masqueraded. If it is not, then you either have IP space from both providers
@@ -10309,8 +10322,15 @@ Lutz Pre&szlig;ler &lt;Lutz.Pressler&percnt;SerNet.DE&gt;
 Jason Pyeron &lt;jason&percnt;pyeron.com&gt;
 </Para>
 </ListItem>
-<ListItem>
 
+<ListItem>
+<Para>
+Rod Roark &lt;rod%sunsetsystems.com&gt;
+</Para>
+</ListItem>
+
+
+<ListItem>
 <Para>
 Rusty Russell &lt;rusty&percnt;rustcorp.com.au&gt;
 </Para>
@@ -10421,7 +10441,6 @@ Song Wang &lt;wsong@ece.uci.edu&gt;
    <address><email>chris@netservers.co.uk</email></address>
    </Para>
   </ListItem>
-
 
   <ListItem>
    <Para>
