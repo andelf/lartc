@@ -14,6 +14,7 @@ href=http://www.powerdns.com>PowerDNS.COM BV</a>) ,<br>
 <table><tr valign=top><td>
 Section authors: </td>
 <td>
+<a href="http://tgr.kaosu.ch/">Thomas Graf</a>, 
 <a href="http://linuxpower.cx/~greg/">Greg Maxwell</a> <a
 href=mailto:greg@linuxpower.cx></a>, 
 <a href=http://slashme.org>Remco van Mook</a> (<a
@@ -83,6 +84,11 @@ This site attempts to document how to configure and use these features.
 <a name="news"></a>
 <h2>News</H2>
 <table border=1>
+<tr><td valign=top>2003-07-26</td><td>
+Started updating several sections based on the massive amount of email that
+concerned readers keep sending me, thanks! Added Thomas Graf as a section
+author in recognition for his work on the OSPF and BGP chapters.
+</td></tr>
 <tr><td valign=top>2002-11-00</td><td>
 A spanish translation is appearing  <a href=http://midgard.heimy.org/~javi/asgard/lartc/>here</a>.</td></tr>
 <tr><td valign=top>2002-11-08</td><td>IPSEC IN LINUX 2.5.47! Read all about

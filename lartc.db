@@ -14,6 +14,14 @@
 	  <address><email>bert.hubert@netherlabs.nl</email></address>
 	</affiliation>
       </author>
+
+      <collab>
+	<collabname>Thomas Graf (Section Author)</collabname>
+        <affiliation>
+          <address><email>tgraf%suug.ch</email></address>
+	</affiliation>
+     </collab>
+
       
       <collab>
 	<collabname>Gregory Maxwell (Section Author)</collabname>
@@ -1659,7 +1667,10 @@ is <ulink url="http://www.freeswan.org/doc.html">available</ulink>.
     </para>
     <para>
       This HOWTO will only document the 2.5+ version of IPSEC. FreeS/WAN is recommended for Linux 2.4 users for now, but be aware
-      that its configuration will differ from the native IPSEC.
+      that its configuration will differ from the native IPSEC. In related
+news, there are now <ulink
+url="http://gondor.apana.org.au/~herbert/freeswan/">patches</ulink> to make the FreeS/WAN userspace code work with
+the native Linux IPSEC.
     </para>
     <para>
 	As of 2.5.49, IPSEC works without further patches.
@@ -1668,13 +1679,13 @@ is <ulink url="http://www.freeswan.org/doc.html">available</ulink>.
       <note>
 	<para>
 	  Userspace tools appear are available <ulink
-	  url="http://sourceforge.net/projects/ipsec-tools">here</ulink>,
-	  they are actively being maintained.
+	  url="http://sourceforge.net/projects/ipsec-tools">here</ulink>.
+There are multiple programs available, the one linked here is based on
+Racoon. 
 	</para>
 	<para>
 	When compiling your kernel, be sure to turn on 'PF_KEY', 'AH', 'ESP' and
-everything in the CryptoAPI! TCP_MSS netfilter target is currently broken, 
-	you need to turn it off.
+everything in the CryptoAPI!
 	</para>
       </note>
       <warning>
@@ -1698,7 +1709,8 @@ useful.
     <sect1 id="lartc.ipsec.intro"><title>Intro with Manual Keying</title>
       <para>
 	IPSEC is a complicated subject. A lot of information is available online, this HOWTO will concentrate on getting you
-	up and running and explaining the basic principles.
+	up and running and explaining the basic principles. All examples are
+based on Racoon as found on the link above.
       </para>
       <para>
 	<note>
@@ -2267,7 +2279,7 @@ move the key files in place. The 'upstairs' machine needs
 <filename>upstairs.private</filename>, <filename>upstairs.public</filename>, 
 and <filename>laptop.public</filename> in
 <filename>/usr/local/etc/racoon/certs</filename>. Make sure that this
-directory is owned by root and has mode 0600 or racoon may refuse to read
+directory is owned by root and has mode 0700 or racoon may refuse to read
 it!
 </para>
 <para>
@@ -2374,9 +2386,9 @@ spdadd 10.0.0.0/24 130.161.0.0/16 any -P in ipsec
     <sect1 id="lartc.ipsec.other"><title>Other IPSEC software</title>
       <para>
 	Thomas Walpuski reports that he wrote a patch to make OpenBSD isakpmd work with Linux 2.5 IPSEC.
-	It can be found <ulink url="http://bender.thinknerd.de/~thomas/IPsec/isakmpd-linux-2.5.diff">on his page</ulink>.
-	He notes that isakpmd on Linux depends only on <filename>libkeynote</filename>. According to Thomas, it works quite well
-	with Linux 2.5.59. 
+Furthermore, the main isakpmd CVS repository now contains this code!
+	Some notes are <ulink
+url="http://bender.thinknerd.de/~thomas/IPsec/isakmpd-linux.html">on his page</ulink>.
       </para>
       <para>
 
@@ -2390,6 +2402,10 @@ url="http://bender.thinknerd.de/~thomas/IPsec/isakmpd.tgz">tarball</ulink>
 available for those uncomfortable with CVS or patch.
 
       </para>
+	<para>
+	Furthermore, there are patches to make the FreeS/WAN userspace tools
+work with the native Linux 2.5 IPSEC, you can find them <ulink
+url="http://gondor.apana.org.au/~herbert/freeswan/">here</ulink>.
     </sect1>
     <sect1 id="lartc.ipsec.interop"><title>IPSEC interoperation with other systems</title>
       <para>
@@ -2397,7 +2413,10 @@ available for those uncomfortable with CVS or patch.
       </para>
       <sect2 id="lartc.ipsec.interop.win32"><title>Windows</title>
 	<para>
-	  FIXME: Write this
+	Andreas Jellinghaus &lt;aj@dungeon.inka.de&gt; reports: "win2k: it works. pre_shared key with ip address for authentication (I don't
+think windows supports fqdn or userfqdn strings).  Certificates should also work, didn't
+try.".
+
 	</para>
       </sect2>
     </sect1>
@@ -10321,6 +10340,14 @@ helping.
    <address><email>esteve@hades.udg.es</email></address>
    </Para>
   </ListItem>
+
+  <ListItem>
+   <Para>
+   <author><firstname>Ricardo Javier</firstname><surname>Cardenes</surname></author>
+   <address><email>ricardo%conysis.com</email></address>
+   </Para>
+  </ListItem>
+
   <ListItem>
    <Para>
    <author><firstname>Stef</firstname><surname>Coene</surname></author>
@@ -10404,12 +10431,21 @@ helping.
    <address><email>jglinkow%hns.com</email></address>
   </Para>
   </ListItem>
+
   <ListItem>
    <Para>
    <author><firstname>Andrea</firstname><surname>Glorioso</surname></author>
    <address><email>sama%perchetopi.org</email></address>
   </Para>
   </ListItem>
+
+  <ListItem>
+   <Para>
+   <author><firstname>Thomas</firstname><surname>Graaf</surname></author>
+   <address><email>tgraf%suug.ch</email></address>
+  </Para>
+  </ListItem>
+
 
   <ListItem>
    <Para>
@@ -10461,6 +10497,12 @@ Alexander W. Janssen &lt;yalla%ynfonatic.de&gt;
 </ListItem>
 <ListItem>
 
+<para>
+Andreas Jellinghaus &lt;aj%dungeon.inka.de&gt;
+</para>
+</listitem>
+
+<listitem>
 <Para>
 Gareth John &lt;gdjohn%zepler.org&gt;
 </Para>
