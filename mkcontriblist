@@ -1,6 +1,0 @@
-#!/bin/sh
-grep "^     \* " lartc.txt  | grep " \<" | grep \>$ | sed "s/^     \* / /" | 
-        cut -f1 -d\< |
-        tr \\n "," | 
-        sed "s/ , /, /g" |
-        sed "s/,$//" 
