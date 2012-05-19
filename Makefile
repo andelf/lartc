@@ -4,9 +4,6 @@ HOWTODOCS := howto/ html.tar.gz lartc.txt lartc.dvi lartc.pdf lartc.pdf.gz lartc
 
 all: $(HOWTODOCS) contriblist
 
-contriblist: lartc.txt
-	./makecontriblist > contriblist
-
 clean:
 	rm -rf $(HOWTODOCS) contriblist lartc.aux lartc.log lartc.out
 
@@ -15,7 +12,6 @@ clean:
 
 %.ps.gz: %.ps
 	gzip < $<  > $@
-
 
 howto/: lartc.db
 	docbook2html -V "%use-id-as-filename%" -o howto/ lartc.db
@@ -38,8 +34,11 @@ html.tar.gz: howto/
 lartc.html: lartc.db
 	docbook2html --nochunks lartc.db
 
+contriblist: lartc.txt
+	./makecontriblist > contriblist
+
 publish:
 	# Print a list of files which should be synced.
-	# Note that autoloadbalance.php3, index.php3 and manpages/index.php3
+	# Note that autoloadbalance.html, index.php3 and manpages/index.php3
 	# are not in this list because they are not rebuilt by this Makefile.
-	echo $(HOWTODOCS) contriblist LARTC-zh_CN.GB2312.pdf wondershaper/ autoloadbalance.php3 index.php3 manpages/
+	echo $(HOWTODOCS) contriblist LARTC-zh_CN.GB2312.pdf wondershaper/ autoloadbalance.html index.php3 manpages/
