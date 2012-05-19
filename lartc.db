@@ -1014,7 +1014,7 @@ ip route add $P0_NET     dev $IF0 table T2
 ip route add $P1_NET     dev $IF1 table T2
 ip route add 127.0.0.0/8 dev lo   table T2                                      
 </screen>'
-</para></warning</para>
+</para></warning></para>
 	<para>
 	  Now, this is just the very basic setup. It will work for all processes
 	  running on the router itself, and for the local network, if it is
@@ -2402,10 +2402,11 @@ url="http://bender.thinknerd.de/~thomas/IPsec/isakmpd.tgz">tarball</ulink>
 available for those uncomfortable with CVS or patch.
 
       </para>
-	<para>
+      <para>
 	Furthermore, there are patches to make the FreeS/WAN userspace tools
 work with the native Linux 2.5 IPSEC, you can find them <ulink
 url="http://gondor.apana.org.au/~herbert/freeswan/">here</ulink>.
+      </para>
     </sect1>
     <sect1 id="lartc.ipsec.interop"><title>IPSEC interoperation with other systems</title>
       <para>
@@ -2440,6 +2441,7 @@ Tested version: FP4 aka R54 aka w/AI
 	<para>
 	More information <ulink
 url="http://www.fw-1.de/aerasec/ng/vpn-racoon/CP-VPN1-NG-Linux-racoon.html">here</ulink>.
+	</para>
       </sect2>
     </sect1>
 
@@ -7388,6 +7390,7 @@ This is the basic command to declare a TC_INDEX filter:
             [ pass_on | fall_through ]
             [ classid CLASSID ] [ police POLICE_SPEC ]
 </Screen>
+</Para>
 
 <Para>
 Next, we show the example used to explain TC_INDEX operation mode. Pay attention to bolded words:
@@ -9152,7 +9155,7 @@ tc filter add dev eth0 parent 1:0 protocol ip prio 6 handle 6 fw classid 1:15
 			<Screen>
         +------------+                +---------+               +-------------+
 Packet -| PREROUTING |--- routing-----| FORWARD |-------+-------| POSTROUTING |- Packets
-input   +------------+    decision    +-­-------+       |       +-------------+    out
+input   +------------+    decision    +---------+       |       +-------------+    out
                              |                          |
                         +-------+                    +--------+   
                         | INPUT |---- Local process -| OUTPUT |
@@ -10465,7 +10468,7 @@ helping.
   </ListItem>
   <ListItem>
    <Para>
-   <author><firstname>?ukasz</firstname><surname>Bromirski</surname></author>
+   <author><firstname>Lukasz</firstname><surname>Bromirski</surname></author>
    <address><email>l.bromirski@mr0vka.eu.org</email></address>
    </Para>
   </ListItem>
@@ -10864,7 +10867,11 @@ Patrik &lt;ph@kurd.nu&gt;
 </Para>
 </ListItem>
 
-<listitem><para>P?l Osgy?ny &lt;oplab%westel900.net&gt;</para></listitem>
+<listitem>
+<para>
+P&aacute;l Osgy&aacute;ny &lt;oplab%westel900.net&gt;
+</para>
+</listitem>
 
 <ListItem>
 
@@ -10920,7 +10927,7 @@ Jamal Hadi Salim &lt;hadi%cyberus.ca&gt;
 
 <ListItem>
 <Para>
-Ren? Serral &lt;rserral%ac.upc.es&gt; 
+Ren&eacute; Serral &lt;rserral%ac.upc.es&gt; 
 </Para>
 </ListItem>
 
@@ -10979,8 +10986,8 @@ Matthew Strait &lt;straitm%mathcs.carleton.edu&gt;
 Jason Tackaberry &lt;tack@linux.com&gt;
 </Para>
 </ListItem>
-<ListItem>
 
+<ListItem>
 <Para>
 Charles Tassell &lt;ctassell%isn.net&gt;
 </Para>
@@ -10989,8 +10996,9 @@ Charles Tassell &lt;ctassell%isn.net&gt;
 <listitem>
 <para>Jason Thomas &lt;jason5intology.com.au&gt;
 </para>
-<ListItem>
+</ListItem>
 
+<ListItem>
 <Para>
 Glen Turner &lt;glen.turner%aarnet.edu.au&gt;
 </Para>
