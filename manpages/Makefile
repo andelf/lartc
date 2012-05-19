@@ -9,7 +9,7 @@ clean:
 	rm -f $(ALLOUTPUTS)
 
 %.txt: %.8
-	groff -man -Tascii -P-u -P-b ./$< > $@
+	groff -man -Tascii -P-u -P-b -P-c ./$< > $@
 
 %.dvi: %.8
 	man -l -Tdvi $< > $@
