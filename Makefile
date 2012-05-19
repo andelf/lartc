@@ -1,12 +1,14 @@
 # $Id$ 
 
-all: lartc.txt lartc.pdf html/index.html html.tar.gz lartc.dvi lartc.pdf.gz lartc.ps lartc.ps lartc.ps.gz lartc.html contriblist
+HOWTODOCS := howto/ html.tar.gz lartc.txt lartc.dvi lartc.pdf lartc.pdf.gz lartc.ps lartc.ps.gz lartc.html
+
+all: $(HOWTODOCS) contriblist
 
 contriblist: lartc.txt
 	./makecontriblist > contriblist
 
 clean:
-	rm -rf *.dvi *.pdf *.tex *.toc *.aux *.txt *.ps *.bak *.tmp *~ *.log html *.pdf.gz *.ps.gz html.tar.gz lartc.html contriblist
+	rm -rf $(HOWTODOCS) contriblist lartc.aux lartc.log lartc.out
 
 %.pdf.gz: %.pdf
 	gzip < $<  > $@
@@ -15,11 +17,11 @@ clean:
 	gzip < $<  > $@
 
 
-html/index.html: lartc.db
-	db2html -o html lartc.db
+howto/: lartc.db
+	docbook2html -V "%use-id-as-filename%" -o howto/ lartc.db
 
-html.tar.gz: html/index.html
-	tar czf html.tar.gz html/
+html.tar.gz: howto/
+	tar czf html.tar.gz howto/
 
 %.txt: %.db
 	docbook2txt $<
@@ -34,7 +36,10 @@ html.tar.gz: html/index.html
 	docbook2dvi $<
 
 lartc.html: lartc.db
-	docbook2html lartc.db --nochunks
+	docbook2html --nochunks lartc.db
 
 publish:
-	rsync --copy-links --delete -avrze ssh ./html lartc.txt lartc.pdf html.tar.gz lartc.dvi lartc.pdf.gz lartc.ps lartc.ps lartc.ps.gz lartc.html ds9a.nl:./lartc/
+	# Print a list of files which should be synced.
+	# Note that autoloadbalance.php3, index.php3 and manpages/index.php3
+	# are not in this list because they are not rebuilt by this Makefile.
+	echo $(HOWTODOCS) contriblist LARTC-zh_CN.GB2312.pdf wondershaper/ autoloadbalance.php3 index.php3 manpages/
