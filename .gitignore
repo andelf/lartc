@@ -1,0 +1,13 @@
+/howto/
+/manpages/ip.html
+/manpages/tc*.html
+/html.tar.gz
+/lartc.html
+/lartc.txt
+/lartc.pdf.gz
+/contriblist
+*.ps
+*.pdf
+*.ps.gz
+*.dvi
+*.txt
