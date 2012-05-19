@@ -1,1 +1,2 @@
 Redirect permanent /autoloadbalance.php3 /autoloadbalance.html
+Redirect permanent /howto/lartc.intro.cvs.html /howto/lartc.intro.git.html

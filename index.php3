@@ -25,15 +25,13 @@ Paul B Schroeder,
 Pedro Larroy
 </td></table>
 <br>
-<a href="mailto:send-mail-to-the-mailinglist-not-to-the-HOWTO-authors-unless-you-have-a-complaint-or-patch-about-the-HOWTO!@ds9a.nl">HOWTO@ds9a.nl</a> <small>(HOWTO related only, do
-<strong>not</strong> send questions)</small> <br>
-<a href="#mailinglist">lartc@mailman.ds9a.nl</a>
-(<small>mailing list</a>/<a
-href=http://mailman.ds9a.nl/pipermail/lartc/>archive</a>, the <strong>only</strong> place to send
-questions!</a>)<br>
+<a href="#mailinglist">lartc@vger.kernel.org</a>
+(<small>mailing list, the <strong>only</strong> place to send questions!)<br>
+<a href="http://vger.kernel.org/vger-lists.html#lartc">archive of the new mailing list</a>
+<a href="http://mailman.ds9a.nl/pipermail/lartc/">archive of the old mailing list</a><br>
 (<font color=#ff0000><a href=#mailinglist>subscribe</a> before posting!</font>)<br></small>
 #lartc on <a href=http://www.oftc.net>irc.oftc.net</a> (<a
-href=dejairc.php>archives</a>)</td><td valign=bottom align=right>
+href="http://ds9a.nl/lartcbot/">archives</a>)</td><td valign=bottom align=right>
 
 </td>
 <td valign=top>Translations:
@@ -84,62 +82,32 @@ This site attempts to document how to configure and use these features.
 <a name="news"></a>
 <h2>News</H2>
 <table border=1>
-<tr><td valign=top>2003-11-04</td><td>NAKANO Takeo translated the HOWTO into
-<a href="http://www.linux.or.jp/JF/JFdocs/Adv-Routing-HOWTO/">japanese</a>.</td></tr>
-<tr><td valign=top>2003-07-28</td><td>Ricardo Javier Cardenes reports that
-the Spanish translation <a
-href=http://asgard.debian.net/lartc>is done!</a></td></tr>
-<tr><td valign=top>2003-07-26</td><td>
-Started updating several sections based on the massive amount of email that
-concerned readers keep sending me, thanks! Added Thomas Graf as a section
-author in recognition for his work on the OSPF and BGP chapters.
-</td></tr>
-<tr><td valign=top>2002-11-00</td><td>
-A spanish translation is appearing  <a href=http://www.gulic.org/comos/LARTC>here</a>.</td></tr>
-<tr><td valign=top>2002-11-08</td><td>IPSEC IN LINUX 2.5.47! Read all about
-it <a href=http://lartc.org/howto/lartc.ipsec.html>here</a>.</td></tr>
-<tr><td valign=top>2002-07-20</td><td>Hate so called 'opt-in' spam? Visit 
-<a href=http://www.intuh.net/opt-out/>this page</a> or the <a
-href=http://ds9a.nl/mirrors/opt-out/>local mirror</a>. Even better, submit
-addresses of known opt-in spam supporters!</td>
-<tr><td valign=top>2002-07-07</td><td>Moved the IRC channel #lartc to
-irc.oftc.net - a very down to earth IRC network without operators begging
-for financial support. If you are new to IRC, give it a try. An excellent
-irc client is <a href=http://www.irssi.org>irssi</a>. IRC archives
-will be back soon!</td>
-<tr><td valign=top>2002-06-29</td><td><a
-href=http://linuxsymposium.org/2002>Ottawa Linux Symposium 2002</a>
-presentation <a href=http://ds9a.nl/ols-presentation>Linux Traffic Control
-for the User and Developer</a> online!</td>
-<tr><td valign=top>2002-05-15</td><td>Finally replaced the malfunctioning
-server. Thanks to <a href=http://www.puddingonline.com/~dave>Dave
-Aaldering</a> of <a href=http://www.hubris.nl>Hubris</a> we quickly found a
-<a
-href=http://commerce.www.ibm.com/cgi-bin/ncommerce/CategoryDisplay?cgrfnbr=2072547&smrfnbr=2072488&cntrfnbr=1&cgmenbr=1&cntry=840&lang=en_US&scrfnbr=73>
-new</a> <a href=http://outpost.ds9a.nl>one</a>. We are very confident that we will now be up &gt;99%.</td>
-<tr><td valign=top>2002-04-15</td><td><a href=wondershaper/>Wondershaper
-1.1</a> released</td>
-<tr><td valign=top>2002-04-11</td><td>Thanks to <a
-href=http://www.student.kun.nl/a.vanleeuwen/index-en.html>Arthur van
-Leeuwen</a> we finally have <a
-href=http://lartc.org/howto/lartc.rpdb.multiple-links.html>
-a good section on how to combine multiple
-internet links succesfully</a>. Today is also <font color=#ff0000>FLAG
-DAY!</font> I've shifted to DocBook and all 'deep links' are now dead. 
-The good news is that DocBook has features to make deep links more robust, 
-so expect some nice URLs soon.</a></td>
-<tr><td valign=top>2002-03-15</td><td>Psssst! Sneak preview of what I've
-been doing the past year and a half or so: the <a
-href=http://pdns.powerdns.com>PowerDNS not-for-profit release</a>. In other
-news, the tea crisis has subsided. Family went to the UK and brought a
-year's supply of tea.</td>
-<tr><td valign=top>2002-03-10</td><td>Started migration to DocBook! I think
-the <a href=lartc.pdf>PDF</a> looks a lot better. The <a
-href=docbook-html>HTML</a> isn't bad either. <a href=lartc.txt>Text</a> needs
-some work though. Let <a href=mailto:ahu@ds9a.nl>me</a> know what you think!</td>
-
-
-<tr><td>200[012]</td><td><a href=oldnews.html>Older news</a></td>
+<tr><td valign=top>2012-05-20</td>
+<td>lartc.org is now reachable via IPv6!</td>
+<tr><td valign=top>2012-05-19</td>
+<td>lartc.org has a new maintainer!<br>
+<a href="http://ds9a.nl/">Bert Hubert</a> has transferred ownership of
+the domain to <a href="http://www.hailfinger.org/">Carl-Daniel Hailfinger</a>.
+A big THANK YOU goes to Bert Hubert for starting and hosting
+lartc.org and the associated mailing list for many years.<br><br>
+Everybody is invited to contribute to lartc.org and a git tree for the
+website (including LARTC HOWTO, Wondershaper and man pages) has been
+created at <a href="http://repo.or.cz/w/lartc.git">
+http://repo.or.cz/w/lartc.git</a>. Please send any patches or
+pull requests to the new LARTC mailing list
+<a href="mailto:lartc@vger.kernel.org">lartc@vger.kernel.org</a> and
+I'll try to integrate them in a timely manner.
+Please note that the old mailing list and old HOWTO submission e-mail
+addresses are no longer active.
+Users of the old mailing list are encouraged to move to
+<a href="mailto:lartc@vger.kernel.org">lartc@vger.kernel.org</a>.<br>
+Bert Hubert has offered to continue hosting the old mailing list archives at
+<a href="http://mailman.ds9a.nl/pipermail/lartc/">
+http://mailman.ds9a.nl/pipermail/lartc/</a>.<br></td>
+</tr>
+<tr>
+<td>200[0123]</td><td><a href=oldnews.html>Older news</a></td>
+</tr>
 </table>
 <a name="mailinglist"></a>
 <H2>LARTC Mailinglist</H2>
@@ -150,18 +118,20 @@ shaping with Linux!
 The advent of the Linux Advanced Routing &amp; Traffic Control list also
 means that questions asked privately will no longer be answered, as these
 answers benefit only single users. Asking questions on the list is far more
-net-friendly. So if you want to ask us a question, <a
-href=http://mailman.ds9a.nl/mailman/listinfo/lartc>subscribe to the
-mailinglist</a>, and ask it! An <a
-href=http://mailman.ds9a.nl/pipermail/lartc/>archive</a> is also available,
-and google has picked it up as well.
+net-friendly. So if you want to ask us a question, 
+<a href="http://vger.kernel.org/vger-lists.html#lartc">subscribe to the new
+mailing list</a>, and ask it! An <a href="http://www.spinics.net/lists/lartc/">
+archive of the new mailing list</a> is available.  An 
+<a href="http://mailman.ds9a.nl/pipermail/lartc/">archive of the old mailing
+list</a> is also available, and google has picked it up as well.
 <p>
 <font color=#ff0000>Please note that due to excessive spam the list has
 become 'members only' - so please <a
-href=http://mailman.ds9a.nl/mailman/listinfo/lartc>subscribe</a> first!</font>
+href="http://vger.kernel.org/vger-lists.html#lartc">subscribe</a> first!</font>
 The moderator will not approve postings from non-subscribed addresses as he
 is not available at all times. If you just want to post, and not receive
 mail, you can indicate this on the Mailman mailinglist management page.
+FIXME: Is the new mailing list subscriber-only as well?
 
 <a name="download"></a>
 <H2>Linux Advanced Routing &amp; Traffic Control HOWTO</H2>
@@ -196,7 +166,7 @@ A Korean translation can be found on
 Polish translation is <a
 href=http://mr0vka.eu.org/tlumaczenia/2.4routing.html>here</a>.
 <ul>
-<li><a href="cvs.log">CVS Changelog</a>
+<li><a href="changelog.txt">GIT Changelog</a>
 <li><a href="lartc.db">DocBook SGML</A>
 <li><a href="lartc.txt">ASCII</A>, .txt
 <li><a href="howto/">HTML</A>, <a
@@ -223,28 +193,24 @@ href="http://www.catb.org/~esr/writings/cathedral-bazaar/">Bazaar</a> style deve
 
 were to be any more open, bits would fall out. 
 <p>
-A CVS tree is available. try this:
+A GIT tree is available. try this:
 <pre>
-$ export CVSROOT=:pserver:anon@outpost.ds9a.nl:/var/cvsroot
-$ cvs login
-CVS password: [enter 'cvs' (without 's)]
-$ cvs co 2.4routing
-cvs server: Updating 2.4routing
-U 2.4routing/lartc.db
-...
+$ git clone git://repo.or.cz/lartc.git
+or (if you're behind a firewall which only allows HTTP)
+$ git clone http://repo.or.cz/r/lartc.git
+Enter the checked out directory:
+$ cd lartc.git
+If you want to update your local copy, run
+$ git pull
 </pre>
 
-If you made changes and want to contribute them, run 'cvs -z3 diff -uBb',
-and mail the output to <a href=mailto:howto@ds9a.nl>howto@ds9a.nl</a>, we
+If you made changes and want to contribute them, run 'git diff',
+and mail the output to <a href=mailto:lartc@vger.kernel.org>lartc@vger.kernel.org</a>, we
 can then integrate it easily. Thanks! Please make sure that you edit the
 .db file, by the way, the other files are generated from that one. 
 
 The idea is that this HOWTO will be a cooperative effort, much like the
 Linux kernel itself. 
-</p>
-<p>
-Trivial patches can be send to <a href="mailto:lartc-trivial@reeler.org">
-lartc-trivial@reeler.org</a>.
 </p>
 
 <p>

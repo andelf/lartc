@@ -142,12 +142,9 @@ Welcome, gentle reader.
     </Para>
 
     <Para>
-      You can always reach us by writing to the <ULink
-	URL="mailto:HOWTO@ds9a.nl"
-	>HOWTO team</ULink
-	>. However, please consider posting to the mailing
-      list (see the relevant section) if you have questions which are not directly
-      related to this HOWTO. We are no free helpdesk, but we often will answer questions
+      You can always reach us by posting to the mailing list (see the relevant
+      section) if you have comments or questions about or somewhat related to
+      this HOWTO. We are no free helpdesk, but we often will answer questions
       asked on the list.
 </Para>
 
@@ -300,7 +297,7 @@ speaker. Feel free to send suggestions.
 <Para>
 If you feel you are better qualified to maintain a section, or think that
 you can author and maintain new sections, you are welcome to do so. The SGML
-of this HOWTO is available via CVS, I very much envision more people
+of this HOWTO is available via GIT, I very much envision more people
 working on it.
 </Para>
 
@@ -320,16 +317,16 @@ are not very common.
 
 </Sect1>
 
-<Sect1 id="lartc.intro.cvs">
-  <Title>Access, CVS &amp; submitting updates</Title>
+<Sect1 id="lartc.intro.git">
+  <Title>Access, GIT &amp; submitting updates</Title>
 
 <Para>
 The canonical location for the HOWTO is 
-<ULink URL="http://www.ds9a.nl/lartc">here</ULink>.
+<ULink URL="http://lartc.org/">here</ULink>.
 </Para>
 
 <Para>
-We now have anonymous CVS access available to the world at large. This is
+We now have anonymous GIT access available to the world at large. This is
 good in a number of ways. You can easily upgrade to newer versions of this
 HOWTO and submitting patches is no work at all.
 </Para>
@@ -340,18 +337,19 @@ which is good too.
 </Para>
 
 <Screen width="80">
-$ export CVSROOT=:pserver:anon@outpost.ds9a.nl:/var/cvsroot
-$ cvs login
-CVS password: [enter 'cvs' (without 's)]
-$ cvs co 2.4routing
-cvs server: Updating 2.4routing
-U 2.4routing/lartc.db
+$ git clone git://repo.or.cz/lartc.git
+or (if you're behind a firewall which only allows HTTP)
+$ git clone http://repo.or.cz/r/lartc.git
+Enter the checked out directory:
+$ cd lartc.git
+If you want to update your local copy, run
+$ git pull
 </Screen>
 
 <Para>
 If you made changes and want to contribute them, run <userinput>
-cvs -z3 diff -uBb</userinput>,
-and mail the output to <email>howto@ds9a.nl</email>, we
+git diff</userinput>,
+and mail the output to the LARTC mailing list <email>lartc@vger.kernel.org</email>, we
 can then integrate it easily. Thanks! Please make sure that you edit the
 .db file, by the way, the other files are generated from that one. 
 </Para>

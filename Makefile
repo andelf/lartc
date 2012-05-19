@@ -2,7 +2,7 @@
 
 HOWTODOCS := howto/ html.tar.gz lartc.txt lartc.dvi lartc.pdf lartc.pdf.gz lartc.ps lartc.ps.gz lartc.html
 
-all: $(HOWTODOCS) contriblist
+all: $(HOWTODOCS) contriblist changelog.txt
 
 clean:
 	rm -rf $(HOWTODOCS) contriblist lartc.aux lartc.log lartc.out
@@ -37,8 +37,11 @@ lartc.html: lartc.db
 contriblist: lartc.txt
 	./makecontriblist > contriblist
 
+changelog.txt:
+	git log >changelog.txt
+
 publish:
 	# Print a list of files which should be synced.
 	# Note that autoloadbalance.html, index.php3 and manpages/index.php3
 	# are not in this list because they are not rebuilt by this Makefile.
-	echo $(HOWTODOCS) contriblist LARTC-zh_CN.GB2312.pdf wondershaper/ autoloadbalance.html index.php3 manpages/
+	echo $(HOWTODOCS) contriblist changelog.txt LARTC-zh_CN.GB2312.pdf wondershaper/ autoloadbalance.html index.php3 manpages/
